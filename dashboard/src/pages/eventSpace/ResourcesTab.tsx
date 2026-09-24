@@ -15,8 +15,8 @@ const perks = [
 function Summary({ resources }: { resources: EventDetail['resources'] }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-base leading-[1.2] font-semibold text-ink-900">{resources.summaryTitle}</h2>
-      <div className="flex flex-col gap-2 text-sm leading-[1.5] font-medium text-ink-800">
+      <h2 className="text-lg leading-[1.1] font-semibold text-ink-800">{resources.summaryTitle}</h2>
+      <div className="flex flex-col gap-2 text-base leading-[1.4] font-medium text-ink-700">
         {resources.summary.map((p) => (
           <p key={p}>{p}</p>
         ))}
@@ -77,15 +77,15 @@ export default function ResourcesTab({ detail, onToast }: { detail: EventDetail;
       <Summary resources={resources} />
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base leading-[1.2] font-semibold text-ink-900">How it helps you as a product designer</h2>
-        <p className="text-sm leading-[1.5] font-medium text-ink-800">{resources.howItHelps}</p>
-        <p className="pt-1 text-sm font-semibold text-ink-900">
+        <h2 className="text-lg leading-[1.1] font-semibold text-ink-800">How it helps you as a product designer</h2>
+        <p className="text-base leading-[1.4] font-medium text-ink-700">{resources.howItHelps}</p>
+        <p className="pt-2 text-base leading-[1.2] font-semibold text-ink-800">
           What to do next <span className="font-medium text-ink-600">({done.size}/{resources.checklist.length})</span>
         </p>
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-3 pt-2">
           {resources.checklist.map((item, i) => (
             <li key={item}>
-              <label className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-ink-800">
+              <label className="flex cursor-pointer items-center gap-2 text-base leading-[1.4] font-medium text-ink-700">
                 <input
                   id={`checklist-${i}`}
                   type="checkbox"
@@ -98,7 +98,7 @@ export default function ResourcesTab({ detail, onToast }: { detail: EventDetail;
                       return next
                     })
                   }
-                  className="size-4 accent-brand-500"
+                  className="size-5 accent-brand-500"
                 />
                 <span className={done.has(i) ? 'text-ink-600 line-through' : ''}>{item}</span>
               </label>
@@ -108,8 +108,8 @@ export default function ResourcesTab({ detail, onToast }: { detail: EventDetail;
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base leading-[1.2] font-semibold text-ink-900">Booking suggestion</h2>
-        <div className="divide-y divide-ink-200 overflow-hidden rounded-2xl border border-ink-200 bg-white">
+        <h2 className="text-lg leading-[1.1] font-semibold text-ink-800">Booking suggestion</h2>
+        <div className="divide-y divide-ink-200 overflow-hidden rounded-xl border border-ink-200 bg-white">
           {resources.bookingSuggestions.map((p) => (
             <PersonRow key={p.id} person={p} action={<BookButton onBook={() => onToast(`Booking request sent to ${p.name}`)} />} />
           ))}
@@ -117,11 +117,11 @@ export default function ResourcesTab({ detail, onToast }: { detail: EventDetail;
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="flex items-center gap-1.5 text-base leading-[1.2] font-semibold text-ink-900">
+        <h2 className="flex items-center gap-1.5 text-lg leading-[1.1] font-semibold text-ink-800">
           <Icon icon={AiMagicIcon} size={18} className="text-brand-500" />
           AI match to connect
         </h2>
-        <div className="divide-y divide-ink-200 overflow-hidden rounded-2xl border border-ink-200 bg-white">
+        <div className="divide-y divide-ink-200 overflow-hidden rounded-xl border border-ink-200 bg-white">
           {resources.aiMatches.map((p) => (
             <PersonRow key={p.id} person={p} action={<RequestChatButton onRequest={() => onToast(`Chat request sent to ${p.name}`)} />} />
           ))}

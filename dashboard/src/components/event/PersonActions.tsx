@@ -2,9 +2,9 @@ import { Add01Icon, Chatting01Icon, Tick02Icon } from '@hugeicons/core-free-icon
 import { useState } from 'react'
 import Icon from '../Icon'
 
-type Size = 'sm' | 'md'
+type Size = 'sm' | 'tall' | 'md'
 
-const pad = (size: Size) => (size === 'sm' ? 'px-3 py-1 text-sm' : 'px-4 py-2 text-base')
+const pad = (size: Size) => (size === 'sm' ? 'px-3 py-1 text-sm' : size === 'tall' ? 'px-3 py-2 text-sm' : 'px-4 py-2 text-base')
 
 export function FollowButton({ size = 'sm', onChange }: { size?: Size; onChange?: (following: boolean) => void }) {
   const [following, setFollowing] = useState(false)

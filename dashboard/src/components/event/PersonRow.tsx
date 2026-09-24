@@ -11,11 +11,11 @@ export default function PersonRow({ person, chip, action }: { person: Person; ch
         <Avatar name={person.name} color={person.color} size={32} />
         <div className="flex min-w-0 flex-col gap-0.5">
           <div className="flex items-center gap-1">
-            <p className="truncate text-sm leading-[1.4] font-semibold text-[#1a1d1f]">{person.name}</p>
+            <p className="truncate text-sm leading-[1.4] font-medium text-[#1a1d1f]">{person.name}</p>
             {person.verified && <VerifiedBadge size={16} />}
             {chip}
           </div>
-          <p className="truncate text-xs leading-[1.4] font-medium text-ink-800">{person.role}</p>
+          <p className="truncate text-xs leading-[1.4] font-medium text-ink-700">{person.role}</p>
         </div>
       </div>
       {action}

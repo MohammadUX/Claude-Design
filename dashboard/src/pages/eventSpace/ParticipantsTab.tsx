@@ -18,8 +18,8 @@ const me: Person = { id: 'me', name: 'Ada Obi', role: 'Product Designer', color:
 function Chip({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'brand' }) {
   return (
     <span
-      className={`ml-1 rounded-3xl border px-2 py-0.5 text-[11px] leading-[1.3] font-medium ${
-        tone === 'brand' ? 'border-brand-100 bg-brand-100 text-brand-700' : 'border-ink-200 bg-ink-100 text-ink-800'
+      className={`ml-1 rounded-full border px-3 py-1 text-xs leading-[1.2] font-medium ${
+        tone === 'brand' ? 'border-brand-100 bg-brand-100 text-brand-700' : 'border-ink-200 bg-ink-100 text-ink-900'
       }`}
     >
       {children}
@@ -30,11 +30,11 @@ function Chip({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neu
 function ListCard({ title, count, children }: { title: string; count?: number; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-base leading-[1.2] font-semibold text-ink-900">
+      <h2 className="text-base leading-[1.2] font-semibold text-ink-800">
         {title}
         {count !== undefined && <span className="ml-1.5 font-medium text-ink-600">{count.toLocaleString()}</span>}
       </h2>
-      <div className="divide-y divide-ink-200 overflow-hidden rounded-2xl border border-ink-200 bg-white">{children}</div>
+      <div className="divide-y divide-ink-200 overflow-hidden rounded-xl border border-ink-200 bg-white">{children}</div>
     </section>
   )
 }

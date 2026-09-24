@@ -21,24 +21,24 @@ export default function OverviewTab({ detail, goingCount, onSeeAttendees, onToas
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
-        <h2 className="text-base leading-[1.2] font-semibold text-ink-900">Hosted by</h2>
-        <div className="flex items-center justify-between gap-4 rounded-2xl border border-ink-200 bg-white px-3 py-3">
+        <h2 className="text-base leading-[1.2] font-semibold text-ink-800">Hosted by</h2>
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-ink-200 bg-white p-3">
           <div className="flex items-center gap-3">
             <Avatar name={host.name} color={host.color} size={32} />
             <div className="flex flex-col gap-0.5">
               <div className="flex items-center gap-1">
-                <p className="text-base leading-[1.2] font-medium text-[#1a1d1f]">{host.name}</p>
+                <p className="text-base leading-[1.2] font-semibold text-[#1a1d1f]">{host.name}</p>
                 {host.verified && <VerifiedBadge />}
               </div>
               <p className="text-sm leading-[1.4] font-medium text-ink-800">{host.role}</p>
             </div>
           </div>
-          <FollowButton size="md" onChange={(on) => on && onToast(`You're following ${host.name}`)} />
+          <FollowButton size="tall" onChange={(on) => on && onToast(`You're following ${host.name}`)} />
         </div>
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base leading-[1.2] font-semibold text-ink-900">About this event</h2>
+        <h2 className="text-base leading-[1.2] font-semibold text-ink-800">About this event</h2>
         <div className="flex flex-col gap-3 text-sm leading-[1.4] font-medium text-ink-800">
           <p>{about.intro}</p>
           <ul className="list-disc ps-5">
@@ -48,7 +48,7 @@ export default function OverviewTab({ detail, goingCount, onSeeAttendees, onToas
           </ul>
           <div className="flex flex-wrap gap-2">
             {about.tags.map((tag) => (
-              <span key={tag} className="flex items-center gap-1 rounded-full border border-white bg-white/60 px-3 py-2 text-[13px] font-medium text-ink-900">
+              <span key={tag} className="flex items-center gap-1 rounded-full border border-ink-100 bg-ink-200 px-3 py-2 text-[13px] font-medium text-ink-900">
                 <Icon icon={HashtagIcon} size={16} className="text-ink-700" />
                 {tag}
               </span>
@@ -70,7 +70,7 @@ export default function OverviewTab({ detail, goingCount, onSeeAttendees, onToas
               <Avatar key={p.id} name={p.name} color={p.color} size={40} plain className={`border-2 border-white ${i < 3 ? '-mr-[11px]' : ''}`} />
             ))}
           </span>
-          <span className="text-base leading-[1.4] font-medium text-ink-900">{goingCount.toLocaleString()} People going</span>
+          <span className="text-base leading-[1.4] font-medium text-[#1a1d1f]">{goingCount.toLocaleString()} People going</span>
         </button>
       </section>
 
