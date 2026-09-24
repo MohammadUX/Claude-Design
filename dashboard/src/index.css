@@ -38,3 +38,18 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Event detail accent, extracted from the poster. Registered so changes animate smoothly. */
+@property --detail-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgb(93 88 243);
+}
+:root {
+  transition: --detail-accent 600ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none;
+  }
+}

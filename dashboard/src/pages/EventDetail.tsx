@@ -11,7 +11,7 @@ import {
   PlayStoreIcon,
   Tick02Icon,
 } from '@hugeicons/core-free-icons'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Avatar from '../components/Avatar'
 import { EventArt } from '../components/EventCard'
@@ -20,6 +20,7 @@ import Modal from '../components/Modal'
 import { useToast } from '../components/Toast'
 import VerifiedBadge from '../components/VerifiedBadge'
 import { frostedOverGradient } from '../layouts/detailBackground'
+import { extractAccent } from '../lib/dominantColor'
 import { getEventDetail, type Person, type Sponsor } from '../data/eventDetail'
 import { defaultPoster } from '../data/mock'
 import ComingSoon from './ComingSoon'
@@ -138,6 +139,20 @@ export default function EventDetail() {
   const [showAllSponsors, setShowAllSponsors] = useState(false)
   const [attendeesOpen, setAttendeesOpen] = useState(false)
 
+  const poster = detail ? (detail.event.image ?? defaultPoster) : null
+
+  // Tint the page gradient with the poster's main colour.
+  useEffect(() => {
+    if (!poster) return
+    let cancelled = false
+    extractAccent(poster).then(([r, g, b]) => {
+      if (!cancelled) document.documentElement.style.setProperty('--detail-accent', `rgb(${r} ${g} ${b})`)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [poster])
+
   if (!detail) return <ComingSoon title="Event not found" note="This event isn't in the prototype data." />
 
   const { event, host, when, location, speakers, about, attending, sponsors } = detail
@@ -169,7 +184,7 @@ export default function EventDetail() {
         {/* Poster: sticks while the details scroll */}
         <div className="w-full shrink-0 lg:sticky lg:top-[152px] lg:w-[450px]">
           <div className="relative aspect-square w-full overflow-hidden rounded-xl">
-            <EventArt event={{ ...event, image: event.image ?? defaultPoster }} large />
+            <EventArt event={{ ...event, image: poster ?? undefined }} large />
             <button
               aria-label={saved ? 'Remove from saved' : 'Save event'}
               aria-pressed={saved}
@@ -244,7 +259,7 @@ export default function EventDetail() {
                     <div className="flex items-center gap-1">
                       <span className="text-sm leading-[1.4] text-ink-800">Hosted in:</span>
                       <span className={`flex items-center gap-1 rounded-3xl px-2 py-1 text-xs leading-[1.4] font-medium text-ink-900 ${glass}`}>
-                        <span className="font-bold text-brand-500">?</span>
+                        {event.format === 'Virtual' && <span className="font-bold text-brand-500">?</span>}
                         {location.hostedIn}
                       </span>
                     </div>

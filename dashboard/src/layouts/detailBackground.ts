@@ -1,7 +1,11 @@
 import type { CSSProperties } from 'react'
 
-/** Figma "Background gradient" for event detail pages. It is fixed to the viewport, so it stays put while the page scrolls. */
-export const detailGradient = 'linear-gradient(180deg, rgba(93, 88, 243, 0.6) 0%, rgba(246, 247, 247, 0.6) 28.846%)'
+/**
+ * Event detail background: a fade from the event's accent colour (the `--detail-accent` CSS variable, set from the
+ * poster by the detail page) into the page grey. It is fixed to the viewport, so it stays put while the page scrolls.
+ */
+export const detailGradient =
+  'linear-gradient(180deg, color-mix(in srgb, var(--detail-accent) 60%, transparent) 0%, rgba(246, 247, 247, 0.6) 28.846%)'
 
 /**
  * Frosted surface for bars that sit over the fixed gradient (top nav, breadcrumb): the same gradient pinned to the
