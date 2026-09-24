@@ -16,7 +16,6 @@ import { detectPlatform, isUrl, paaqLink } from './links'
 import { emptyDraft, htmlToAbout, loadDraft, readImage, saveDraft, timezones, type Draft, type Speaker, type SponsorEntry, type Ticket } from './model'
 import DescriptionModal from './modals/DescriptionModal'
 import DiscardModal from './modals/DiscardModal'
-import EventTypeModal from './modals/EventTypeModal'
 import InviteGuestModal from './modals/InviteGuestModal'
 import PublishedModal from './modals/PublishedModal'
 import SpeakerModals, { type SpeakerFlow } from './modals/SpeakerModals'
@@ -34,7 +33,6 @@ const COVERS = [creatorverseSpeaker, ipcSpeaker, thriveBorders, brandupScale]
 const TYPE_CATEGORY = { Training: 'business', Masterclass: 'art', Webinar: 'technology', 'Live event': 'business' } as const
 
 type ModalState =
-  | { kind: 'type' }
   | { kind: 'description' }
   | { kind: 'tags' }
   | { kind: 'speaker'; flow: SpeakerFlow }
@@ -66,7 +64,7 @@ export default function CreateEventPage() {
   const { show, toast } = useToast()
   const [draft, setDraft] = useState<Draft>(() => loadDraft() ?? emptyDraft())
   const [step, setStep] = useState(0)
-  const [modal, setModal] = useState<ModalState>(() => (loadDraft()?.type ? null : { kind: 'type' }))
+  const [modal, setModal] = useState<ModalState>(null)
   const [tried, setTried] = useState<Record<number, boolean>>({})
   const [saving, setSaving] = useState(false)
   const [publishing, setPublishing] = useState(false)
@@ -283,16 +281,6 @@ export default function CreateEventPage() {
       </div>
 
       {/* Modals */}
-      {modal?.kind === 'type' && (
-        <EventTypeModal
-          initial={draft.type}
-          onClose={() => (draft.type ? setModal(null) : leave())}
-          onPick={(type) => {
-            set({ type })
-            setModal(null)
-          }}
-        />
-      )}
       {modal?.kind === 'description' && (
         <DescriptionModal
           html={draft.descriptionHtml}

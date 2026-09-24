@@ -84,7 +84,7 @@ export const TODAY = '2026-09-24'
 
 export function emptyDraft(): Draft {
   return {
-    type: null,
+    type: 'Webinar',
     visibility: 'Public',
     title: '',
     poster: null,
