@@ -11,6 +11,7 @@ import {
   WorkIcon,
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
+import creatorverseSpeaker from '../assets/events/creatorverse-speaker.jpg'
 
 export type Category = {
   id: string
@@ -32,7 +33,12 @@ export type EventItem = {
   isLive?: boolean
   /** Placeholder poster art until real banners are exported from Figma. */
   art: { from: string; to: string; ink: string; kicker: string }
+  /** Real event poster. When set it replaces the placeholder art. */
+  image?: string
 }
+
+/** Poster shown on the event detail page (from the Figma design). */
+export const defaultPoster = creatorverseSpeaker
 
 export type Organizer = {
   id: string
@@ -75,7 +81,7 @@ const art = {
 
 export const featuredEvents: EventItem[] = [
   { id: 'e1', title: 'Breaking into UX: Portfolio Clinic', date: 'Sat, Jul 4, 2026.  7.00 PM', priceFrom: null, attendees: 852, categoryId: 'art', organizerId: 'o1', art: art.amber },
-  { id: 'e2', title: 'Creator Economy Masterclass', date: 'Sun, Jul 5, 2026.  4.00 PM', priceFrom: null, attendees: 614, categoryId: 'business', organizerId: 'o5', art: art.indigo },
+  { id: 'e2', title: 'Creator Economy Masterclass', date: 'Sun, Jul 5, 2026.  4.00 PM', priceFrom: null, attendees: 614, categoryId: 'business', organizerId: 'o5', art: art.indigo, image: creatorverseSpeaker },
   { id: 'e3', title: 'Product Leadership Summit', date: 'Fri, Jul 10, 2026.  10.00 AM', priceFrom: 5, attendees: 1204, categoryId: 'technology', organizerId: 'o4', art: art.pink },
   { id: 'e4', title: 'Thrive Beyond Borders', date: 'Tue, Jul 14, 2026.  6.30 PM', priceFrom: 5, attendees: 852, categoryId: 'business', organizerId: 'o3', art: art.night },
   { id: 'e5', title: 'Crypto Regulation Roundtable', date: 'Thu, Jul 16, 2026.  2.00 PM', priceFrom: 12, attendees: 320, categoryId: 'crypto', organizerId: 'o2', art: art.gold },

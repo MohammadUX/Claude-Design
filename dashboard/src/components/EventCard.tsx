@@ -6,6 +6,9 @@ import Avatar from './Avatar'
 import Icon from './Icon'
 
 export function EventArt({ event, large = false }: { event: EventItem; large?: boolean }) {
+  if (event.image) {
+    return <img src={event.image} alt={`${event.title} poster`} className="absolute inset-0 size-full rounded-xl object-cover" />
+  }
   const { from, to, ink, kicker } = event.art
   return (
     <div

@@ -20,6 +20,7 @@ import Modal from '../components/Modal'
 import { useToast } from '../components/Toast'
 import VerifiedBadge from '../components/VerifiedBadge'
 import { getEventDetail, type Person, type Sponsor } from '../data/eventDetail'
+import { defaultPoster } from '../data/mock'
 import ComingSoon from './ComingSoon'
 
 const glass = 'border border-white/40 bg-white/20 backdrop-blur-[60px]'
@@ -167,7 +168,7 @@ export default function EventDetail() {
         {/* Poster: sticks while the details scroll */}
         <div className="w-full shrink-0 lg:sticky lg:top-[96px] lg:w-[450px]">
           <div className="relative aspect-square w-full overflow-hidden rounded-xl">
-            <EventArt event={event} large />
+            <EventArt event={{ ...event, image: event.image ?? defaultPoster }} large />
             <button
               aria-label={saved ? 'Remove from saved' : 'Save event'}
               aria-pressed={saved}
@@ -295,7 +296,7 @@ export default function EventDetail() {
                     }`}
                   >
                     {interested && <Icon icon={Tick02Icon} />}
-                    {interested ? "You're interested" : event.isLive ? 'Join live event' : 'I’m interested'}
+                    {interested ? "You're interested" : event.isLive ? 'Join live event' : 'I'm interested'}
                   </button>
                 </div>
               </div>
