@@ -15,7 +15,7 @@ npm run dev   # http://localhost:5173/events
 | Screen | Route | Status |
 | --- | --- | --- |
 | Events (Explore) | `/events` | Built: search popup, filter, carousels, save, follow |
-| Create event | `/events/create` | Waiting on designs |
+| Create event | `/events/create` (Create New → Create an event) | Built: 5 steps, autosaved draft, validation, publish with success screen |
 | Event details (public) | `/events/:id` | Built: sticky poster, poster-tinted gradient, confirm pop-up, locked guest list |
 | Event space (after registration) | `/events/:id/space` | Built: Overview, Participants, Engagements, Resources tabs; community channel |
 | Live event room | `/events/:id/live` | Next flow |

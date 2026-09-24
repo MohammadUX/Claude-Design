@@ -7,7 +7,7 @@ import { detailGradient } from './detailBackground'
 export default function DashboardLayout() {
   const { pathname } = useLocation()
   const detailMatch = useMatch('/events/:eventId/*')
-  const isDetail = detailMatch !== null && detailMatch.params.eventId !== 'create'
+  const isDetail = detailMatch !== null
 
   useEffect(() => {
     window.scrollTo(0, 0)

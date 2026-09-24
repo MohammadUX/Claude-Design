@@ -1,3 +1,4 @@
+import { customDetails } from './createdEvents'
 import { allEvents, categories, type EventItem } from './mock'
 
 export type Person = {
@@ -8,11 +9,12 @@ export type Person = {
   verified?: boolean
   /** Not on PAAQ yet, so the row offers "Invite to PAAQ" instead of "Follow". */
   onPaaq?: boolean
+  photo?: string
 }
 
 export type SponsorTier = 'gold' | 'silver' | 'help'
 
-export type Sponsor = { id: string; name: string; tier: SponsorTier; color: string; website?: string }
+export type Sponsor = { id: string; name: string; tier: SponsorTier; color: string; website?: string; logo?: string }
 
 /** A person on the event team (Participants tab). */
 export type TeamMember = Person & { teamRole: 'Host' | 'Admin' | 'Moderator' }
@@ -160,7 +162,7 @@ export function getEventDetail(eventId: string | undefined): EventDetail | null 
   const event = allEvents.find((e) => e.id === eventId)
   if (!event) return null
   const category = categories.find((c) => c.id === event.categoryId)
-  return {
+  const base: EventDetail = {
     event,
     host: people[0],
     team,
@@ -202,4 +204,6 @@ export function getEventDetail(eventId: string | undefined): EventDetail | null 
     attending: { count: event.attendees, people: attendees },
     sponsors,
   }
+  // Events published from the Create Event flow carry their own details.
+  return { ...base, ...customDetails.get(event.id) }
 }

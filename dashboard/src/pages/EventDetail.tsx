@@ -37,7 +37,7 @@ function SpeakerRow({ person }: { person: Person }) {
   return (
     <div className="flex w-full items-center justify-between gap-4 py-3">
       <div className="flex min-w-0 items-center gap-3">
-        <Avatar name={person.name} color={person.color} size={32} />
+        <Avatar name={person.name} color={person.color} size={32} src={person.photo} />
         <div className="flex min-w-0 flex-col gap-0.5">
           <div className="flex items-center gap-1">
             <p className="truncate text-base leading-[1.4] font-medium text-[#1a1d1f]">{person.name}</p>
@@ -92,7 +92,7 @@ export default function EventDetail() {
   const goingCount = attending.count + (registered ? 1 : 0)
 
   // The guest list is only for registered guests; everyone else gets the "Register to view" prompt.
-  const openAttendees = () => (registered ? navigate(`${spaceUrl}?tab=participants`) : setLockedOpen(true))
+  const openAttendees = () => (registered ? navigate(`${spaceUrl}?tab=participants`) : event.hostedByMe ? show('No one has registered yet. Share your event link to get guests.') : setLockedOpen(true))
   const visibleSpeakers = showAllSpeakers ? speakers : speakers.slice(0, 3)
   const visibleSponsors = showAllSponsors ? sponsors : sponsors.slice(0, 4)
 
@@ -179,7 +179,7 @@ export default function EventDetail() {
                     <div className="flex items-center gap-1">
                       <span className="text-sm leading-[1.4] text-ink-800">Hosted in:</span>
                       <span className={`flex items-center gap-1 rounded-3xl px-2 py-1 text-xs leading-[1.4] font-medium text-ink-900 ${glass}`}>
-                        {event.format === 'Virtual' && <span className="font-bold text-brand-500">?</span>}
+                        {location.hostedIn === 'PAAQ' && <span className="font-bold text-brand-500">?</span>}
                         {location.hostedIn}
                       </span>
                     </div>
@@ -193,7 +193,7 @@ export default function EventDetail() {
                     highlightRsvp ? 'border-brand-300 shadow-[0_0_0_4px_rgba(64,204,203,0.35)]' : 'border-white'
                   }`}
                 >
-                  <div className="flex items-center gap-3 py-2">
+                  <div className={`flex items-center gap-3 py-2 ${event.hostedByMe ? 'hidden' : ''}`}>
                     <Avatar name="Ada Obi" color="#b45309" size={24} />
                     {editingEmail ? (
                       <form
@@ -226,7 +226,21 @@ export default function EventDetail() {
                       </>
                     )}
                   </div>
-                  {registered ? (
+                  {event.hostedByMe ? (
+                    <div className="flex flex-col gap-2">
+                      <p className="flex items-center justify-center gap-1.5 text-sm font-medium text-brand-700">
+                        <Icon icon={Tick02Icon} size={18} />
+                        You're hosting this event
+                      </p>
+                      <button
+                        onClick={() => navigate(`/events/${event.id}/manage`)}
+                        className="flex w-full items-center justify-center gap-2 rounded-full border border-brand-300 bg-brand-500 px-6 py-3 text-base leading-[1.4] font-medium text-white hover:brightness-95"
+                      >
+                        Manage event
+                        <Icon icon={ArrowRight01Icon} />
+                      </button>
+                    </div>
+                  ) : registered ? (
                     <div className="flex flex-col gap-2">
                       <p className="flex items-center justify-center gap-1.5 text-sm font-medium text-brand-700">
                         <Icon icon={Tick02Icon} size={18} />
@@ -255,8 +269,8 @@ export default function EventDetail() {
             <hr className="border-ink-200" />
 
             {/* Speakers */}
-            <section className="flex flex-col gap-5">
-              <SectionLabel onSeeAll={() => setShowAllSpeakers((v) => !v)} seeAllLabel={showAllSpeakers ? 'Show less' : 'See all'}>
+            <section className={`flex flex-col gap-5 ${speakers.length ? '' : 'hidden'}`}>
+              <SectionLabel onSeeAll={speakers.length > 3 ? () => setShowAllSpeakers((v) => !v) : undefined} seeAllLabel={showAllSpeakers ? 'Show less' : 'See all'}>
                 Speakers
               </SectionLabel>
               <div className="flex flex-col">
@@ -271,7 +285,7 @@ export default function EventDetail() {
               <SectionLabel>About this event</SectionLabel>
               <div className="flex flex-col gap-3 text-base leading-[1.4] font-medium text-ink-800">
                 <p>{about.intro}</p>
-                <ul className="list-disc ps-6">
+                <ul className={`list-disc ps-6 ${about.points.length ? '' : 'hidden'}`}>
                   {about.points.map((point) => (
                     <li key={point}>{point}</li>
                   ))}
@@ -296,13 +310,13 @@ export default function EventDetail() {
                     <Avatar key={p.id} name={p.name} color={p.color} size={40} plain className={`border-2 border-white ${i < 3 ? '-mr-[11px]' : ''}`} />
                   ))}
                 </span>
-                <span className="text-base leading-[1.4] font-medium text-ink-900">{goingCount.toLocaleString()} People going</span>
+                <span className="text-base leading-[1.4] font-medium text-ink-900">{goingCount ? `${goingCount.toLocaleString()} People going` : event.hostedByMe ? 'No one yet. Share your link to get guests.' : 'Be the first to join'}</span>
               </button>
             </section>
 
             {/* Sponsors */}
-            <section className="flex flex-col gap-5">
-              <SectionLabel onSeeAll={() => setShowAllSponsors((v) => !v)} seeAllLabel={showAllSponsors ? 'Show less' : 'See all'}>
+            <section className={`flex flex-col gap-5 ${sponsors.length ? '' : 'hidden'}`}>
+              <SectionLabel onSeeAll={sponsors.length > 4 ? () => setShowAllSponsors((v) => !v) : undefined} seeAllLabel={showAllSponsors ? 'Show less' : 'See all'}>
                 Sponsored by
               </SectionLabel>
               <div className="flex flex-col gap-2">

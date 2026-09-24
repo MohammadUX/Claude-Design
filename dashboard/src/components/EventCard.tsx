@@ -70,7 +70,7 @@ export default function EventCard({ event }: { event: EventItem }) {
         <div className="flex flex-col gap-3">
           <p className="text-base leading-[1.2] font-semibold tracking-[-0.32px] text-ink-800">{formatPrice(event.priceFrom)}</p>
           <div className="flex items-center gap-1">
-            <div className="flex items-center">
+            <div className={`flex items-center ${event.attendees ? '' : 'hidden'}`}>
               {attendeeColors.map((color, i) => (
                 <Avatar
                   key={color}
@@ -81,7 +81,7 @@ export default function EventCard({ event }: { event: EventItem }) {
                 />
               ))}
             </div>
-            <p className="text-xs leading-[1.4] font-medium text-ink-700">{event.attendees.toLocaleString()} Attendees</p>
+            <p className="text-xs leading-[1.4] font-medium text-ink-700">{event.attendees ? `${event.attendees.toLocaleString()} Attendees` : 'New event'}</p>
           </div>
         </div>
       </div>

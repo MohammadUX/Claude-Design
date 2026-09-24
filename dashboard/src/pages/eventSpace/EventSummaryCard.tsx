@@ -85,7 +85,7 @@ export default function EventSummaryCard({ detail, poster, onToast, onJoin }: Ev
                 <p className="flex items-center gap-1 text-xs leading-[1.2] text-ink-800">
                   Hosted in:
                   <span className="flex items-center gap-1 px-2 text-ink-900">
-                    {event.format === 'Virtual' && <span className="font-bold text-brand-500">?</span>}
+                    {location.hostedIn === 'PAAQ' && <span className="font-bold text-brand-500">?</span>}
                     {location.hostedIn}
                   </span>
                 </p>

@@ -22,7 +22,7 @@ export default function SponsorRow({ sponsor }: { sponsor: Sponsor }) {
   const tier = tierStyle[sponsor.tier]
   return (
     <div className="flex w-full items-center gap-3 rounded-[20px] p-1">
-      <Avatar name={sponsor.name} color={sponsor.color} size={40} />
+      <Avatar name={sponsor.name} color={sponsor.color} size={40} src={sponsor.logo} />
       <p className="text-base leading-[1.2] font-semibold whitespace-nowrap text-ink-900">{sponsor.name}</p>
       <span className={`rounded-[40px] border-[0.5px] px-3 py-1 text-xs leading-[1.4] font-medium whitespace-nowrap ${tier.className}`} style={tier.style}>
         {tier.label}

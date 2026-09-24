@@ -1,11 +1,11 @@
-import { ArrowDown01Icon, FavouriteIcon, GiftIcon, Notification01Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
-import { Link, useNavigate } from 'react-router-dom'
+import { ArrowDown01Icon, FavouriteIcon, GiftIcon, Notification01Icon } from '@hugeicons/core-free-icons'
+import { Link } from 'react-router-dom'
 import { frostedOverGradient } from '../layouts/detailBackground'
 import Avatar from './Avatar'
+import CreateMenu from './CreateMenu'
 import Icon from './Icon'
 
 export default function TopNav({ translucent = false }: { translucent?: boolean }) {
-  const navigate = useNavigate()
   return (
     <header
       className={`sticky top-0 z-30 flex h-[72px] items-center justify-between border-b px-4 sm:px-6 ${
@@ -25,13 +25,7 @@ export default function TopNav({ translucent = false }: { translucent?: boolean 
           <Icon icon={GiftIcon} className="text-amber-500" />
           Refer a friend
         </button>
-        <button
-          onClick={() => navigate('/events/create')}
-          className="flex h-11 items-center gap-2 rounded-[40px] border border-brand-300 bg-brand-500 px-4 text-base leading-[1.2] font-medium text-white hover:brightness-95"
-        >
-          <Icon icon={PlusSignIcon} />
-          <span className="hidden sm:inline">Create New</span>
-        </button>
+        <CreateMenu />
         <button aria-label="Saved events" className="flex size-11 items-center justify-center rounded-full bg-white text-ink-800 hover:bg-ink-200">
           <Icon icon={FavouriteIcon} />
         </button>

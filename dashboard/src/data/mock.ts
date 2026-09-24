@@ -39,6 +39,8 @@ export type EventItem = {
   art: { from: string; to: string; ink: string; kicker: string }
   /** Real event poster. When set it replaces the placeholder art. */
   image?: string
+  /** Created by the signed-in user in this prototype session. */
+  hostedByMe?: boolean
 }
 
 /** Poster shown on the event detail page (from the Figma design). */
