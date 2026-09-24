@@ -27,10 +27,13 @@ export default function EventCard({ event }: { event: EventItem }) {
   return (
     <Link
       to={`/events/${event.id}`}
-      className="group flex w-full flex-col rounded-2xl p-1 drop-shadow-[0_2px_4px_#eceeee] transition-transform hover:-translate-y-0.5"
+      className="group flex w-full flex-col rounded-2xl p-1 drop-shadow-[0_2px_4px_#eceeee] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-300"
     >
-      <div className="relative flex aspect-square w-full flex-col overflow-hidden rounded-xl p-2">
-        <EventArt event={event} />
+      <div className="relative isolate flex aspect-square w-full flex-col overflow-hidden rounded-xl p-2">
+        {/* Hover: the poster zooms 4% inside its frame; the card itself doesn't move */}
+        <div className="absolute inset-0 transition-transform duration-[350ms] ease-out group-hover:scale-[1.04] group-focus-visible:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+          <EventArt event={event} />
+        </div>
         <div className="relative flex w-full items-start justify-between">
           {event.isLive ? (
             <span className="flex items-center gap-1.5 rounded-full bg-danger-500 px-2.5 py-1 text-xs font-semibold text-white">
@@ -58,7 +61,7 @@ export default function EventCard({ event }: { event: EventItem }) {
 
       <div className="flex w-full flex-col gap-6 px-1 py-4">
         <div className="flex flex-col gap-2">
-          <p className="truncate text-base leading-[1.2] font-semibold tracking-[-0.32px] text-ink-800">{event.title}</p>
+          <p className="truncate text-base leading-[1.2] font-semibold tracking-[-0.32px] text-ink-800 transition-colors group-hover:text-ink-900">{event.title}</p>
           <div className="flex items-center gap-2 text-ink-700">
             <Icon icon={Clock01Icon} size={16} />
             <p className="text-sm leading-[1.4] font-medium whitespace-pre">{event.date}</p>
