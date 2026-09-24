@@ -11,8 +11,9 @@ import {
   PlayStoreIcon,
   Tick02Icon,
 } from '@hugeicons/core-free-icons'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import AttendeesLockedModal from '../components/AttendeesLockedModal'
 import Avatar from '../components/Avatar'
 import { EventArt } from '../components/EventCard'
 import Icon from '../components/Icon'
@@ -138,6 +139,12 @@ export default function EventDetail() {
   const [showAllSpeakers, setShowAllSpeakers] = useState(false)
   const [showAllSponsors, setShowAllSponsors] = useState(false)
   const [attendeesOpen, setAttendeesOpen] = useState(false)
+  const [lockedOpen, setLockedOpen] = useState(false)
+  const [highlightRsvp, setHighlightRsvp] = useState(false)
+  const rsvpRef = useRef<HTMLDivElement>(null)
+
+  // The guest list is only for registered guests; everyone else gets the "Register to view" prompt.
+  const openAttendees = () => (interested ? setAttendeesOpen(true) : setLockedOpen(true))
 
   const poster = detail ? (detail.event.image ?? defaultPoster) : null
 
@@ -267,7 +274,12 @@ export default function EventDetail() {
                 </div>
 
                 {/* RSVP card */}
-                <div className="flex w-full max-w-[359px] flex-col gap-3 rounded-[20px] border border-white bg-white/80 p-3">
+                <div
+                  ref={rsvpRef}
+                  className={`flex w-full max-w-[359px] scroll-mt-[180px] flex-col gap-3 rounded-[20px] border bg-white/80 p-3 transition-shadow duration-500 ${
+                    highlightRsvp ? 'border-brand-300 shadow-[0_0_0_4px_rgba(64,204,203,0.35)]' : 'border-white'
+                  }`}
+                >
                   <div className="flex items-center gap-3 py-2">
                     <Avatar name="Ada Obi" color="#b45309" size={24} />
                     {editingEmail ? (
@@ -355,8 +367,8 @@ export default function EventDetail() {
 
             {/* Attending */}
             <section className="flex flex-col gap-5">
-              <SectionLabel onSeeAll={() => setAttendeesOpen(true)}>Attending</SectionLabel>
-              <button onClick={() => setAttendeesOpen(true)} className="flex w-fit items-center gap-2 text-left">
+              <SectionLabel onSeeAll={openAttendees}>Attending</SectionLabel>
+              <button onClick={openAttendees} className="flex w-fit items-center gap-2 text-left">
                 <span className="flex items-center">
                   {(interested ? [{ id: 'me', name: 'Ada Obi', color: '#b45309' }, ...attending.people] : attending.people).slice(0, 4).map((p, i) => (
                     <Avatar key={p.id} name={p.name} color={p.color} size={40} plain className={`border-2 border-white ${i < 3 ? '-mr-[11px]' : ''}`} />
@@ -401,6 +413,19 @@ export default function EventDetail() {
           </div>
         </div>
       </div>
+
+      {lockedOpen && (
+        <AttendeesLockedModal
+          people={attending.people}
+          onClose={() => setLockedOpen(false)}
+          onGetTicket={() => {
+            setLockedOpen(false)
+            rsvpRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            setHighlightRsvp(true)
+            window.setTimeout(() => setHighlightRsvp(false), 2200)
+          }}
+        />
+      )}
 
       {attendeesOpen && (
         <Modal title={`${goingCount.toLocaleString()} people going`} onClose={() => setAttendeesOpen(false)}>
