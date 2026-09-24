@@ -93,3 +93,18 @@ body {
   animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
   animation-fill-mode: forwards;
 }
+
+@keyframes create-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+.create-menu {
+  animation: create-menu-in 160ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .create-menu {
+    animation: none;
+  }
+}
