@@ -27,7 +27,7 @@ export default function ChannelCard({ channel, onToast }: { channel: Channel; on
   const label = status === 'joined' ? 'Joined' : status === 'requested' ? 'Requested' : isPrivate ? 'Request to join' : 'Join channel'
 
   return (
-    <div className="rounded-[15px] border border-ink-200 bg-white p-1 drop-shadow-[0_2px_4px_#eceeee]">
+    <div className="rounded-[15px] border border-ink-200 bg-white p-1">
       <div className="flex gap-4 px-4 pt-4 pb-3">
         <Avatar name={channel.name} color={channel.color} size={44} className="border-2 border-white" />
         <div className="flex min-w-0 flex-1 flex-col gap-3">
