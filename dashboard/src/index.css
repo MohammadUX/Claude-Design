@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+
+/* Design tokens from the PAAQ Figma file (variables on "Events (Explore)"). */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink-50: #ffffff;
+  --color-ink-100: #f6f7f7;
+  --color-ink-200: #eceeee;
+  --color-ink-600: #6b7373;
+  --color-ink-700: #4a5151;
+  --color-ink-800: #2f3535;
+  --color-ink-900: #232828;
+
+  --color-brand-300: #40cccb;
+  --color-brand-500: #00b5b4;
+
+  --color-danger-500: #df1c41;
+
+  /* "Bg shadow" effect style */
+  --shadow-card: 0 2px 8px 0 #eceeee;
+}
+
+html,
+body {
+  background: var(--color-ink-100);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

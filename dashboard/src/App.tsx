@@ -1,0 +1,24 @@
+import { Navigate, Route, Routes } from 'react-router-dom'
+import DashboardLayout from './layouts/DashboardLayout'
+import ComingSoon from './pages/ComingSoon'
+import EventsExplore from './pages/EventsExplore'
+
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<DashboardLayout />}>
+        <Route index element={<Navigate to="/events" replace />} />
+        <Route path="/events" element={<EventsExplore />} />
+        <Route
+          path="/events/create"
+          element={<ComingSoon title="Create event" note="Waiting on the Create Event designs from Figma." />}
+        />
+        <Route
+          path="/events/:eventId"
+          element={<ComingSoon title="Event details" note="Waiting on the event detail / live management designs." />}
+        />
+        <Route path="*" element={<ComingSoon title="Not in this prototype yet" />} />
+      </Route>
+    </Routes>
+  )
+}
