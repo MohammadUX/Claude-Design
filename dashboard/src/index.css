@@ -12,10 +12,13 @@
   --color-ink-800: #2f3535;
   --color-ink-900: #232828;
 
+  --color-brand-100: #b8eceb;
   --color-brand-300: #40cccb;
   --color-brand-500: #00b5b4;
+  --color-brand-700: #007e7d;
 
   --color-danger-500: #df1c41;
+  --color-verified: #1d9bf0;
 
   /* "Bg shadow" effect style */
   --shadow-card: 0 2px 8px 0 #eceeee;

@@ -5,15 +5,15 @@ import { attendeeColors, formatPrice, type EventItem } from '../data/mock'
 import Avatar from './Avatar'
 import Icon from './Icon'
 
-function EventArt({ event }: { event: EventItem }) {
+export function EventArt({ event, large = false }: { event: EventItem; large?: boolean }) {
   const { from, to, ink, kicker } = event.art
   return (
     <div
-      className="absolute inset-0 flex flex-col justify-end gap-2 rounded-xl p-5"
+      className={`absolute inset-0 flex flex-col justify-end gap-2 rounded-xl ${large ? 'p-8' : 'p-5'}`}
       style={{ background: `linear-gradient(145deg, ${from}, ${to})`, color: ink }}
     >
-      <span className="text-[11px] font-semibold tracking-[0.12em] uppercase opacity-80">{kicker}</span>
-      <span className="text-[26px] leading-[1.05] font-bold tracking-tight">{event.title}</span>
+      <span className={`font-semibold tracking-[0.12em] uppercase opacity-80 ${large ? 'text-sm' : 'text-[11px]'}`}>{kicker}</span>
+      <span className={`leading-[1.05] font-bold tracking-tight ${large ? 'text-[40px]' : 'text-[26px]'}`}>{event.title}</span>
     </div>
   )
 }

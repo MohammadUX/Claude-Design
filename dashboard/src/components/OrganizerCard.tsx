@@ -1,8 +1,9 @@
-import { Add01Icon, CheckmarkBadge02Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Add01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { useState } from 'react'
 import type { Organizer } from '../data/mock'
 import Avatar from './Avatar'
 import Icon from './Icon'
+import VerifiedBadge from './VerifiedBadge'
 
 export default function OrganizerCard({ organizer }: { organizer: Organizer }) {
   const [following, setFollowing] = useState(false)
@@ -13,9 +14,7 @@ export default function OrganizerCard({ organizer }: { organizer: Organizer }) {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <p className="truncate text-base leading-[1.2] font-semibold text-ink-900">{organizer.name}</p>
-            <span className="shrink-0 text-sky-500">
-              <Icon icon={CheckmarkBadge02Icon} size={24} className="[&_path:first-child]:fill-current [&_path:last-child]:stroke-white" />
-            </span>
+            <VerifiedBadge size={24} />
           </div>
           <p className="text-sm leading-[1.4] text-ink-700">{organizer.tagline}</p>
         </div>

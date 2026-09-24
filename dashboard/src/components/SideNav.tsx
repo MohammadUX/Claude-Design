@@ -25,7 +25,7 @@ const items = [
 
 export default function SideNav() {
   return (
-    <nav className="sticky top-[72px] hidden h-[calc(100vh-72px)] max-h-[960px] w-[72px] shrink-0 flex-col items-start justify-between bg-ink-100 px-4 pt-[120px] pb-10 md:flex">
+    <nav className="sticky top-[72px] hidden h-[calc(100vh-72px)] max-h-[960px] w-[72px] shrink-0 flex-col items-start justify-between px-4 pt-[120px] pb-10 md:flex">
       <ul className="flex flex-col gap-4">
         {items.map((item) => (
           <li key={item.label}>

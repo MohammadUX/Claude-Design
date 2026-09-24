@@ -3,10 +3,12 @@ type AvatarProps = {
   color: string
   size: number
   className?: string
+  /** Hide initials, e.g. in overlapping avatar stacks. */
+  plain?: boolean
 }
 
 /** Placeholder for photo avatars until the Figma image assets can be exported. */
-export default function Avatar({ name, color, size, className = '' }: AvatarProps) {
+export default function Avatar({ name, color, size, className = '', plain = false }: AvatarProps) {
   const initials = name
     .split(' ')
     .map((part) => part[0])
@@ -19,7 +21,7 @@ export default function Avatar({ name, color, size, className = '' }: AvatarProp
       style={{ width: size, height: size, background: color, fontSize: Math.max(8, size * 0.38) }}
       aria-hidden
     >
-      {size >= 28 && initials}
+      {!plain && size >= 28 && initials}
     </span>
   )
 }
