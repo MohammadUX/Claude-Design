@@ -89,7 +89,14 @@ export default function CreateEventPage() {
     return () => window.clearTimeout(id)
   }, [draft])
 
-  useEffect(() => window.scrollTo({ top: 0 }), [step])
+  // Bring each new step into view. scrollIntoView also scrolls the frame that hosts the
+  // prototype (e.g. the artifact viewer), where window.scrollTo alone does nothing.
+  const topRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (first.current) return
+    window.scrollTo({ top: 0 })
+    topRef.current?.scrollIntoView({ block: 'start' })
+  }, [step])
 
   const basicsErrors = useMemo(() => (tried[0] ? validateBasics(draft) : {}), [draft, tried])
   const ticketErrors = useMemo(() => (tried[3] ? validateTickets(draft) : {}), [draft, tried])
@@ -160,7 +167,7 @@ export default function CreateEventPage() {
   const progress = ((step + 1) / STEPS.length) * 100
 
   return (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 pb-10">
+    <div ref={topRef} className="mx-auto flex min-h-[calc(100vh-120px)] w-full max-w-[1200px] scroll-mt-24 flex-col gap-10 pb-10">
       {/* Header */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
