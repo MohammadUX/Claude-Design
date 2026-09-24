@@ -2,9 +2,7 @@ import { useEffect } from 'react'
 import { Outlet, useLocation, useMatch } from 'react-router-dom'
 import SideNav from '../components/SideNav'
 import TopNav from '../components/TopNav'
-
-/** Event detail pages sit on the purple "Background gradient" from Figma; other pages use the plain grey ground. */
-const detailGradient = 'linear-gradient(180deg, rgba(93, 88, 243, 0.6) 0%, rgba(246, 247, 247, 0.6) 28.846%), #f6f7f7'
+import { detailGradient } from './detailBackground'
 
 export default function DashboardLayout() {
   const { pathname } = useLocation()
@@ -16,7 +14,8 @@ export default function DashboardLayout() {
   }, [pathname])
 
   return (
-    <div className="min-h-screen bg-ink-100" style={isDetail ? { background: `${detailGradient}`, backgroundSize: '100% 1024px', backgroundRepeat: 'no-repeat', backgroundColor: '#f6f7f7' } : undefined}>
+    <div className="isolate min-h-screen bg-ink-100">
+      {isDetail && <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[1024px]" style={{ backgroundImage: detailGradient }} />}
       <TopNav translucent={isDetail} />
       <div className="flex">
         <SideNav />

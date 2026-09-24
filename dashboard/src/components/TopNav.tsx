@@ -1,5 +1,6 @@
 import { ArrowDown01Icon, FavouriteIcon, GiftIcon, Notification01Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
 import { Link, useNavigate } from 'react-router-dom'
+import { frostedOverGradient } from '../layouts/detailBackground'
 import Avatar from './Avatar'
 import Icon from './Icon'
 
@@ -8,8 +9,9 @@ export default function TopNav({ translucent = false }: { translucent?: boolean 
   return (
     <header
       className={`sticky top-0 z-30 flex h-[72px] items-center justify-between border-b px-4 sm:px-6 ${
-        translucent ? 'border-white/50 bg-[#aeabf5]/90 backdrop-blur-xl' : 'border-ink-200 bg-ink-100'
+        translucent ? 'border-white/50' : 'border-ink-200 bg-ink-100'
       }`}
+      style={translucent ? frostedOverGradient : undefined}
     >
       <Link to="/events" className="flex h-10 items-center" aria-label="PAAQ home">
         {/* Wordmark placeholder until the PAAQ logo asset can be exported from Figma */}

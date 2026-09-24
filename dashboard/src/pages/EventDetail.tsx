@@ -19,11 +19,12 @@ import Icon from '../components/Icon'
 import Modal from '../components/Modal'
 import { useToast } from '../components/Toast'
 import VerifiedBadge from '../components/VerifiedBadge'
+import { frostedOverGradient } from '../layouts/detailBackground'
 import { getEventDetail, type Person, type Sponsor } from '../data/eventDetail'
 import { defaultPoster } from '../data/mock'
 import ComingSoon from './ComingSoon'
 
-const glass = 'border border-white/40 bg-white/20 backdrop-blur-[60px]'
+const glass = 'border border-white/40 bg-white/20'
 
 function SectionLabel({ children, onSeeAll, seeAllLabel = 'See all' }: { children: ReactNode; onSeeAll?: () => void; seeAllLabel?: string }) {
   return (
@@ -145,9 +146,9 @@ export default function EventDetail() {
   const visibleSponsors = showAllSponsors ? sponsors : sponsors.slice(0, 4)
 
   return (
-    <div className="mx-auto flex w-full max-w-[1250px] flex-col gap-6 pb-4">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2">
+    <div className="mx-auto flex w-full max-w-[1250px] flex-col gap-4 pb-4">
+      {/* Breadcrumb: sticks under the top bar and blurs whatever scrolls beneath it */}
+      <div className="sticky top-[72px] z-20 -mx-4 -mt-5 flex items-center gap-2 px-4 py-3" style={frostedOverGradient}>
         <button
           aria-label="Back"
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/events'))}
@@ -166,7 +167,7 @@ export default function EventDetail() {
 
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 lg:flex-row lg:items-start">
         {/* Poster: sticks while the details scroll */}
-        <div className="w-full shrink-0 lg:sticky lg:top-[96px] lg:w-[450px]">
+        <div className="w-full shrink-0 lg:sticky lg:top-[152px] lg:w-[450px]">
           <div className="relative aspect-square w-full overflow-hidden rounded-xl">
             <EventArt event={{ ...event, image: event.image ?? defaultPoster }} large />
             <button
@@ -224,7 +225,7 @@ export default function EventDetail() {
               <SectionLabel>When</SectionLabel>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="flex w-10 shrink-0 flex-col overflow-hidden rounded-lg border border-white bg-white/80 text-center backdrop-blur-[60px]">
+                  <div className="flex w-10 shrink-0 flex-col overflow-hidden rounded-lg border border-white bg-white/80 text-center">
                     <span className="border-b border-brand-300 bg-brand-500 px-2 py-1 text-xs leading-[1.2] text-white">{when.month}</span>
                     <span className="px-2 py-1 text-sm leading-[1.4] font-medium text-ink-900">{when.day}</span>
                   </div>
@@ -235,7 +236,7 @@ export default function EventDetail() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <div className="flex size-[42px] shrink-0 items-center justify-center rounded-lg border border-white bg-white/80 text-ink-900 backdrop-blur-[60px]">
+                  <div className="flex size-[42px] shrink-0 items-center justify-center rounded-lg border border-white bg-white/80 text-ink-900">
                     <Icon icon={Location01Icon} size={24} />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -251,7 +252,7 @@ export default function EventDetail() {
                 </div>
 
                 {/* RSVP card */}
-                <div className="flex w-full max-w-[359px] flex-col gap-3 rounded-[20px] border border-white bg-white/80 p-3 backdrop-blur-[60px]">
+                <div className="flex w-full max-w-[359px] flex-col gap-3 rounded-[20px] border border-white bg-white/80 p-3">
                   <div className="flex items-center gap-3 py-2">
                     <Avatar name="Ada Obi" color="#b45309" size={24} />
                     {editingEmail ? (
@@ -328,7 +329,7 @@ export default function EventDetail() {
                 </ul>
                 <div className="flex flex-wrap gap-2">
                   {about.tags.map((tag) => (
-                    <span key={tag} className="flex items-center gap-1 rounded-full border border-white bg-white/50 px-3 py-2 text-[13px] font-medium text-ink-900 backdrop-blur-[60px]">
+                    <span key={tag} className="flex items-center gap-1 rounded-full border border-white bg-white/50 px-3 py-2 text-[13px] font-medium text-ink-900">
                       <Icon icon={HashtagIcon} size={16} className="text-ink-700" />
                       {tag}
                     </span>
