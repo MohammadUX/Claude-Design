@@ -152,7 +152,7 @@ export function Radio({ checked, onChange, children, size = 'md' }: { checked: b
   const inner = size === 'md' ? 'size-3' : 'size-2'
   return (
     <button role="radio" aria-checked={checked} onClick={onChange} className="flex items-center gap-2 text-sm leading-[1.4] font-medium text-ink-800">
-      <span className={`flex ${outer} items-center justify-center rounded-full border-2 ${checked ? 'border-brand-500 bg-brand-500' : 'border-ink-700 bg-white'}`}>
+      <span className={`flex ${outer} items-center justify-center rounded-full border-2 ${checked ? 'border-brand-500 bg-brand-500' : 'border-ink-700/30 bg-transparent hover:border-ink-700/50'}`}>
         {checked && <span className={`${inner} rounded-full bg-white`} />}
       </span>
       {children}
