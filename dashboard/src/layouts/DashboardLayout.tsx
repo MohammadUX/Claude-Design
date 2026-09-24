@@ -8,7 +8,7 @@ export default function DashboardLayout() {
       <TopNav />
       <div className="flex">
         <SideNav />
-        <main className="min-w-0 flex-1 px-6 pt-5 pb-20 xl:px-[59px]">
+        <main className="min-w-0 flex-1 px-4 pt-5 pb-20 sm:px-6 xl:px-[59px]">
           <Outlet />
         </main>
       </div>

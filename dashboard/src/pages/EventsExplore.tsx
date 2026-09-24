@@ -45,7 +45,7 @@ export default function EventsExplore() {
       <OrganizerBanner />
 
       <div className="flex flex-col gap-10">
-        <div className="flex items-center justify-between gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-2xl leading-[1.1] font-semibold whitespace-nowrap text-ink-900">Events</h1>
           <SearchFilterBar
             query={query}

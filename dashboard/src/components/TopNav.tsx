@@ -6,7 +6,7 @@ import Icon from './Icon'
 export default function TopNav() {
   const navigate = useNavigate()
   return (
-    <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-ink-200 bg-ink-100 px-6">
+    <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-ink-200 bg-ink-100 px-4 sm:px-6">
       <Link to="/events" className="flex h-10 items-center" aria-label="PAAQ home">
         {/* Wordmark placeholder until the PAAQ logo asset can be exported from Figma */}
         <span className="flex items-baseline gap-0.5 text-[26px] leading-none font-bold tracking-tight text-ink-900">
@@ -14,8 +14,8 @@ export default function TopNav() {
         </span>
       </Link>
 
-      <div className="flex items-center gap-3">
-        <button className="flex h-11 items-center gap-2 rounded-[40px] px-4 text-base leading-[1.2] font-medium text-ink-700 hover:bg-ink-200/60">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button className="hidden h-11 items-center gap-2 rounded-[40px] px-4 text-base leading-[1.2] font-medium text-ink-700 hover:bg-ink-200/60 md:flex">
           <Icon icon={GiftIcon} className="text-amber-500" />
           Refer a friend
         </button>
@@ -24,7 +24,7 @@ export default function TopNav() {
           className="flex h-11 items-center gap-2 rounded-[40px] border border-brand-300 bg-brand-500 px-4 text-base leading-[1.2] font-medium text-white hover:brightness-95"
         >
           <Icon icon={PlusSignIcon} />
-          Create New
+          <span className="hidden sm:inline">Create New</span>
         </button>
         <button aria-label="Saved events" className="flex size-11 items-center justify-center rounded-full bg-white text-ink-800 hover:bg-ink-200">
           <Icon icon={FavouriteIcon} />
