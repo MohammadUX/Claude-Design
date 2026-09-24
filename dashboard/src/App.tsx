@@ -15,6 +15,7 @@ export default function App() {
           element={<ComingSoon title="Create event" note="Waiting on the Create Event designs from Figma." />}
         />
         <Route path="/events/:eventId" element={<EventDetail />} />
+        <Route path="/organizers/:organizerId" element={<ComingSoon title="Organizer profile" note="Waiting on the organizer profile designs." />} />
         <Route path="*" element={<ComingSoon title="Not in this prototype yet" />} />
       </Route>
     </Routes>
