@@ -1,8 +1,8 @@
 import { Clock01Icon, Location01Icon } from '@hugeicons/core-free-icons'
-import { useEffect } from 'react'
 import type { EventDetail } from '../../data/eventDetail'
 import { EventArt } from '../EventCard'
 import Icon from '../Icon'
+import Overlay from '../Overlay'
 
 type ConfirmRegistrationModalProps = {
   detail: EventDetail
@@ -16,21 +16,10 @@ type ConfirmRegistrationModalProps = {
 export default function ConfirmRegistrationModal({ detail, poster, email, onCancel, onConfirm }: ConfirmRegistrationModalProps) {
   const { event, when, location } = detail
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCancel()
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [onCancel])
-
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(35,40,40,0.1)] p-4 backdrop-blur-[20px]" onMouseDown={onCancel}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-registration-title"
-        onMouseDown={(e) => e.stopPropagation()}
-        className="flex w-full max-w-[461px] flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white p-1"
-      >
+    <Overlay onClose={onCancel} labelledBy="confirm-registration-title" panelClassName="flex max-w-[461px] flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white p-1 shadow-[0_24px_64px_rgba(35,40,40,0.16)]">
+      {(close) => (
+      <>
         {/* Event summary */}
         <div className="flex items-center gap-3 rounded-xl bg-ink-100 p-2">
           <span className="relative size-16 shrink-0 overflow-hidden rounded-lg">
@@ -61,21 +50,22 @@ export default function ConfirmRegistrationModal({ detail, poster, email, onCanc
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={onCancel}
+              onClick={() => close()}
               className="flex-1 rounded-full border border-ink-200 bg-ink-100 px-6 py-2 text-base leading-[1.4] font-medium text-ink-800 hover:bg-ink-200"
             >
               Cancel
             </button>
             <button
               autoFocus
-              onClick={onConfirm}
+              onClick={() => close(onConfirm)}
               className="flex-1 rounded-full border border-brand-300 bg-brand-500 px-6 py-2 text-base leading-[1.4] font-medium text-white hover:brightness-95"
             >
               Confirm
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </>
+      )}
+    </Overlay>
   )
 }

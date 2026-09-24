@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import attendeesBanner from '../assets/events/attendees-banner.webp'
+import Overlay from './Overlay'
 
 type AttendeesLockedModalProps = {
   onClose: () => void
@@ -8,21 +8,10 @@ type AttendeesLockedModalProps = {
 
 /** Figma "Small info card": shown instead of the guest list until the viewer has registered. */
 export default function AttendeesLockedModal({ onClose, onGetTicket }: AttendeesLockedModalProps) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
-
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(35,40,40,0.1)] p-4 backdrop-blur-[20px]" onMouseDown={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="attendees-locked-title"
-        onMouseDown={(e) => e.stopPropagation()}
-        className="flex w-full max-w-[461px] flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white p-1"
-      >
+    <Overlay onClose={onClose} labelledBy="attendees-locked-title" panelClassName="flex max-w-[461px] flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white p-1 shadow-[0_24px_64px_rgba(35,40,40,0.16)]">
+      {(close) => (
+      <>
         {/* Banner artwork from the design: attendee faces on a soft teal glow */}
         <img src={attendeesBanner} alt="Attendees" className="aspect-[1359/447] w-full rounded-xl object-cover" />
 
@@ -35,21 +24,22 @@ export default function AttendeesLockedModal({ onClose, onGetTicket }: Attendees
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={onClose}
+              onClick={() => close()}
               className="flex-1 rounded-full border border-ink-200 bg-ink-100 px-6 py-2 text-base leading-[1.4] font-medium text-ink-800 hover:bg-ink-200"
             >
               Got it
             </button>
             <button
               autoFocus
-              onClick={onGetTicket}
+              onClick={() => close(onGetTicket)}
               className="flex-1 rounded-full border border-brand-300 bg-brand-500 px-6 py-2 text-base leading-[1.4] font-medium text-white hover:brightness-95"
             >
               Get a ticket
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </>
+      )}
+    </Overlay>
   )
 }

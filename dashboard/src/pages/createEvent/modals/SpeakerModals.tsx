@@ -5,7 +5,7 @@ import Icon from '../../../components/Icon'
 import VerifiedBadge from '../../../components/VerifiedBadge'
 import { pickColor, readImage, uid, type Speaker } from '../model'
 import { experts } from '../options'
-import { DialogShell, ErrorText, FieldLabel, PrimaryButton, TextInput } from '../ui'
+import { DialogShell, ErrorText, FieldLabel, PrimaryButton, SubmitButton, TextInput } from '../ui'
 
 export type SpeakerFlow = { step: 'choose' } | { step: 'find' } | { step: 'form'; editing?: Speaker }
 
@@ -148,7 +148,7 @@ function BackupModal({ editing, onBack, onClose, onSave }: { editing?: Speaker; 
   const save = () => {
     setTried(true)
     if (!valid) return
-    onSave({
+    const speaker: Speaker = {
       id: editing?.id ?? uid(),
       name: name.trim(),
       email: email.trim() || undefined,
@@ -158,7 +158,8 @@ function BackupModal({ editing, onBack, onClose, onSave }: { editing?: Speaker; 
       color: editing?.color ?? pickColor(name),
       source: editing?.source ?? 'backup',
       verified: editing?.verified,
-    })
+    }
+    return () => onSave(speaker)
   }
 
   return (
@@ -176,7 +177,7 @@ function BackupModal({ editing, onBack, onClose, onSave }: { editing?: Speaker; 
           ) : (
             <span />
           )}
-          <PrimaryButton onClick={save}>{editing ? 'Save changes' : 'Add speaker'}</PrimaryButton>
+          <SubmitButton onSubmit={save}>{editing ? 'Save changes' : 'Add speaker'}</SubmitButton>
         </>
       }
     >

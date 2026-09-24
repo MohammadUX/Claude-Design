@@ -1,7 +1,7 @@
 import { Ticket02Icon } from '@hugeicons/core-free-icons'
 import { useState } from 'react'
 import { uid, type Ticket } from '../model'
-import { DialogShell, ErrorText, FieldLabel, PrimaryButton, Radio, TextInput } from '../ui'
+import { DialogShell, ErrorText, FieldLabel, Radio, SubmitButton, TextInput } from '../ui'
 
 const dotColors = ['#6d5bd0', '#f59e0b', '#16a34a', '#e5484d', '#2563eb']
 
@@ -31,7 +31,7 @@ export default function TicketModal({ editing, index, onClose, onSave }: { editi
   const save = () => {
     setTried(true)
     if (!valid) return
-    onSave({
+    const ticket: Ticket = {
       id: editing?.id ?? uid(),
       name: name.trim(),
       qty: qtyN,
@@ -42,13 +42,14 @@ export default function TicketModal({ editing, index, onClose, onSave }: { editi
       discountPrice: paid ? discountN : undefined,
       description: description.trim(),
       color: editing?.color ?? dotColors[index % dotColors.length],
-    })
+    }
+    return () => onSave(ticket)
   }
 
   const err = (e: string | false) => tried && e && <ErrorText>{e}</ErrorText>
 
   return (
-    <DialogShell icon={Ticket02Icon} title={editing ? 'Edit ticket' : 'Add ticket'} onClose={onClose} footer={<><span /><PrimaryButton onClick={save}>Save</PrimaryButton></>}>
+    <DialogShell icon={Ticket02Icon} title={editing ? 'Edit ticket' : 'Add ticket'} onClose={onClose} footer={<><span /><SubmitButton onSubmit={save}>Save</SubmitButton></>}>
       <div className="flex flex-col gap-5 rounded-2xl bg-white p-5">
         <div className="grid gap-3 sm:grid-cols-[1fr_120px]">
           <div className="flex flex-col gap-1.5">

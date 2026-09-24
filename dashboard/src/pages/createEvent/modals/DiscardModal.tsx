@@ -1,5 +1,5 @@
 import { Delete02Icon } from '@hugeicons/core-free-icons'
-import { DialogShell, GhostButton } from '../ui'
+import { CloseButton, DialogShell, SubmitButton } from '../ui'
 
 export default function DiscardModal({ onClose, onKeepDraft, onDiscard }: { onClose: () => void; onKeepDraft: () => void; onDiscard: () => void }) {
   return (
@@ -10,14 +10,12 @@ export default function DiscardModal({ onClose, onKeepDraft, onDiscard }: { onCl
       onClose={onClose}
       footer={
         <>
-          <GhostButton onClick={onClose}>Keep editing</GhostButton>
+          <CloseButton>Keep editing</CloseButton>
           <div className="flex gap-2">
-            <GhostButton onClick={onDiscard} className="border-danger-500/30 text-danger-500 hover:bg-danger-500/5">
+            <CloseButton then={onDiscard} className="border-danger-500/30 text-danger-500 hover:bg-danger-500/5">
               Discard
-            </GhostButton>
-            <button onClick={onKeepDraft} className="rounded-full bg-brand-500 px-5 py-2.5 text-base font-medium text-white hover:brightness-95">
-              Save draft
-            </button>
+            </CloseButton>
+            <SubmitButton onSubmit={() => onKeepDraft}>Save draft</SubmitButton>
           </div>
         </>
       }

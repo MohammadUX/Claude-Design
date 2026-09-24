@@ -259,7 +259,7 @@ export default function BasicsStep({ draft, set, errors, onEditDescription, onEd
               </label>
             )}
             {venueOpen && (
-              <ul className="absolute top-full left-0 z-30 mt-1.5 w-full max-w-[420px] rounded-xl border border-ink-200 bg-white p-1 shadow-[0_12px_32px_rgba(35,40,40,0.12)]">
+              <ul className="pop-in absolute top-full left-0 z-30 mt-1.5 w-full max-w-[420px] rounded-xl border border-ink-200 bg-white p-1 shadow-[0_12px_32px_rgba(35,40,40,0.12)]">
                 {venueMatches.map((v) => (
                   <li key={v}>
                     <button

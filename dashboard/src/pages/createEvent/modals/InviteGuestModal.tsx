@@ -5,7 +5,7 @@ import Icon from '../../../components/Icon'
 import VerifiedBadge from '../../../components/VerifiedBadge'
 import { pickColor, uid, type Guest, type GuestRole } from '../model'
 import { members } from '../options'
-import { DialogShell, Dropdown, ErrorText, InfoTip, PrimaryButton } from '../ui'
+import { DialogShell, Dropdown, ErrorText, InfoTip, SubmitButton } from '../ui'
 
 const roles: { value: GuestRole; label: string; hint: string }[] = [
   { value: 'Admin', label: 'Admin', hint: 'Can edit the event and manage guests' },
@@ -33,7 +33,7 @@ export default function InviteGuestModal({ guests: initial, onClose, onSave }: {
   }
 
   return (
-    <DialogShell icon={UserAdd01Icon} title="Invite guest" onClose={onClose} footer={<><span /><PrimaryButton onClick={() => onSave(guests)}>Save</PrimaryButton></>}>
+    <DialogShell icon={UserAdd01Icon} title="Invite guest" onClose={onClose} footer={<><span /><SubmitButton onSubmit={() => () => onSave(guests)}>Save</SubmitButton></>}>
       <div className="flex flex-col gap-5 rounded-2xl bg-white p-5">
         <div className="flex flex-col gap-2">
           <span className="flex items-center gap-1 text-sm font-medium text-ink-900">
@@ -55,7 +55,7 @@ export default function InviteGuestModal({ guests: initial, onClose, onSave }: {
               />
               <Dropdown value={role} options={roles} onChange={setRole} icon={InternetIcon} size="sm" menuAlign="right" className="border-ink-200" />
               {matches.length > 0 && (
-                <ul className="absolute top-full left-0 z-20 mt-1 w-full rounded-xl border border-ink-200 bg-white p-1 shadow-lg">
+                <ul className="pop-in absolute top-full left-0 z-20 mt-1 w-full rounded-xl border border-ink-200 bg-white p-1 shadow-lg">
                   {matches.map((m) => (
                     <li key={m.email}>
                       <button onClick={() => add(m)} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-ink-100">

@@ -2,6 +2,8 @@ import { ArrowDown01Icon, Cancel01Icon, InformationCircleIcon, Tick02Icon } from
 import type { IconSvgElement } from '@hugeicons/react'
 import { useEffect, useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react'
 import Icon from '../../components/Icon'
+import Overlay from '../../components/Overlay'
+import { useOverlayClose } from '../../components/overlayContext'
 
 /** Figma dialog: frosted outer panel, round icon + title header, white inner card, actions below. */
 export function DialogShell({
@@ -22,49 +24,39 @@ export function DialogShell({
   /** Replaces the icon + title (e.g. a Back button). */
   header?: ReactNode
 }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    document.addEventListener('keydown', onKey)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prev
-    }
-  }, [onClose])
-
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[rgba(35,40,40,0.1)] px-4 py-[8vh] backdrop-blur-[20px]" onMouseDown={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onMouseDown={(e) => e.stopPropagation()}
-        className={`relative flex w-full ${width} flex-col gap-4 overflow-hidden rounded-[20px] border border-white p-5 shadow-[0_24px_64px_rgba(35,40,40,0.16)]`}
-        style={{
-          backgroundColor: 'rgba(246,247,247,0.94)',
-          backgroundImage: 'radial-gradient(40% 70% at 30% 0%, color-mix(in srgb, var(--detail-accent) 16%, transparent), transparent 70%)',
-        }}
-      >
-        <div className="flex items-center justify-between gap-3">
-          {header ?? (
-            <div className="flex items-center gap-3">
-              {icon && (
-                <span className="flex size-10 items-center justify-center rounded-full border border-ink-600/40 text-ink-800">
-                  <Icon icon={icon} size={20} />
-                </span>
-              )}
-              <h2 className="text-lg leading-[1.4] font-semibold text-ink-900">{title}</h2>
-            </div>
-          )}
-          <button aria-label="Close" onClick={onClose} className="flex size-9 items-center justify-center rounded-full text-ink-800 hover:bg-white">
-            <Icon icon={Cancel01Icon} size={22} />
-          </button>
-        </div>
-        {children}
-        {footer && <div className="flex items-center justify-between gap-3">{footer}</div>}
-      </div>
-    </div>
+    <Overlay
+      onClose={onClose}
+      label={title}
+      align="top"
+      panelClassName={`flex ${width} flex-col gap-4 overflow-hidden rounded-[20px] border border-white p-5 shadow-[0_24px_64px_rgba(35,40,40,0.16)]`}
+      panelStyle={{
+        backgroundColor: 'rgba(246,247,247,0.96)',
+        backgroundImage: 'radial-gradient(40% 70% at 30% 0%, color-mix(in srgb, var(--detail-accent) 16%, transparent), transparent 70%)',
+      }}
+    >
+      {(close) => (
+        <>
+          <div className="flex items-center justify-between gap-3">
+            {header ?? (
+              <div className="flex items-center gap-3">
+                {icon && (
+                  <span className="flex size-10 items-center justify-center rounded-full border border-ink-600/40 text-ink-800">
+                    <Icon icon={icon} size={20} />
+                  </span>
+                )}
+                <h2 className="text-lg leading-[1.4] font-semibold text-ink-900">{title}</h2>
+              </div>
+            )}
+            <button aria-label="Close" onClick={() => close()} className="flex size-9 items-center justify-center rounded-full text-ink-800 transition-colors hover:bg-white">
+              <Icon icon={Cancel01Icon} size={22} />
+            </button>
+          </div>
+          {children}
+          {footer && <div className="flex items-center justify-between gap-3">{footer}</div>}
+        </>
+      )}
+    </Overlay>
   )
 }
 
@@ -80,6 +72,36 @@ export function PrimaryButton({ children, className = '', ...rest }: React.Butto
     >
       {children}
     </button>
+  )
+}
+
+/**
+ * Primary action inside a pop-up. `onSubmit` validates; return a function to run it after the
+ * pop-up has eased out (e.g. saving), or nothing to keep the pop-up open (e.g. errors shown).
+ */
+export function SubmitButton({ onSubmit, children, className = '', disabled }: { onSubmit: () => (() => void) | void; children: ReactNode; className?: string; disabled?: boolean }) {
+  const close = useOverlayClose()
+  return (
+    <PrimaryButton
+      disabled={disabled}
+      className={className}
+      onClick={() => {
+        const commit = onSubmit()
+        if (commit) close(commit)
+      }}
+    >
+      {children}
+    </PrimaryButton>
+  )
+}
+
+/** Secondary pop-up button that eases the pop-up out before running its action. */
+export function CloseButton({ then, children, className = '' }: { then?: () => void; children: ReactNode; className?: string }) {
+  const close = useOverlayClose()
+  return (
+    <GhostButton className={className} onClick={() => close(then)}>
+      {children}
+    </GhostButton>
   )
 }
 
@@ -216,7 +238,7 @@ export function Dropdown<T extends string>({
         <Icon icon={ArrowDown01Icon} size={size === 'md' ? 18 : 14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <ul className={`absolute top-full z-30 mt-1.5 flex min-w-[180px] flex-col rounded-xl border border-ink-200 bg-white p-1 shadow-[0_12px_32px_rgba(35,40,40,0.12)] ${menuAlign === 'right' ? 'right-0' : 'left-0'}`}>
+        <ul className={`pop-in absolute top-full z-30 mt-1.5 flex min-w-[180px] flex-col rounded-xl border border-ink-200 bg-white p-1 shadow-[0_12px_32px_rgba(35,40,40,0.12)] ${menuAlign === 'right' ? 'right-0' : 'left-0'}`}>
           {options.map((o) => (
             <li key={o.value}>
               <button

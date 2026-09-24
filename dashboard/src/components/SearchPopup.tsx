@@ -1,9 +1,10 @@
 import { ArrowRight01Icon, Search01Icon } from '@hugeicons/core-free-icons'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { allEvents, categories, featuredEvents, type Category, type EventItem } from '../data/mock'
 import { EventArt } from './EventCard'
 import Icon from './Icon'
+import Overlay from './Overlay'
 
 type SearchPopupProps = {
   initialQuery: string
@@ -42,14 +43,6 @@ export default function SearchPopup({ initialQuery, onClose, onSeeAll, onPickCat
     ...(q ? [{ kind: 'all' as const }] : []),
   ]
 
-  useEffect(() => {
-    inputRef.current?.focus()
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = previous
-    }
-  }, [])
 
   const choose = (row: Row | undefined) => {
     if (!row) return onSeeAll(query)
@@ -64,8 +57,7 @@ export default function SearchPopup({ initialQuery, onClose, onSeeAll, onPickCat
   }
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') onClose()
-    else if (e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown') {
       e.preventDefault()
       setActive((i) => Math.min(i + 1, rows.length - 1))
     } else if (e.key === 'ArrowUp') {
@@ -81,14 +73,9 @@ export default function SearchPopup({ initialQuery, onClose, onSeeAll, onPickCat
     `flex w-full items-center rounded-2xl p-1 text-left transition-colors ${i === active ? 'bg-ink-100' : 'bg-white hover:bg-ink-100'}`
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink-100/50 px-4 backdrop-blur-[12px]" onMouseDown={onClose} onKeyDown={onKeyDown}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Search events"
-        onMouseDown={(e) => e.stopPropagation()}
-        className="mx-auto mt-[min(12vh,120px)] mb-10 flex w-full max-w-[785px] flex-col gap-1"
-      >
+    <Overlay onClose={onClose} label="Search events" align="top" panelClassName="flex max-w-[785px] flex-col gap-1">
+      {() => (
+      <div className="flex flex-col gap-1" onKeyDown={onKeyDown}>
         {/* Search field with the rainbow underline from the design */}
         <div className="relative">
           <label className="flex items-center gap-2.5 rounded-2xl border border-[#dadede] bg-white p-5">
@@ -96,6 +83,7 @@ export default function SearchPopup({ initialQuery, onClose, onSeeAll, onPickCat
             <input
               id="event-search"
               ref={inputRef}
+              autoFocus
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value)
@@ -186,6 +174,7 @@ export default function SearchPopup({ initialQuery, onClose, onSeeAll, onPickCat
           )}
         </div>
       </div>
-    </div>
+      )}
+    </Overlay>
   )
 }

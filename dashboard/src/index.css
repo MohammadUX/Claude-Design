@@ -124,3 +124,76 @@ body {
     animation: none;
   }
 }
+
+/* Pop-ups (components/Overlay.tsx): one shared motion for every modal. */
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes overlay-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes overlay-blur-in {
+  from {
+    backdrop-filter: blur(0.01px);
+  }
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+@keyframes panel-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+.overlay {
+  animation: overlay-in 200ms ease-out both;
+}
+.overlay-blur {
+  backdrop-filter: blur(18px);
+  animation:
+    overlay-in 200ms ease-out both,
+    overlay-blur-in 260ms ease-out both;
+}
+.overlay[data-instant] {
+  animation: none;
+}
+.overlay[data-state='closing'] {
+  animation: overlay-out 170ms ease-in forwards;
+  pointer-events: none;
+}
+.overlay-panel {
+  animation: panel-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+.overlay-panel[data-state='closing'] {
+  animation: panel-out 170ms ease-in forwards;
+}
+/* Small menus and popovers. */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+.pop-in {
+  animation: pop-in 150ms ease-out both;
+  transform-origin: top;
+}
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .overlay-blur,
+  .overlay-panel,
+  .overlay[data-state='closing'],
+  .overlay-panel[data-state='closing'],
+  .pop-in {
+    animation: none;
+  }
+}

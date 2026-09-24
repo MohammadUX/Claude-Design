@@ -3,6 +3,7 @@ import QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
 import { EventArt } from '../../../components/EventCard'
 import Icon from '../../../components/Icon'
+import Overlay from '../../../components/Overlay'
 import type { EventItem } from '../../../data/mock'
 
 const CONFETTI_COLORS = ['#00b5b4', '#f59e0b', '#e5484d', '#6d5bd0', '#2563eb', '#16a34a', '#ec4899']
@@ -77,9 +78,11 @@ export default function PublishedModal({ event, whenLine, link, onDashboard, onP
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[rgba(35,40,40,0.1)] px-4 py-[8vh] backdrop-blur-[20px]">
-      <Confetti />
-      <div role="dialog" aria-modal="true" aria-labelledby="published-title" className="relative z-[61] flex w-full max-w-[760px] flex-col gap-5 rounded-[20px] bg-white p-6 shadow-[0_24px_64px_rgba(35,40,40,0.18)]">
+    <>
+    <Confetti />
+    <Overlay onClose={onPreview} labelledBy="published-title" align="top" dismissible={false} panelClassName="flex max-w-[760px] flex-col gap-5 rounded-[20px] bg-white p-6 shadow-[0_24px_64px_rgba(35,40,40,0.18)]">
+      {(close) => (
+      <>
         <div className="flex flex-col gap-1">
           <h2 id="published-title" className="text-xl leading-[1.3] font-semibold text-ink-900">
             Your event is live
@@ -118,9 +121,9 @@ export default function PublishedModal({ event, whenLine, link, onDashboard, onP
           </button>
           <div className="flex flex-wrap items-center gap-2">
             {[
-              { label: 'Dashboard', icon: DashboardSquare01Icon, run: onDashboard, pressed: undefined },
+              { label: 'Dashboard', icon: DashboardSquare01Icon, run: () => close(onDashboard), pressed: undefined },
               { label: showQr ? 'Hide QR code' : 'QR code', icon: QrCodeIcon, run: () => setShowQr((v) => !v), pressed: showQr },
-              { label: 'Preview event', icon: ViewIcon, run: onPreview, pressed: undefined },
+              { label: 'Preview event', icon: ViewIcon, run: () => close(onPreview), pressed: undefined },
             ].map((b) => (
               <button key={b.label} onClick={b.run} aria-pressed={b.pressed} className="flex items-center gap-2 rounded-full bg-ink-100 px-4 py-2 text-sm font-medium text-ink-900 hover:bg-ink-200">
                 <Icon icon={b.icon} size={18} />
@@ -129,7 +132,9 @@ export default function PublishedModal({ event, whenLine, link, onDashboard, onP
             ))}
           </div>
         </div>
-      </div>
-    </div>
+      </>
+      )}
+    </Overlay>
+    </>
   )
 }

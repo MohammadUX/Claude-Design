@@ -36,7 +36,7 @@ export default function SponsorsStep({ draft, set, onNew, onEdit, onLibrary }: P
             Add sponsor
           </button>
           {menu && (
-            <div className="absolute top-full left-2 z-30 mt-1 flex w-[300px] flex-col rounded-xl border border-ink-200 bg-white p-1 shadow-[0_12px_32px_rgba(35,40,40,0.12)]">
+            <div className="pop-in absolute top-full left-2 z-30 mt-1 flex w-[300px] flex-col rounded-xl border border-ink-200 bg-white p-1 shadow-[0_12px_32px_rgba(35,40,40,0.12)]">
               <button onClick={() => (setMenu(false), onNew())} className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-ink-900 hover:bg-ink-100">
                 <Icon icon={PlusSignIcon} size={18} />
                 Add new sponsor

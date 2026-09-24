@@ -73,7 +73,7 @@ export default function SearchFilterBar(props: SearchFilterBarProps) {
         </button>
 
         {open && (
-          <div className="absolute top-[52px] right-0 z-20 flex w-[320px] flex-col gap-5 rounded-2xl border border-ink-200 bg-white p-5 shadow-[0_12px_32px_rgba(35,40,40,0.12)]">
+          <div className="pop-in absolute top-[52px] right-0 z-20 flex w-[320px] flex-col gap-5 rounded-2xl border border-ink-200 bg-white p-5 shadow-[0_12px_32px_rgba(35,40,40,0.12)]">
             <div className="flex flex-col gap-2">
               <p className="text-sm font-semibold text-ink-900">Price</p>
               <div className="flex flex-wrap gap-2">

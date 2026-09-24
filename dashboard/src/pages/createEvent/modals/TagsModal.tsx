@@ -1,7 +1,7 @@
 import { Cancel01Icon, HashtagIcon, Tag01Icon } from '@hugeicons/core-free-icons'
 import { useState } from 'react'
 import Icon from '../../../components/Icon'
-import { DialogShell, ErrorText, PrimaryButton } from '../ui'
+import { DialogShell, ErrorText, SubmitButton } from '../ui'
 
 const suggestions = ['Design', 'Product', 'Startup', 'Career', 'AI', 'Marketing', 'Leadership', 'Finance']
 const MAX = 6
@@ -22,7 +22,7 @@ export default function TagsModal({ tags: initial, onClose, onSave }: { tags: st
   }
 
   return (
-    <DialogShell icon={HashtagIcon} title="Add tag" width="max-w-[560px]" onClose={onClose} footer={<><span /><PrimaryButton onClick={() => onSave(value.trim() ? [...tags, value.trim()] : tags)}>Save</PrimaryButton></>}>
+    <DialogShell icon={HashtagIcon} title="Add tag" width="max-w-[560px]" onClose={onClose} footer={<><span /><SubmitButton onSubmit={() => () => onSave(value.trim() ? [...tags, value.trim()] : tags)}>Save</SubmitButton></>}>
       <div className="flex flex-col gap-2">
         <label htmlFor="tag-input" className="text-sm font-medium text-ink-800">
           Tags <span className="font-normal text-ink-600">· press Enter to add</span>

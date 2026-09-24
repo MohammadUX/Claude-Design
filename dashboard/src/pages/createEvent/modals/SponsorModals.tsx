@@ -4,7 +4,7 @@ import Avatar from '../../../components/Avatar'
 import Icon from '../../../components/Icon'
 import { pickColor, readImage, uid, type SponsorEntry, type Tier } from '../model'
 import { sponsorLibrary, tierOptions } from '../options'
-import { DialogShell, Dropdown, ErrorText, FieldLabel, PrimaryButton, TextInput } from '../ui'
+import { DialogShell, Dropdown, ErrorText, FieldLabel, SubmitButton, TextInput } from '../ui'
 
 
 export function NewSponsorModal({ editing, onClose, onSave }: { editing?: SponsorEntry; onClose: () => void; onSave: (s: SponsorEntry) => void }) {
@@ -26,14 +26,16 @@ export function NewSponsorModal({ editing, onClose, onSave }: { editing?: Sponso
       footer={
         <>
           <span />
-          <PrimaryButton
-            onClick={() => {
+          <SubmitButton
+            onSubmit={() => {
               setTried(true)
-              if (valid) onSave({ id: editing?.id ?? uid(), name: name.trim(), website: cleanSite, email: email.trim() || undefined, tier, logo, color: editing?.color ?? pickColor(name) })
+              if (!valid) return
+              const sponsor = { id: editing?.id ?? uid(), name: name.trim(), website: cleanSite, email: email.trim() || undefined, tier, logo, color: editing?.color ?? pickColor(name) }
+              return () => onSave(sponsor)
             }}
           >
             {editing ? 'Save changes' : 'Add sponsor'}
-          </PrimaryButton>
+          </SubmitButton>
         </>
       }
     >
@@ -100,12 +102,15 @@ export function LibraryModal({ existing, onClose, onAdd }: { existing: SponsorEn
       footer={
         <>
           <span className="text-sm text-ink-700">{picked.length ? `${picked.length} selected` : 'Select one or more sponsors'}</span>
-          <PrimaryButton
+          <SubmitButton
             disabled={!picked.length}
-            onClick={() => onAdd(sponsorLibrary.filter((s) => picked.includes(s.name)).map((s) => ({ id: uid(), name: s.name, website: s.website, email: s.email, tier, color: s.color })))}
+            onSubmit={() => {
+              const list = sponsorLibrary.filter((s) => picked.includes(s.name)).map((s) => ({ id: uid(), name: s.name, website: s.website, email: s.email, tier, color: s.color }))
+              return () => onAdd(list)
+            }}
           >
             Add sponsor{picked.length > 1 ? 's' : ''}
-          </PrimaryButton>
+          </SubmitButton>
         </>
       }
     >

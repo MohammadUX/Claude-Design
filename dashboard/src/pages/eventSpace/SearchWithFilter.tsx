@@ -49,7 +49,7 @@ export default function SearchWithFilter<T extends string>(props: SearchWithFilt
           <Icon icon={ArrowDown01Icon} size={16} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
         {open && (
-          <ul className="absolute top-[52px] right-0 z-20 flex w-48 flex-col rounded-2xl border border-ink-200 bg-white p-1.5 shadow-[0_12px_32px_rgba(35,40,40,0.12)]">
+          <ul className="pop-in absolute top-[52px] right-0 z-20 flex w-48 flex-col rounded-2xl border border-ink-200 bg-white p-1.5 shadow-[0_12px_32px_rgba(35,40,40,0.12)]">
             {options.map((o) => (
               <li key={o.value}>
                 <button

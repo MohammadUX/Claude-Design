@@ -11,7 +11,7 @@ import {
 import type { IconSvgElement } from '@hugeicons/react'
 import { useEffect, useRef, useState } from 'react'
 import Icon from '../../../components/Icon'
-import { DialogShell, PrimaryButton } from '../ui'
+import { DialogShell, SubmitButton } from '../ui'
 
 const tools: { id: string; label: string; icon: IconSvgElement }[] = [
   { id: 'heading', label: 'Heading', icon: TextIcon },
@@ -91,7 +91,7 @@ export default function DescriptionModal({ html, title, type, onClose, onSave }:
   }
 
   return (
-    <DialogShell icon={NoteEditIcon} title="Add description" onClose={onClose} footer={<><span /><PrimaryButton onClick={() => onSave(editor.current?.innerHTML ?? '')}>Save</PrimaryButton></>}>
+    <DialogShell icon={NoteEditIcon} title="Add description" onClose={onClose} footer={<><span /><SubmitButton onSubmit={() => { const html = editor.current?.innerHTML ?? ''; return () => onSave(html) }}>Save</SubmitButton></>}>
       <div className="relative flex flex-col rounded-2xl bg-white">
         {empty && <p className="pointer-events-none absolute top-5 left-5 text-base text-ink-600">Write your description</p>}
         <div
