@@ -87,7 +87,7 @@ export default function SearchPopup({ initialQuery, onClose, onSeeAll, onPickCat
         aria-modal="true"
         aria-label="Search events"
         onMouseDown={(e) => e.stopPropagation()}
-        className="mx-auto mt-[min(26vh,266px)] mb-10 flex w-full max-w-[785px] flex-col gap-1"
+        className="mx-auto mt-[min(12vh,120px)] mb-10 flex w-full max-w-[785px] flex-col gap-1"
       >
         {/* Search field with the rainbow underline from the design */}
         <div className="relative">
