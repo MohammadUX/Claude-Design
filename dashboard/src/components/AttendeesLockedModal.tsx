@@ -1,15 +1,13 @@
 import { useEffect } from 'react'
-import type { Person } from '../data/eventDetail'
-import Avatar from './Avatar'
+import attendeesBanner from '../assets/events/attendees-banner.webp'
 
 type AttendeesLockedModalProps = {
-  people: Person[]
   onClose: () => void
   onGetTicket: () => void
 }
 
 /** Figma "Small info card": shown instead of the guest list until the viewer has registered. */
-export default function AttendeesLockedModal({ people, onClose, onGetTicket }: AttendeesLockedModalProps) {
+export default function AttendeesLockedModal({ onClose, onGetTicket }: AttendeesLockedModalProps) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     document.addEventListener('keydown', onKey)
@@ -25,23 +23,8 @@ export default function AttendeesLockedModal({ people, onClose, onGetTicket }: A
         onMouseDown={(e) => e.stopPropagation()}
         className="flex w-full max-w-[461px] flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white p-1"
       >
-        {/* Banner: soft brand glow behind the attendee faces */}
-        <div
-          className="relative flex h-[149px] flex-col items-center justify-center gap-2 overflow-hidden rounded-xl"
-          style={{
-            backgroundColor: '#e9eeee',
-            backgroundImage:
-              'radial-gradient(60% 90% at 50% 40%, rgba(64,204,203,0.75), transparent 70%), radial-gradient(40% 70% at 22% 70%, rgba(134,239,172,0.55), transparent 70%), radial-gradient(45% 80% at 80% 30%, rgba(147,197,253,0.55), transparent 70%)',
-          }}
-        >
-          <div className="absolute inset-0 bg-white/20 backdrop-blur-[18px]" />
-          <div className="relative flex items-center">
-            {people.slice(0, 4).map((p, i) => (
-              <Avatar key={p.id} name={p.name} color={p.color} size={60} plain className={`border-[3px] border-white ${i < 3 ? '-mr-3' : ''}`} />
-            ))}
-          </div>
-          <p className="relative text-base leading-[1.2] font-semibold text-[#1a1d1f]">Attendees</p>
-        </div>
+        {/* Banner artwork from the design: attendee faces on a soft teal glow */}
+        <img src={attendeesBanner} alt="Attendees" className="aspect-[1359/447] w-full rounded-xl object-cover" />
 
         <div className="flex flex-col gap-8 px-3 py-4">
           <div className="flex flex-col gap-2">

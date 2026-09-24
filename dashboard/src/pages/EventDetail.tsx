@@ -416,7 +416,6 @@ export default function EventDetail() {
 
       {lockedOpen && (
         <AttendeesLockedModal
-          people={attending.people}
           onClose={() => setLockedOpen(false)}
           onGetTicket={() => {
             setLockedOpen(false)
