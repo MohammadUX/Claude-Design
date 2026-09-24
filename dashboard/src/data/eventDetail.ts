@@ -14,9 +14,38 @@ export type SponsorTier = 'gold' | 'silver' | 'help'
 
 export type Sponsor = { id: string; name: string; tier: SponsorTier; color: string; website?: string }
 
+/** A person on the event team (Participants tab). */
+export type TeamMember = Person & { teamRole: 'Host' | 'Admin' | 'Moderator' }
+
+export type Channel = {
+  name: string
+  description: string
+  members: string
+  color: string
+  /** Public channels can be joined straight away; private ones need a join request. */
+  visibility: 'Public' | 'Private'
+}
+
+export type Engagement =
+  | { id: string; at: string; kind: 'qa'; question: string; askedBy: string | null; tag: string; likes: number }
+  | { id: string; at: string; kind: 'poll'; question: string; options: { label: string; votes: number }[] }
+  | { id: string; at: string; kind: 'wordcloud'; prompt: string; by: Person; words: { text: string; weight: number }[] }
+  | { id: string; at: string; kind: 'announcement'; message: string; by: Person }
+
 export type EventDetail = {
   event: EventItem
   host: Person
+  team: TeamMember[]
+  channel: Channel
+  engagements: Engagement[]
+  resources: {
+    summaryTitle: string
+    summary: string[]
+    howItHelps: string
+    checklist: string[]
+    bookingSuggestions: Person[]
+    aiMatches: Person[]
+  }
   when: { month: string; day: string; longDate: string; time: string }
   location: { label: string; hostedIn: string }
   speakers: Person[]
@@ -61,12 +90,63 @@ const people: Person[] = [
 const attendees: Person[] = [
   'Chidi Okafor', 'Lerato Dlamini', 'Musa Abubakar', 'Zainab Bello', 'Kwame Asante', 'Nia Wanjiru',
   'Emeka Obi', 'Fatima Sow', 'Yaw Boateng', 'Aisha Kamara', 'David Mwangi', 'Grace Achieng',
+  'Tobi Adeyemi', 'Sipho Nkosi', 'Halima Yusuf', 'Kojo Mensah', 'Wanjiku Kamau', 'Ifeoma Nwosu',
 ].map((name, i) => ({
   id: `a${i}`,
   name,
-  role: ['Founder', 'Designer', 'Engineer', 'Investor', 'Student', 'Marketer'][i % 6],
+  role: ['Product Designer', 'Teacher', 'Investment expert', 'Engineer', 'Founder', 'Marketer'][i % 6],
   color: ['#7c5a3a', '#475569', '#9d4b6b', '#1f2937', '#3a7c6a', '#6d5bd0'][i % 6],
+  verified: i % 3 !== 1,
+  // A few guests signed up by email only and aren't on PAAQ yet.
+  onPaaq: i % 7 !== 6 && i < 14,
 }))
+
+const team: TeamMember[] = [
+  { ...people[0], teamRole: 'Host' },
+  { id: 't2', name: 'Amara Eze', role: 'Community manager', color: '#4b6b9d', verified: true, onPaaq: true, teamRole: 'Admin' },
+  { id: 't3', name: 'Kofi Mensah', role: 'Operator in residence', color: '#3a7c6a', verified: true, onPaaq: true, teamRole: 'Moderator' },
+]
+
+const channels: Channel[] = [
+  { name: 'Xero Fitness', description: 'High intensity training tips and weekly workout drops, form checks, and motivation.', members: '1.2k', color: '#1a2e05', visibility: 'Public' },
+  { name: 'Founders Circle', description: 'A private room for founders to swap playbooks, hiring notes and investor intros.', members: '486', color: '#312e81', visibility: 'Private' },
+]
+
+function engagementsFor(host: Person): Engagement[] {
+  return [
+    { id: 'g1', at: '4.02 min', kind: 'qa', question: 'How do you keep your team motivated when money is tight?', askedBy: null, tag: '@Speaker', likes: 77 },
+    {
+      id: 'g2',
+      at: '12.40 min',
+      kind: 'poll',
+      question: 'In one word, what drains your energy most?',
+      options: [
+        { label: 'Meetings', votes: 43 },
+        { label: 'Email', votes: 12 },
+        { label: 'Payroll', votes: 3 },
+        { label: 'Hiring', votes: 2 },
+      ],
+    },
+    {
+      id: 'g3',
+      at: '27.15 min',
+      kind: 'wordcloud',
+      prompt: 'Describe your ideal work week in one word.',
+      by: host,
+      words: [
+        { text: 'Focus', weight: 5 },
+        { text: 'Calm', weight: 4 },
+        { text: 'Deep work', weight: 3 },
+        { text: 'Balance', weight: 3 },
+        { text: 'Shipping', weight: 2 },
+        { text: 'Rest', weight: 2 },
+        { text: 'Momentum', weight: 1 },
+        { text: 'Family', weight: 1 },
+      ],
+    },
+    { id: 'g4', at: '48.30 min', kind: 'announcement', message: 'Slides and the weekly planner template are now in Resources.', by: host },
+  ]
+}
 
 const sponsors: Sponsor[] = [
   { id: 's1', name: 'Design Circle', tier: 'gold', color: '#f97316', website: 'designcircle.africa' },
@@ -83,6 +163,28 @@ export function getEventDetail(eventId: string | undefined): EventDetail | null 
   return {
     event,
     host: people[0],
+    team,
+    // Odd-numbered events belong to a private community, so attendees request to join.
+    channel: channels[Number(event.id.replace(/\D/g, '')) % 2 === 0 ? 1 : 0],
+    engagements: engagementsFor(people[0]),
+    resources: {
+      summaryTitle: 'Session summary',
+      summary: [
+        'Sadia walked through how early teams burn out: too many priorities, unclear ownership and no recovery time between launches.',
+        'The fix is a simple operating rhythm: one focus per week, protected deep-work blocks, and a Friday review that decides what to drop.',
+      ],
+      howItHelps:
+        'Use the weekly rhythm to plan your own work, and share the hiring checklist with your co-founder before your next role opens.',
+      checklist: [
+        'List the three tasks that drained you most last week',
+        'Block two 90-minute focus sessions in your calendar',
+        'Set up a 20-minute Friday review',
+        'Decide one thing to stop doing this month',
+        'Share the planner template with your team',
+      ],
+      bookingSuggestions: [people[1], people[3], team[2]],
+      aiMatches: attendees.slice(0, 3),
+    },
     when: parseWhen(event),
     location: event.format === 'Virtual' ? { label: 'Virtual event', hostedIn: 'PAAQ' } : { label: 'In person', hostedIn: 'Landmark Event Centre, Lagos' },
     speakers: [people[0], people[1], people[2], people[3], people[4]],

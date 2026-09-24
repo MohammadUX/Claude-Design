@@ -1,29 +1,21 @@
-import {
-  Add01Icon,
-  AppleIcon,
-  ArrowLeft02Icon,
-  Calendar03Icon,
-  FavouriteIcon,
-  HashtagIcon,
-  LinkSquare02Icon,
-  Location01Icon,
-  Mic01Icon,
-  PlayStoreIcon,
-  Tick02Icon,
-} from '@hugeicons/core-free-icons'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ArrowRight01Icon, Calendar03Icon, FavouriteIcon, HashtagIcon, Location01Icon, Mic01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { useRef, useState, type ReactNode } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import AttendeesLockedModal from '../components/AttendeesLockedModal'
 import Avatar from '../components/Avatar'
+import AppDownloadFooter from '../components/event/AppDownloadFooter'
+import ConfirmRegistrationModal from '../components/event/ConfirmRegistrationModal'
+import EventBreadcrumb from '../components/event/EventBreadcrumb'
+import { FollowButton, InviteButton } from '../components/event/PersonActions'
+import SponsorRow from '../components/event/SponsorRow'
 import { EventArt } from '../components/EventCard'
 import Icon from '../components/Icon'
-import Modal from '../components/Modal'
 import { useToast } from '../components/Toast'
 import VerifiedBadge from '../components/VerifiedBadge'
-import { frostedOverGradient } from '../layouts/detailBackground'
-import { extractAccent } from '../lib/dominantColor'
-import { getEventDetail, type Person, type Sponsor } from '../data/eventDetail'
+import { getEventDetail, type Person } from '../data/eventDetail'
 import { defaultPoster } from '../data/mock'
+import { usePosterAccent } from '../lib/usePosterAccent'
+import { useRegistrations } from '../state/registrationContext'
 import ComingSoon from './ComingSoon'
 
 const glass = 'border border-white/40 bg-white/20'
@@ -42,8 +34,6 @@ function SectionLabel({ children, onSeeAll, seeAllLabel = 'See all' }: { childre
 }
 
 function SpeakerRow({ person }: { person: Person }) {
-  const [following, setFollowing] = useState(false)
-  const [invited, setInvited] = useState(false)
   return (
     <div className="flex w-full items-center justify-between gap-4 py-3">
       <div className="flex min-w-0 items-center gap-3">
@@ -69,59 +59,7 @@ function SpeakerRow({ person }: { person: Person }) {
           </div>
         </div>
       </div>
-      {person.onPaaq ? (
-        <button
-          onClick={() => setFollowing((f) => !f)}
-          aria-pressed={following}
-          className={`flex shrink-0 items-center gap-2 rounded-3xl border px-3 py-1 text-sm leading-[1.4] font-medium transition-colors ${
-            following ? 'border-brand-500 bg-white text-brand-500' : 'border-brand-300 bg-brand-500 text-white hover:brightness-95'
-          }`}
-        >
-          <Icon icon={following ? Tick02Icon : Add01Icon} />
-          {following ? 'Following' : 'Follow'}
-        </button>
-      ) : (
-        <button
-          onClick={() => setInvited(true)}
-          disabled={invited}
-          className="flex shrink-0 items-center gap-2 rounded-3xl border border-brand-100 bg-brand-100 px-3 py-1 text-xs leading-[1.4] font-medium text-brand-700"
-        >
-          <Icon icon={invited ? Tick02Icon : Add01Icon} />
-          {invited ? 'Invite sent' : 'Invite to PAAQ'}
-        </button>
-      )}
-    </div>
-  )
-}
-
-const tierStyle: Record<Sponsor['tier'], { label: string; className: string; style?: React.CSSProperties }> = {
-  gold: {
-    label: 'Gold Sponsor',
-    className: 'border-[#e2ac0c] text-white',
-    style: { backgroundImage: 'linear-gradient(90deg, #f5db6d 0%, #c5921d 24%, #ffc94e 52%, #c5921d 81%, #f5db6d 99%)' },
-  },
-  silver: {
-    label: 'Silver Sponsor',
-    className: 'border-[#a2a0a0] text-ink-900',
-    style: { backgroundImage: 'linear-gradient(91deg, #9b9b9b 0%, #d0d0d0 13%, #fff 48%, #d0d0d0 88%, #9b9b9b 100%)' },
-  },
-  help: { label: 'Help Sponsor', className: 'border-ink-200 bg-white text-ink-800' },
-}
-
-function SponsorRow({ sponsor }: { sponsor: Sponsor }) {
-  const tier = tierStyle[sponsor.tier]
-  return (
-    <div className="flex w-full items-center gap-3 rounded-[20px] p-1">
-      <Avatar name={sponsor.name} color={sponsor.color} size={40} />
-      <p className="text-base leading-[1.2] font-semibold whitespace-nowrap text-ink-900">{sponsor.name}</p>
-      <span className={`rounded-[40px] border-[0.5px] px-3 py-1 text-xs leading-[1.4] font-medium whitespace-nowrap ${tier.className}`} style={tier.style}>
-        {tier.label}
-      </span>
-      {sponsor.website && (
-        <span title={sponsor.website} className="text-ink-700">
-          <Icon icon={LinkSquare02Icon} />
-        </span>
-      )}
+      {person.onPaaq ? <FollowButton /> : <InviteButton />}
     </div>
   )
 }
@@ -132,60 +70,35 @@ export default function EventDetail() {
   const detail = getEventDetail(eventId)
   const { show, toast } = useToast()
 
+  const { email, setEmail, isRegistered, register } = useRegistrations()
+
   const [saved, setSaved] = useState(false)
-  const [interested, setInterested] = useState(false)
-  const [email, setEmail] = useState('ada.obi@example.com')
   const [editingEmail, setEditingEmail] = useState(false)
   const [showAllSpeakers, setShowAllSpeakers] = useState(false)
   const [showAllSponsors, setShowAllSponsors] = useState(false)
-  const [attendeesOpen, setAttendeesOpen] = useState(false)
   const [lockedOpen, setLockedOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const [highlightRsvp, setHighlightRsvp] = useState(false)
   const rsvpRef = useRef<HTMLDivElement>(null)
 
-  // The guest list is only for registered guests; everyone else gets the "Register to view" prompt.
-  const openAttendees = () => (interested ? setAttendeesOpen(true) : setLockedOpen(true))
-
   const poster = detail ? (detail.event.image ?? defaultPoster) : null
-
-  // Tint the page gradient with the poster's main colour.
-  useEffect(() => {
-    if (!poster) return
-    let cancelled = false
-    extractAccent(poster).then(([r, g, b]) => {
-      if (!cancelled) document.documentElement.style.setProperty('--detail-accent', `rgb(${r} ${g} ${b})`)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [poster])
+  usePosterAccent(poster)
 
   if (!detail) return <ComingSoon title="Event not found" note="This event isn't in the prototype data." />
 
   const { event, host, when, location, speakers, about, attending, sponsors } = detail
-  const goingCount = attending.count + (interested ? 1 : 0)
+  const registered = isRegistered(event.id)
+  const spaceUrl = `/events/${event.id}/space`
+  const goingCount = attending.count + (registered ? 1 : 0)
+
+  // The guest list is only for registered guests; everyone else gets the "Register to view" prompt.
+  const openAttendees = () => (registered ? navigate(`${spaceUrl}?tab=participants`) : setLockedOpen(true))
   const visibleSpeakers = showAllSpeakers ? speakers : speakers.slice(0, 3)
   const visibleSponsors = showAllSponsors ? sponsors : sponsors.slice(0, 4)
 
   return (
     <div className="mx-auto flex w-full max-w-[1250px] flex-col gap-4 pb-4">
-      {/* Breadcrumb: sticks under the top bar and blurs whatever scrolls beneath it */}
-      <div className="sticky top-[72px] z-20 -mx-4 -mt-5 flex items-center gap-2 px-4 py-3" style={frostedOverGradient}>
-        <button
-          aria-label="Back"
-          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/events'))}
-          className="flex size-10 items-center justify-center rounded-full text-ink-900 hover:bg-white/60"
-        >
-          <Icon icon={ArrowLeft02Icon} size={24} />
-        </button>
-        <nav className="flex min-w-0 items-center gap-1 text-base leading-[1.4] font-medium text-ink-900">
-          <Link to="/events" className="hover:text-brand-500">
-            Events
-          </Link>
-          <span>/</span>
-          <span className="truncate">{event.title}</span>
-        </nav>
-      </div>
+      <EventBreadcrumb title={event.title} />
 
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-10 lg:flex-row lg:items-start">
         {/* Poster: sticks while the details scroll */}
@@ -313,19 +226,28 @@ export default function EventDetail() {
                       </>
                     )}
                   </div>
-                  <button
-                    onClick={() => {
-                      setInterested((v) => !v)
-                      show(interested ? 'You are no longer marked as interested' : `You're in! We'll send updates to ${email}`)
-                    }}
-                    aria-pressed={interested}
-                    className={`flex w-full items-center justify-center gap-2 rounded-full border px-6 py-3 text-base leading-[1.4] font-medium transition-colors ${
-                      interested ? 'border-brand-500 bg-white text-brand-500' : 'border-brand-300 bg-brand-500 text-white hover:brightness-95'
-                    }`}
-                  >
-                    {interested && <Icon icon={Tick02Icon} />}
-                    {interested ? "You're interested" : event.isLive ? 'Join live event' : "I'm interested"}
-                  </button>
+                  {registered ? (
+                    <div className="flex flex-col gap-2">
+                      <p className="flex items-center justify-center gap-1.5 text-sm font-medium text-brand-700">
+                        <Icon icon={Tick02Icon} size={18} />
+                        You're registered
+                      </p>
+                      <button
+                        onClick={() => navigate(spaceUrl)}
+                        className="flex w-full items-center justify-center gap-2 rounded-full border border-brand-300 bg-brand-500 px-6 py-3 text-base leading-[1.4] font-medium text-white hover:brightness-95"
+                      >
+                        Open event space
+                        <Icon icon={ArrowRight01Icon} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmOpen(true)}
+                      className="flex w-full items-center justify-center gap-2 rounded-full border border-brand-300 bg-brand-500 px-6 py-3 text-base leading-[1.4] font-medium text-white hover:brightness-95"
+                    >
+                      {event.isLive ? 'Join live event' : "I'm interested"}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -370,7 +292,7 @@ export default function EventDetail() {
               <SectionLabel onSeeAll={openAttendees}>Attending</SectionLabel>
               <button onClick={openAttendees} className="flex w-fit items-center gap-2 text-left">
                 <span className="flex items-center">
-                  {(interested ? [{ id: 'me', name: 'Ada Obi', color: '#b45309' }, ...attending.people] : attending.people).slice(0, 4).map((p, i) => (
+                  {(registered ? [{ id: 'me', name: 'Ada Obi', color: '#b45309' }, ...attending.people] : attending.people).slice(0, 4).map((p, i) => (
                     <Avatar key={p.id} name={p.name} color={p.color} size={40} plain className={`border-2 border-white ${i < 3 ? '-mr-[11px]' : ''}`} />
                   ))}
                 </span>
@@ -391,26 +313,7 @@ export default function EventDetail() {
             </section>
           </div>
 
-          {/* App download footer */}
-          <div className="flex flex-col gap-3 border-t border-ink-200 pt-3">
-            <div className="flex flex-wrap items-center justify-end gap-3">
-              <span className="text-base leading-[1.4] font-medium text-ink-900">Download PAAQ App:</span>
-              <span className="flex h-10 w-[115px] items-center gap-2 rounded-lg bg-black px-3 text-white">
-                <Icon icon={AppleIcon} size={20} />
-                <span className="flex flex-col leading-none">
-                  <span className="text-[7px]">Download on the</span>
-                  <span className="text-[11px] font-semibold">Apple Store</span>
-                </span>
-              </span>
-              <span className="flex h-10 w-[115px] items-center gap-2 rounded-lg bg-black px-3 text-white">
-                <Icon icon={PlayStoreIcon} size={20} className="text-[#34a853]" />
-                <span className="flex flex-col leading-none">
-                  <span className="text-[7px]">GET IT ON</span>
-                  <span className="text-[11px] font-semibold">Google Play</span>
-                </span>
-              </span>
-            </div>
-          </div>
+          <AppDownloadFooter />
         </div>
       </div>
 
@@ -426,23 +329,18 @@ export default function EventDetail() {
         />
       )}
 
-      {attendeesOpen && (
-        <Modal title={`${goingCount.toLocaleString()} people going`} onClose={() => setAttendeesOpen(false)}>
-          <ul className="flex flex-col">
-            {(interested ? [{ id: 'me', name: 'Ada Obi (you)', role: 'Attendee', color: '#b45309' }, ...attending.people] : attending.people).map((p) => (
-              <li key={p.id} className="flex items-center gap-3 border-b border-ink-100 py-3 last:border-0">
-                <Avatar name={p.name} color={p.color} size={36} />
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-ink-900">{p.name}</span>
-                  <span className="text-xs text-ink-600">{p.role}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <p className="pt-3 text-center text-sm text-ink-600">
-            and {(goingCount - attending.people.length - (interested ? 1 : 0)).toLocaleString()} more
-          </p>
-        </Modal>
+      {confirmOpen && poster && (
+        <ConfirmRegistrationModal
+          detail={detail}
+          poster={poster}
+          email={email}
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={() => {
+            register(event.id)
+            setConfirmOpen(false)
+            navigate(spaceUrl, { state: { justRegistered: true } })
+          }}
+        />
       )}
 
       {toast}

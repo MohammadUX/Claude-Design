@@ -6,7 +6,7 @@ import { detailGradient } from './detailBackground'
 
 export default function DashboardLayout() {
   const { pathname } = useLocation()
-  const detailMatch = useMatch('/events/:eventId')
+  const detailMatch = useMatch('/events/:eventId/*')
   const isDetail = detailMatch !== null && detailMatch.params.eventId !== 'create'
 
   useEffect(() => {
