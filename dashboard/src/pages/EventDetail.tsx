@@ -296,7 +296,7 @@ export default function EventDetail() {
                     }`}
                   >
                     {interested && <Icon icon={Tick02Icon} />}
-                    {interested ? "You're interested" : event.isLive ? 'Join live event' : 'I'm interested'}
+                    {interested ? "You're interested" : event.isLive ? 'Join live event' : "I'm interested"}
                   </button>
                 </div>
               </div>
