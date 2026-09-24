@@ -84,7 +84,7 @@ export function getEventDetail(eventId: string | undefined): EventDetail | null 
     event,
     host: people[0],
     when: parseWhen(event),
-    location: { label: 'Virtual event', hostedIn: 'PAAQ' },
+    location: event.format === 'Virtual' ? { label: 'Virtual event', hostedIn: 'PAAQ' } : { label: 'In person', hostedIn: 'Landmark Event Centre, Lagos' },
     speakers: [people[0], people[1], people[2], people[3], people[4]],
     about: {
       intro:

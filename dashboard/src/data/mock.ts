@@ -34,6 +34,7 @@ export type EventItem = {
   categoryId: string
   organizerId: string
   isLive?: boolean
+  format: 'Virtual' | 'In person'
   /** Placeholder poster art until real banners are exported from Figma. */
   art: { from: string; to: string; ink: string; kicker: string }
   /** Real event poster. When set it replaces the placeholder art. */
@@ -83,23 +84,23 @@ const art = {
 }
 
 export const featuredEvents: EventItem[] = [
-  { id: 'e1', title: 'Breaking into UX: Portfolio Clinic', date: 'Sat, Jul 4, 2026.  7.00 PM', priceFrom: null, attendees: 852, categoryId: 'art', organizerId: 'o1', art: art.amber, image: creatorverseSpeaker },
-  { id: 'e2', title: 'Creator Economy Masterclass', date: 'Sun, Jul 5, 2026.  4.00 PM', priceFrom: null, attendees: 614, categoryId: 'business', organizerId: 'o5', art: art.indigo, image: creatorverseSpeaker },
-  { id: 'e3', title: 'Product Leadership Summit', date: 'Fri, Jul 10, 2026.  10.00 AM', priceFrom: 5, attendees: 1204, categoryId: 'technology', organizerId: 'o4', art: art.pink, image: ipcSpeaker },
-  { id: 'e4', title: 'Thrive Beyond Borders', date: 'Tue, Jul 14, 2026.  6.30 PM', priceFrom: 5, attendees: 852, categoryId: 'business', organizerId: 'o3', art: art.night, image: thriveBorders },
-  { id: 'e5', title: 'Crypto Regulation Roundtable', date: 'Thu, Jul 16, 2026.  2.00 PM', priceFrom: 12, attendees: 320, categoryId: 'crypto', organizerId: 'o2', art: art.gold, image: brandupScale },
-  { id: 'e6', title: 'AI for Legal Teams', date: 'Mon, Jul 20, 2026.  11.00 AM', priceFrom: 20, attendees: 488, categoryId: 'legal', organizerId: 'o3', art: art.violet, image: ipcSpeaker },
-  { id: 'e7', title: 'Morning HIIT in the Park', date: 'Sat, Jul 25, 2026.  7.00 AM', priceFrom: null, attendees: 96, categoryId: 'fitness', organizerId: 'o5', art: art.lime, image: thriveBorders },
-  { id: 'e8', title: 'Personal Finance 101', date: 'Wed, Jul 29, 2026.  5.00 PM', priceFrom: null, attendees: 740, categoryId: 'finance', organizerId: 'o2', art: art.lilac, image: brandupScale },
+  { id: 'e1', title: 'Breaking into UX: Portfolio Clinic', date: 'Sat, Jul 4, 2026.  7.00 PM', format: 'In person', priceFrom: null, attendees: 852, categoryId: 'art', organizerId: 'o1', art: art.amber, image: creatorverseSpeaker },
+  { id: 'e2', title: 'Creator Economy Masterclass', date: 'Sun, Jul 5, 2026.  4.00 PM', format: 'Virtual', priceFrom: null, attendees: 614, categoryId: 'business', organizerId: 'o5', art: art.indigo, image: creatorverseSpeaker },
+  { id: 'e3', title: 'Product Leadership Summit', date: 'Fri, Jul 10, 2026.  10.00 AM', format: 'In person', priceFrom: 5, attendees: 1204, categoryId: 'technology', organizerId: 'o4', art: art.pink, image: ipcSpeaker },
+  { id: 'e4', title: 'Thrive Beyond Borders', date: 'Tue, Jul 14, 2026.  6.30 PM', format: 'Virtual', priceFrom: 5, attendees: 852, categoryId: 'business', organizerId: 'o3', art: art.night, image: thriveBorders },
+  { id: 'e5', title: 'Crypto Regulation Roundtable', date: 'Thu, Jul 16, 2026.  2.00 PM', format: 'In person', priceFrom: 12, attendees: 320, categoryId: 'crypto', organizerId: 'o2', art: art.gold, image: brandupScale },
+  { id: 'e6', title: 'AI for Legal Teams', date: 'Mon, Jul 20, 2026.  11.00 AM', format: 'Virtual', priceFrom: 20, attendees: 488, categoryId: 'legal', organizerId: 'o3', art: art.violet, image: ipcSpeaker },
+  { id: 'e7', title: 'Morning HIIT in the Park', date: 'Sat, Jul 25, 2026.  7.00 AM', format: 'In person', priceFrom: null, attendees: 96, categoryId: 'fitness', organizerId: 'o5', art: art.lime, image: thriveBorders },
+  { id: 'e8', title: 'Personal Finance 101', date: 'Wed, Jul 29, 2026.  5.00 PM', format: 'Virtual', priceFrom: null, attendees: 740, categoryId: 'finance', organizerId: 'o2', art: art.lilac, image: brandupScale },
 ]
 
 export const liveEvents: EventItem[] = [
-  { id: 'l1', title: 'Minister Speaks: Future of Tech', date: 'Live now  ·  Started 7.00 PM', priceFrom: null, attendees: 852, categoryId: 'technology', organizerId: 'o3', isLive: true, art: art.violet, image: thriveBorders },
-  { id: 'l2', title: 'Business Intelligence for Creatives', date: 'Live now  ·  Started 6.30 PM', priceFrom: 5, attendees: 1320, categoryId: 'business', organizerId: 'o5', isLive: true, art: art.lime, image: brandupScale },
-  { id: 'l3', title: 'Building Apps with AI Agents', date: 'Live now  ·  Started 6.00 PM', priceFrom: 5, attendees: 977, categoryId: 'ai', organizerId: 'o4', isLive: true, art: art.lilac, image: ipcSpeaker },
-  { id: 'l4', title: 'Scale: Design. Build. Grow.', date: 'Live now  ·  Started 5.45 PM', priceFrom: 5, attendees: 2104, categoryId: 'engineering', organizerId: 'o1', isLive: true, art: art.gold, image: brandupScale },
-  { id: 'l5', title: 'Investing in Emerging Markets', date: 'Live now  ·  Started 5.30 PM', priceFrom: 10, attendees: 431, categoryId: 'investments', organizerId: 'o2', isLive: true, art: art.night, image: creatorverseSpeaker },
-  { id: 'l6', title: 'Breaking into UX: Portfolio Clinic', date: 'Live now  ·  Started 5.00 PM', priceFrom: null, attendees: 852, categoryId: 'art', organizerId: 'o1', isLive: true, art: art.amber, image: creatorverseSpeaker },
+  { id: 'l1', title: 'Minister Speaks: Future of Tech', date: 'Live now  ·  Started 7.00 PM', format: 'Virtual', priceFrom: null, attendees: 852, categoryId: 'technology', organizerId: 'o3', isLive: true, art: art.violet, image: thriveBorders },
+  { id: 'l2', title: 'Business Intelligence for Creatives', date: 'Live now  ·  Started 6.30 PM', format: 'In person', priceFrom: 5, attendees: 1320, categoryId: 'business', organizerId: 'o5', isLive: true, art: art.lime, image: brandupScale },
+  { id: 'l3', title: 'Building Apps with AI Agents', date: 'Live now  ·  Started 6.00 PM', format: 'Virtual', priceFrom: 5, attendees: 977, categoryId: 'ai', organizerId: 'o4', isLive: true, art: art.lilac, image: ipcSpeaker },
+  { id: 'l4', title: 'Scale: Design. Build. Grow.', date: 'Live now  ·  Started 5.45 PM', format: 'In person', priceFrom: 5, attendees: 2104, categoryId: 'engineering', organizerId: 'o1', isLive: true, art: art.gold, image: brandupScale },
+  { id: 'l5', title: 'Investing in Emerging Markets', date: 'Live now  ·  Started 5.30 PM', format: 'Virtual', priceFrom: 10, attendees: 431, categoryId: 'investments', organizerId: 'o2', isLive: true, art: art.night, image: creatorverseSpeaker },
+  { id: 'l6', title: 'Breaking into UX: Portfolio Clinic', date: 'Live now  ·  Started 5.00 PM', format: 'Virtual', priceFrom: null, attendees: 852, categoryId: 'art', organizerId: 'o1', isLive: true, art: art.amber, image: creatorverseSpeaker },
 ]
 
 export const allEvents = [...featuredEvents, ...liveEvents]

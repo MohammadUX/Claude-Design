@@ -7,6 +7,7 @@ import Icon from '../components/Icon'
 import OrganizerBanner from '../components/OrganizerBanner'
 import OrganizerCard from '../components/OrganizerCard'
 import SearchFilterBar, { type PriceFilter } from '../components/SearchFilterBar'
+import SearchPopup from '../components/SearchPopup'
 import SectionHeader from '../components/SectionHeader'
 import { allEvents, categories, featuredEvents, liveEvents, organizers } from '../data/mock'
 
@@ -15,6 +16,7 @@ export default function EventsExplore() {
   const [price, setPrice] = useState<PriceFilter>('all')
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [liveOnly, setLiveOnly] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   const isFiltering = query.trim() !== '' || price !== 'all' || categoryId !== null || liveOnly
 
@@ -22,7 +24,7 @@ export default function EventsExplore() {
     const q = query.trim().toLowerCase()
     return allEvents.filter((e) => {
       if (liveOnly && !e.isLive) return false
-      if (q && !`${e.title} ${e.date}`.toLowerCase().includes(q)) return false
+      if (q && !`${e.title} ${e.date} ${e.format}`.toLowerCase().includes(q)) return false
       if (price === 'free' && e.priceFrom !== null) return false
       if (price === 'paid' && e.priceFrom === null) return false
       if (categoryId && e.categoryId !== categoryId) return false
@@ -50,6 +52,7 @@ export default function EventsExplore() {
           <SearchFilterBar
             query={query}
             onQueryChange={setQuery}
+            onOpenSearch={() => setSearchOpen(true)}
             price={price}
             onPriceChange={setPrice}
             categoryId={categoryId}
@@ -107,6 +110,21 @@ export default function EventsExplore() {
           </div>
         )}
       </div>
+      {searchOpen && (
+        <SearchPopup
+          initialQuery={query}
+          onClose={() => setSearchOpen(false)}
+          onSeeAll={(q) => {
+            setQuery(q.trim())
+            setSearchOpen(false)
+          }}
+          onPickCategory={(id) => {
+            setQuery('')
+            setCategoryId(id)
+            setSearchOpen(false)
+          }}
+        />
+      )}
     </div>
   )
 }

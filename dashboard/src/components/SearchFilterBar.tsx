@@ -1,4 +1,4 @@
-import { ArrowDown01Icon, FilterHorizontalIcon, Search01Icon } from '@hugeicons/core-free-icons'
+import { ArrowDown01Icon, Cancel01Icon, FilterHorizontalIcon, Search01Icon } from '@hugeicons/core-free-icons'
 import { useEffect, useRef, useState } from 'react'
 import { categories } from '../data/mock'
 import Icon from './Icon'
@@ -8,6 +8,8 @@ export type PriceFilter = 'all' | 'free' | 'paid'
 type SearchFilterBarProps = {
   query: string
   onQueryChange: (q: string) => void
+  /** Opens the search popup. */
+  onOpenSearch: () => void
   price: PriceFilter
   onPriceChange: (p: PriceFilter) => void
   categoryId: string | null
@@ -21,7 +23,7 @@ const priceOptions: { value: PriceFilter; label: string }[] = [
 ]
 
 export default function SearchFilterBar(props: SearchFilterBarProps) {
-  const { query, onQueryChange, price, onPriceChange, categoryId, onCategoryChange } = props
+  const { query, onQueryChange, onOpenSearch, price, onPriceChange, categoryId, onCategoryChange } = props
   const [open, setOpen] = useState(false)
   const popRef = useRef<HTMLDivElement>(null)
   const activeCount = (price !== 'all' ? 1 : 0) + (categoryId ? 1 : 0)
@@ -42,15 +44,19 @@ export default function SearchFilterBar(props: SearchFilterBarProps) {
 
   return (
     <div className="flex h-11 w-full max-w-[648px] items-center gap-2">
-      <label className="flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-[40px] border border-ink-200 bg-white px-5 focus-within:border-brand-300">
-        <Icon icon={Search01Icon} className="shrink-0 text-ink-600" />
-        <input
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Search by name, date, session"
-          className="min-w-0 flex-1 bg-transparent text-sm leading-[1.4] font-medium text-ink-900 outline-none placeholder:text-ink-600"
-        />
-      </label>
+      <div className="flex h-11 min-w-0 flex-1 items-center rounded-[40px] border border-ink-200 bg-white hover:border-brand-300">
+        <button onClick={onOpenSearch} className="flex h-full min-w-0 flex-1 items-center gap-2.5 pl-5 text-left">
+          <Icon icon={Search01Icon} className="shrink-0 text-ink-600" />
+          <span className={`truncate text-sm leading-[1.4] font-medium ${query ? 'text-ink-900' : 'text-ink-600'}`}>
+            {query || 'Search by name, date, session'}
+          </span>
+        </button>
+        {query && (
+          <button aria-label="Clear search" onClick={() => onQueryChange('')} className="mr-3 flex size-7 items-center justify-center rounded-full text-ink-600 hover:bg-ink-100">
+            <Icon icon={Cancel01Icon} size={16} />
+          </button>
+        )}
+      </div>
 
       <div ref={popRef} className="relative">
         <button
