@@ -69,10 +69,19 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .hero h1{font-size:clamp(30px,3.6vw,50px);line-height:1.06;letter-spacing:-.035em;font-weight:500;margin:.25em 0 0;text-wrap:balance;max-width:20ch}
 .hero-side{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .hero-date{font-weight:500;font-size:15px}
-.fuel{display:grid;grid-template-columns:repeat(2,auto);gap:6px;padding:8px;border-radius:16px;background:rgba(16,16,17,.72);backdrop-filter:blur(10px);border:1px solid var(--line)}
-.fuel-item{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.04);font-size:12px;color:var(--muted)}
-.fuel-item b{color:var(--text);font-weight:600}
-.fuel-note{grid-column:1/-1;text-align:center;font-size:10.5px;color:var(--faint)}
+.fuel{display:grid;grid-template-columns:repeat(2,148px);gap:8px}
+@media(min-width:1700px){.fuel{grid-template-columns:repeat(4,148px)}}
+.fuel-tile{position:relative;display:flex;flex-direction:column;gap:2px;padding:10px 12px 10px;border-radius:14px;background:rgba(21,20,19,.66);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);min-width:0}
+.fuel-tile.main{border-color:rgba(255,106,43,.45);background:rgba(36,24,17,.72)}
+.fuel-top{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.fuel-tag{white-space:nowrap;font-size:9.5px;letter-spacing:.05em;color:var(--accent-2);font-weight:600}
+.fuel-price{display:flex;align-items:baseline;gap:3px;margin-top:2px}
+.fuel-price b{font-size:20px;font-weight:500;letter-spacing:-.02em;line-height:1.15}
+.fuel-price small{font-size:11px;color:var(--faint)}
+.fuel-foot{white-space:nowrap;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;color:var(--muted)}
+.fuel-foot .up{color:var(--text)}
+.fuel-note{font-size:11px;color:var(--faint);text-align:right}
+@media(max-width:760px){.fuel{grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.fuel-note{text-align:left}.hero-side{width:100%}}
 .kpis{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
 .kpi{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 10px;border-radius:14px;background:rgba(18,18,19,.72);backdrop-filter:blur(10px);border:1px solid var(--line);text-align:left}
 .kpi:hover{border-color:var(--line-2);background:rgba(30,30,32,.85)}
@@ -359,13 +368,8 @@ td.mut{color:var(--muted)}
       </div>
       <div class="hero-side">
         <div class="hero-date" id="heroDate">Monday, 28 September 2026</div>
-        <div class="fuel" aria-label="Average fuel prices">
-          <div class="fuel-item"><span>Diesel</span><b class="num">€1.689</b></div>
-          <div class="fuel-item"><span>Petrol</span><b class="num">€1.812</b></div>
-          <div class="fuel-item"><span>LPG</span><b class="num">€0.716</b></div>
-          <div class="fuel-item"><span>Methane</span><b class="num">€1.349</b></div>
-          <div class="fuel-note">Average price per litre / kg · 28/09/2026</div>
-        </div>
+        <div class="fuel" id="fuel" role="list" aria-label="Average fuel prices in Italy"></div>
+        <div class="fuel-note">Italy average · 7-day trend · updated today 08:00</div>
       </div>
     </div>
   </div>
@@ -913,6 +917,29 @@ document.getElementById('drawerClose').onclick=closeDrawer;scrim.onclick=closeDr
 /* toast */
 let tt;function toast(m){const t=document.getElementById('toast');t.innerHTML=ic('check',16,2.4)+esc(m);t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
 ICONS.check='<path d="M5 12.5l4.5 4.5L19 7"/>';
+
+/* ================= Fuel prices ================= */
+const FUEL=[
+  {name:'Diesel',unit:'/L',main:true,h:[1.671,1.674,1.678,1.676,1.682,1.685,1.689]},
+  {name:'Petrol',unit:'/L',h:[1.824,1.821,1.819,1.818,1.815,1.814,1.812]},
+  {name:'LPG',unit:'/L',h:[0.712,0.713,0.713,0.714,0.715,0.716,0.716]},
+  {name:'Methane',unit:'/kg',h:[1.372,1.366,1.361,1.358,1.354,1.351,1.349]}
+];
+function spark(h,main){
+  const w=46,ht=18,mn=Math.min(...h),mx=Math.max(...h),r=mx-mn||1;
+  const pts=h.map((v,i)=>[i*(w-4)/(h.length-1)+2,ht-2-(v-mn)/r*(ht-4)]);
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const [lx,ly]=pts[pts.length-1], c=main?'#FF6A2B':'#A29D97';
+  return `<svg width="${w}" height="${ht}" viewBox="0 0 ${w} ${ht}" aria-hidden="true"><path d="${d}" fill="none" stroke="${c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${lx}" cy="${ly}" r="2.2" fill="${c}"/></svg>`;
+}
+document.getElementById('fuel').innerHTML=FUEL.map(f=>{
+  const now=f.h[f.h.length-1], diff=now-f.h[0], cents=(diff*100).toFixed(1).replace('-','−');
+  const arrow=diff>0?'↑':diff<0?'↓':'→';
+  return `<div class="fuel-tile ${f.main?'main':''}" role="listitem" aria-label="${f.name} €${now.toFixed(3)} per ${f.unit.slice(1)}, ${diff>=0?'up':'down'} ${Math.abs(diff*100).toFixed(1)} cents this week">
+    <div class="fuel-top"><span>${f.name}</span>${f.main?'<span class="fuel-tag">Your fleet</span>':''}</div>
+    <div class="fuel-price"><b class="num">€${now.toFixed(3)}</b><small>${f.unit}</small></div>
+    <div class="fuel-foot"><span class="num ${diff>0?'up':''}">${arrow} ${diff>0?'+':''}${cents}¢ wk</span>${spark(f.h,f.main)}</div>
+  </div>`}).join('');
 
 hydrateIcons();
 renderGrid();
