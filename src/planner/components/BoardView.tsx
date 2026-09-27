@@ -4,7 +4,7 @@
  * Rows have variable height (cards wrap), so the virtualizer measures each row.
  */
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { ChevronRight, CircleCheck, CircleX, Clock, Inbox, Lock, Plus, TriangleAlert, Truck } from 'lucide-react';
+import { Award, ChevronRight, Gauge, IdCard, Inbox, Lock, Plus, TriangleAlert, Truck } from 'lucide-react';
 import { memo, useRef } from 'react';
 import { ABSENCE, DOC_STATE, DOCS, TOUR_STATUS } from '../config';
 import { diffDays, fmtMedium, fmtRelativeDays, fmtShort, nowMin } from '../date';
@@ -142,7 +142,9 @@ export const BoardCard = memo(function BoardCard({ tour, date }: { tour: Tour; d
 
 /* ------------------------------------------------------ Driver info cell */
 
-const DOC_ICON = { ok: CircleCheck, expiring: Clock, expired: CircleX } as const;
+/** One recognisable icon per document; its color carries the state. */
+const DOC_ICON = { license: IdCard, cqc: Award, tacho: Gauge } as const;
+const DOC_ICON_COLOR = { ok: 'var(--text-3)', expiring: DOC_STATE.expiring.color, expired: DOC_STATE.expired.color } as const;
 
 /** Same neutral chip for every document; the icon and a slight text shade carry the state. */
 function DocChips({ driver, refDate }: { driver: Driver; refDate: string }) {
@@ -151,10 +153,10 @@ function DocChips({ driver, refDate }: { driver: Driver; refDate: string }) {
       {DOCS.map((d) => {
         const exp = driver.docs[d.key];
         const st = docState(exp, refDate);
-        const Icon = DOC_ICON[st];
+        const Icon = DOC_ICON[d.key];
         return (
           <span key={d.key} className={`dchip dchip--${st}`} aria-label={`${d.label}: ${DOC_STATE[st].label}`}>
-            <Icon size={12} strokeWidth={2.2} className="dchip__icon" style={{ color: DOC_STATE[st].color }} aria-hidden />
+            <Icon size={13} strokeWidth={2} className="dchip__icon" style={{ color: DOC_ICON_COLOR[st] }} aria-hidden />
             {d.key === 'tacho' ? 'Tacho' : d.label}
             {st !== 'ok' && <span className="dchip__date">{st === 'expired' ? 'expired' : fmtShort(exp)}</span>}
           </span>
