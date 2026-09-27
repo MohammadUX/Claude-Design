@@ -1,0 +1,581 @@
+<title>Ledgerline AP Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --sunk:#EAEEF4;
+  --ink:#131A27; --ink-2:#3A4356; --muted:#5E6779; --line:#D9DEE7;
+  --accent:#2946C8; --accent-soft:#E4E9FB;
+  --gap:#A65F00; --gap-soft:#FBEFD9;
+  --ok:#1D7447; --ok-soft:#DDF1E6;
+  --risk:#B3261E; --risk-soft:#F9E1DF;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0D1119; --surface:#151B26; --sunk:#1B2230;
+    --ink:#E7EAF1; --ink-2:#C2C8D5; --muted:#949DB0; --line:#283042;
+    --accent:#93A6FF; --accent-soft:#1E2748;
+    --gap:#F2AE55; --gap-soft:#33260F;
+    --ok:#62C995; --ok-soft:#112C20;
+    --risk:#F08C84; --risk-soft:#3A1614;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0D1119; --surface:#151B26; --sunk:#1B2230;
+  --ink:#E7EAF1; --ink-2:#C2C8D5; --muted:#949DB0; --line:#283042;
+  --accent:#93A6FF; --accent-soft:#1E2748;
+  --gap:#F2AE55; --gap-soft:#33260F;
+  --ok:#62C995; --ok-soft:#112C20;
+  --risk:#F08C84; --risk-soft:#3A1614;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:clamp(16px,4vw,40px);padding-block:32px 80px}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1;letter-spacing:-.01em}
+h1{font-size:clamp(2.2rem,5.4vw,3.9rem);font-weight:800}
+h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700}
+h3{font-size:1.2rem;font-weight:700;line-height:1.25}
+p{margin:0;max-width:66ch}
+.label{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:1.15rem;color:var(--ink-2);max-width:62ch}
+.num{font-variant-numeric:tabular-nums}
+section{padding-top:72px;display:grid;gap:22px}
+.sec-head{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:22px}
+.sec-head .label b{color:var(--accent);font-weight:500}
+
+/* Masthead */
+.mast{display:grid;gap:22px;padding-top:16px}
+.mast-top{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;align-items:baseline}
+.brand{font-family:var(--display);font-weight:800;font-size:1.05rem;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.brand i{display:inline-block;width:18px;height:18px;border-radius:4px;background:
+  linear-gradient(var(--accent),var(--accent)) 0 3px/100% 2px no-repeat,
+  linear-gradient(var(--accent),var(--accent)) 0 8px/70% 2px no-repeat,
+  linear-gradient(var(--accent),var(--accent)) 0 13px/85% 2px no-repeat;border:1.5px solid var(--accent)}
+h1 em{font-style:normal;color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;gap:10px 28px;padding:16px 0;border-block:1px solid var(--line)}
+.meta div{display:grid;gap:2px}
+.meta span:last-child{font-weight:500}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stat{background:var(--surface);padding:18px 20px;display:grid;gap:6px;align-content:start}
+.stat b{font-family:var(--display);font-size:2.2rem;line-height:1;font-weight:700}
+.stat p{font-size:.9rem;color:var(--muted)}
+
+/* Callout */
+.thesis{background:var(--accent-soft);border-radius:var(--r);padding:22px 24px;display:grid;gap:10px}
+.thesis p{font-size:1.08rem;color:var(--ink)}
+
+/* Pipeline */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;counter-reset:st}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:6px;align-content:start;counter-increment:st}
+.stage .label::before{content:counter(st,decimal-leading-zero) " · "}
+.stage h3{font-size:1.02rem}
+.stage p{font-size:.86rem;color:var(--muted)}
+.stage .owner{font-family:var(--mono);font-size:.72rem;color:var(--ink-2);background:var(--sunk);border-radius:4px;padding:2px 6px;justify-self:start}
+@media (max-width:820px){.pipe{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.pipe{grid-template-columns:1fr}}
+
+/* Personas */
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:grid;gap:8px;align-content:start}
+.card p,.card li{font-size:.93rem;color:var(--ink-2)}
+.card ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.quote{font-style:italic;color:var(--ink)!important}
+
+/* Chart */
+.chart-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:14px}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:130px 1fr 34px;gap:12px;align-items:center;font-size:.9rem}
+.bar .track{height:22px;background:var(--sunk);border-radius:4px;position:relative;overflow:hidden}
+.bar .fill{height:100%;background:var(--muted);border-radius:4px}
+.bar.target .fill{background:var(--accent)}
+.bar.target span:first-child{font-weight:600;color:var(--accent)}
+.bar .v{font-family:var(--mono);text-align:right}
+.axis{display:grid;grid-template-columns:130px 1fr 34px;gap:12px}
+.axis .ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+@media (max-width:520px){.bar,.axis{grid-template-columns:92px 1fr 28px;gap:8px}}
+
+/* Matrix */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:.88rem}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+thead th{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--sunk)}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+tbody th{font-weight:600;white-space:nowrap}
+td.c{text-align:center}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);vertical-align:middle}
+.dot.full{background:var(--ok);border-color:var(--ok)}
+.dot.half{background:linear-gradient(90deg,var(--gap) 50%,transparent 50%);border-color:var(--gap)}
+.dot.none{border-color:var(--risk)}
+.dot.na{border:0;width:auto;height:auto;color:var(--muted)}
+.dot.na::before{content:"–"}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.84rem;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+
+/* Gaps */
+.gap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;padding:26px 0;border-top:1px dashed var(--line)}
+.gap:first-of-type{border-top:0}
+.gap-body{display:grid;gap:12px;align-content:start}
+.gap-id{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pill{font-family:var(--mono);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:500}
+.pill.med{background:var(--gap-soft);color:var(--gap)}
+.pill.hi{background:var(--risk-soft);color:var(--risk)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.ai{background:var(--accent-soft);color:var(--accent)}
+.gap-body ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.93rem;color:var(--ink-2)}
+.fix{background:var(--sunk);border-radius:8px;padding:12px 14px;font-size:.92rem;display:grid;gap:4px}
+.fix b{color:var(--accent)}
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
+.shots.one{grid-template-columns:1fr}
+figure{margin:0;display:grid;gap:6px}
+figure img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:var(--sunk)}
+figcaption{font-size:.8rem;color:var(--muted);line-height:1.45}
+figcaption a{color:var(--muted)}
+figcaption b{color:var(--ink-2);font-weight:600}
+@media (max-width:820px){.gap{grid-template-columns:1fr}}
+@media (max-width:460px){.shots{grid-template-columns:1fr}}
+
+/* Features */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.feat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:10px;align-content:start}
+.feat-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.feat dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.88rem}
+.feat dt{font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-top:3px}
+.feat dd{margin:0;color:var(--ink-2)}
+
+/* Mock UI */
+.mock-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:820px){.mock-row{grid-template-columns:1fr}}
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:grid;align-content:start;box-shadow:0 1px 0 var(--line),0 18px 40px -28px rgba(20,30,60,.45)}
+.mock-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.mock-bar b{font-size:.86rem}
+.mock-body{padding:14px;display:grid;gap:10px}
+.field{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:.86rem;padding:8px 10px;border-radius:6px;border:1px solid var(--line)}
+.field .k{color:var(--muted);font-size:.8rem}
+.field .v{font-weight:500}
+.field.warn{border-color:var(--gap);background:var(--gap-soft)}
+.conf{font-family:var(--mono);font-size:.72rem;color:var(--ok)}
+.field.warn .conf{color:var(--gap)}
+.why{font-size:.8rem;color:var(--muted)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{font:500 .84rem var(--body);padding:7px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.brief{display:grid;gap:8px}
+.brief-row{display:flex;justify-content:space-between;gap:10px;font-size:.86rem;border-bottom:1px solid var(--line);padding-bottom:6px}
+.brief-row span:last-child{font-family:var(--mono);font-size:.82rem;text-align:right}
+.meter{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden}
+.meter i{display:block;height:100%;width:72%;background:var(--accent)}
+.flag{display:flex;gap:8px;align-items:flex-start;font-size:.84rem;background:var(--gap-soft);color:var(--ink);padding:8px 10px;border-radius:6px}
+.flag::before{content:"!";font:700 .75rem var(--mono);color:var(--gap);border:1.5px solid var(--gap);border-radius:50%;width:18px;height:18px;display:grid;place-items:center;flex:none}
+.ai-tag{font-family:var(--mono);font-size:.68rem;color:var(--accent);letter-spacing:.05em}
+
+/* Autonomy ladder */
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.rung{padding:16px;display:grid;gap:6px;align-content:start;border-right:1px solid var(--line)}
+.rung:last-child{border-right:0}
+.rung p{font-size:.86rem;color:var(--ink-2)}
+.rung .lvl{height:6px;border-radius:3px;background:var(--accent)}
+.rung:nth-child(1) .lvl{width:25%}.rung:nth-child(2) .lvl{width:50%}.rung:nth-child(3) .lvl{width:75%}.rung:nth-child(4) .lvl{width:100%}
+@media (max-width:720px){.ladder{grid-template-columns:1fr 1fr}.rung:nth-child(2){border-right:0}.rung:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media (max-width:420px){.ladder{grid-template-columns:1fr}.rung{border-right:0;border-bottom:1px solid var(--line)}.rung:last-child{border-bottom:0}}
+
+/* Roadmap */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:820px){.phases{grid-template-columns:1fr}}
+.phase{border-top:3px solid var(--accent);background:var(--surface);border-radius:0 0 var(--r) var(--r);padding:16px 18px;display:grid;gap:8px;align-content:start;border-inline:1px solid var(--line);border-bottom:1px solid var(--line)}
+.phase:nth-child(2){border-top-color:color-mix(in srgb,var(--accent) 65%,var(--bg))}
+.phase:nth-child(3){border-top-color:color-mix(in srgb,var(--accent) 35%,var(--bg))}
+.phase ul{margin:0;padding-left:18px;font-size:.9rem;color:var(--ink-2);display:grid;gap:4px}
+
+.sources{columns:2 300px;column-gap:28px;font-size:.86rem;color:var(--ink-2);padding-left:18px;margin:0}
+.sources li{break-inside:avoid;margin-bottom:6px}
+footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-size:.84rem;color:var(--muted);display:grid;gap:6px}
+@media (prefers-reduced-motion:no-preference){.meter i{animation:grow 1.2s ease-out both}@keyframes grow{from{width:8%}}}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="mast-top">
+    <div class="brand"><i aria-hidden="true"></i>Ledgerline</div>
+    <span class="label">UX case study · B2B fintech · Accounts payable</span>
+  </div>
+  <h1>Invoices still get typed by hand. <em>AI should do the typing and show its work.</em></h1>
+  <p class="lede">A gap analysis of nine B2B spend and bill-pay products, benchmarked on Mobbin, and a concept for an AP workspace where AI carries the routine steps from invoice to reconciled ledger entry, and people make the calls that need judgment.</p>
+  <div class="meta">
+    <div><span class="label">Domain</span><span>Accounts payable & spend management</span></div>
+    <div><span class="label">Users</span><span>AP clerks, budget owners, controllers</span></div>
+    <div><span class="label">Method</span><span>Mobbin flow & screen audit (web)</span></div>
+    <div><span class="label">Date</span><span class="num">27 Sep 2026</span></div>
+  </div>
+</header>
+
+<section id="summary" aria-labelledby="h-summary">
+  <div class="sec-head">
+    <span class="label"><b>Summary</b></span>
+    <h2 id="h-summary">What we found</h2>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="label">Products audited</span><b class="num">9</b><p>Airwallex, Melio, QuickBooks, Xero, Mercury, Acctual, Midday, Shopify Bill Pay, Navan</p></div>
+    <div class="stat"><span class="label">Screens to enter one bill</span><b class="num">7–13</b><p>Screen count of the "add a bill" flows captured on Mobbin</p></div>
+    <div class="stat"><span class="label">Gaps identified</span><b class="num">7</b><p>Across the five stages of the payable lifecycle</p></div>
+    <div class="stat"><span class="label">AI features proposed</span><b class="num">7</b><p>Each tied to a gap, a user, and a success metric</p></div>
+  </div>
+  <div class="thesis">
+    <span class="label">Core insight</span>
+    <p>Most products already let you <strong>upload</strong> an invoice. Few of them <strong>read</strong> it. The PDF sits beside a blank form, and a person copies vendor, amount, dates and line items across by hand. The same pattern repeats downstream. Approvers see an amount but not the context, duplicates are found after they exist, and payment dates ignore cash position. Where AI appears at all, it is a chat box beside the workflow rather than inside it.</p>
+  </div>
+</section>
+
+<section id="lifecycle" aria-labelledby="h-life">
+  <div class="sec-head">
+    <span class="label"><b>01</b> · Context</span>
+    <h2 id="h-life">The payable lifecycle</h2>
+    <p>Every bill passes through the same five stages. Each stage has a different owner, which is why handoffs and waiting time dominate the cost of processing an invoice.</p>
+  </div>
+  <div class="pipe">
+    <div class="stage"><span class="label">Capture</span><h3>Invoice arrives</h3><p>Email, upload, vendor portal. Extract vendor, amounts, dates, line items, PO number.</p><span class="owner">AP clerk</span></div>
+    <div class="stage"><span class="label">Code</span><h3>Classify spend</h3><p>GL account, department, class, tax code. Match to PO and receipt (3-way match).</p><span class="owner">AP clerk</span></div>
+    <div class="stage"><span class="label">Approve</span><h3>Route & decide</h3><p>Policy picks approvers by amount, entity, department. Budget owner signs off.</p><span class="owner">Budget owner</span></div>
+    <div class="stage"><span class="label">Pay</span><h3>Schedule payment</h3><p>Choose funding account, rail (ACH, wire, card), FX, and pay date against terms such as net-30.</p><span class="owner">Controller</span></div>
+    <div class="stage"><span class="label">Reconcile</span><h3>Close the books</h3><p>Match bank debits to bills, sync to the ERP, clear exceptions before month-end close.</p><span class="owner">Controller</span></div>
+  </div>
+</section>
+
+<section id="users" aria-labelledby="h-users">
+  <div class="sec-head">
+    <span class="label"><b>02</b> · Users</span>
+    <h2 id="h-users">Who does the work</h2>
+  </div>
+  <div class="cols3">
+    <div class="card">
+      <span class="label">Primary</span><h3>Priya, AP specialist</h3>
+      <p class="quote">"I spend my mornings retyping PDFs into a form that already has the PDF open next to it."</p>
+      <ul><li>Processes 300–600 bills a month</li><li>Measured on throughput and error rate</li><li>Pain: data entry, chasing missing PO numbers, duplicate vendors</li></ul>
+    </div>
+    <div class="card">
+      <span class="label">Secondary</span><h3>Marcus, department head</h3>
+      <p class="quote">"I get an approval ping with a number and a vendor name. I either rubber-stamp it or go digging."</p>
+      <ul><li>Approves from email or phone between meetings</li><li>Owns a quarterly budget</li><li>Pain: no context at decision time, approvals stall the queue</li></ul>
+    </div>
+    <div class="card">
+      <span class="label">Buyer</span><h3>Dana, controller</h3>
+      <p class="quote">"Close takes eight days because exceptions only show up when we reconcile."</p>
+      <ul><li>Owns policy, cash, audit trail</li><li>Signs the software contract</li><li>Pain: late surprises, duplicate payments, vendor bank-detail fraud</li></ul>
+    </div>
+  </div>
+</section>
+
+<section id="benchmark" aria-labelledby="h-bench">
+  <div class="sec-head">
+    <span class="label"><b>03</b> · Benchmark</span>
+    <h2 id="h-bench">Competitive matrix</h2>
+    <p>Ratings describe what the Mobbin captures show, not a product's full feature list. A dash means the stage was not captured for that product.</p>
+  </div>
+  <div class="legend">
+    <span><i class="dot full"></i>Assisted or automated in flow</span>
+    <span><i class="dot half"></i>Partial, still mostly manual</span>
+    <span><i class="dot none"></i>Manual only</span>
+    <span><i class="dot na"></i>Not captured</span>
+  </div>
+  <div class="scroll" role="region" aria-label="Competitive matrix" tabindex="0">
+    <table>
+      <thead><tr><th scope="col">Product</th><th scope="col">Capture</th><th scope="col">Code</th><th scope="col">Approve</th><th scope="col">Duplicate / fraud</th><th scope="col">Pay timing</th><th scope="col">Reconcile</th><th scope="col">AI in flow</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Airwallex</th><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot none" title="Manual only"></i></td></tr>
+        <tr><th scope="row">Melio</th><td class="c"><i class="dot none" title="Manual only"></i></td><td class="c"><i class="dot none" title="Manual only"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot none" title="Manual only"></i></td></tr>
+        <tr><th scope="row">QuickBooks</th><td class="c"><i class="dot none" title="Manual only"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td></tr>
+        <tr><th scope="row">Xero</th><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td></tr>
+        <tr><th scope="row">Mercury</th><td class="c"><i class="dot full" title="Assisted"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot full" title="Assisted"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td></tr>
+        <tr><th scope="row">Acctual</th><td class="c"><i class="dot none" title="Manual only"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot none" title="Manual only"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot none" title="Manual only"></i></td></tr>
+        <tr><th scope="row">Midday</th><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot none" title="Manual only"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot half" title="Partial"></i></td></tr>
+        <tr><th scope="row">Shopify Bill Pay</th><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td></tr>
+        <tr><th scope="row">Navan</th><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot half" title="Partial"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot na" title="Not captured"></i></td><td class="c"><i class="dot none" title="Manual only"></i></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-box">
+    <div style="display:grid;gap:4px">
+      <span class="label">Screens in the "add a bill" flow</span>
+      <p style="font-size:.9rem;color:var(--muted)">Screen counts of each product's bill-entry flow as recorded on Mobbin, against the Ledgerline target.</p>
+    </div>
+    <div class="bars" role="img" aria-label="Melio 13 screens, Airwallex 9, QuickBooks 9, Acctual 7, Ledgerline target 3">
+      <div class="bar"><span>Melio</span><div class="track"><div class="fill" style="width:92.86%"></div></div><span class="v">13</span></div>
+      <div class="bar"><span>Airwallex</span><div class="track"><div class="fill" style="width:64.29%"></div></div><span class="v">9</span></div>
+      <div class="bar"><span>QuickBooks</span><div class="track"><div class="fill" style="width:64.29%"></div></div><span class="v">9</span></div>
+      <div class="bar"><span>Acctual</span><div class="track"><div class="fill" style="width:50%"></div></div><span class="v">7</span></div>
+      <div class="bar target"><span>Ledgerline target</span><div class="track"><div class="fill" style="width:21.43%"></div></div><span class="v">3</span></div>
+    </div>
+    <div class="axis" aria-hidden="true"><span></span><div class="ticks"><span>0</span><span>7</span><span>14</span></div><span></span></div>
+  </div>
+</section>
+
+<section id="gaps" aria-labelledby="h-gaps">
+  <div class="sec-head">
+    <span class="label"><b>04</b> · Gaps</span>
+    <h2 id="h-gaps">Seven gaps, with evidence</h2>
+    <p>Each gap names the stage it sits in, how much it costs the user, the screens that show it, and the AI response proposed in section 05.</p>
+  </div>
+
+  <article class="gap">
+    <div class="gap-body">
+      <div class="gap-id"><span class="pill hi">High impact</span><span class="label">G1 · Capture</span></div>
+      <h3>The invoice is uploaded but not read</h3>
+      <p>Airwallex, Melio and Acctual all show the invoice PDF beside a form, and the form is still blank. In Acctual the invoice reads $9.30 while the amount field reads $0.00. Airwallex's own Spend page promises AI that removes manual invoice entry, yet its bill form keeps seven required fields for a person to fill.</p>
+      <ul><li>Copy-typing drives errors in amounts and due dates</li><li>Line items are skipped (Melio gates them behind Premium)</li><li>Email ingestion exists (Shopify, Acctual) but half the bills land as "Enter missing details"</li></ul>
+      <div class="fix"><b>Best in class:</b> Mercury pre-fills amount and date from the invoice and adds a "Flag error?" control that feeds its bill scanner.</div>
+      <div class="fix"><b>Response:</b> F1 Invoice Autopilot</div>
+    </div>
+    <div class="shots">
+      <figure><img src="assets/acctual-new-bill.webp" alt="Acctual new bill screen: invoice shows total 9.30 dollars while the amount field shows 0.00" loading="lazy" width="768" height="523"><figcaption><b>Acctual</b> · amount $0.00 next to a $9.30 invoice. <a href="https://mobbin.com/flows/8131cf84-1b89-4dde-a474-a87c42c32316">Mobbin flow</a></figcaption></figure>
+      <figure><img src="assets/airwallex-add-bill.webp" alt="Airwallex Add new bill: invoice preview on left, required fields on right" loading="lazy" width="768" height="523"><figcaption><b>Airwallex</b> · required fields re-entered from the preview. <a href="https://mobbin.com/flows/30099a43-f093-441a-b868-b6a69e2da697">Mobbin flow</a></figcaption></figure>
+      <figure><img src="assets/melio-bill-details.webp" alt="Melio bill details form with empty vendor and zero amount beside an uploaded PDF" loading="lazy" width="768" height="523"><figcaption><b>Melio</b> · upload, then an empty form. <a href="https://mobbin.com/flows/d4334c5a-90b2-443f-8f40-4a4a5a7ead22">Mobbin flow</a></figcaption></figure>
+      <figure><img src="assets/mercury-payment.webp" alt="Mercury payment with fields pre-filled from invoice, a similar payment warning and a Flag error button" loading="lazy" width="768" height="523"><figcaption><b>Mercury</b> · pre-filled from the invoice, with a feedback loop. <a href="https://mobbin.com/screens/24ddf949-5a89-49d3-855c-bc98fad27c6b">Mobbin screen</a></figcaption></figure>
+    </div>
+  </article>
+
+  <article class="gap">
+    <div class="gap-body">
+      <div class="gap-id"><span class="pill hi">High impact</span><span class="label">G2 · Code</span></div>
+      <h3>GL coding is a dropdown per row</h3>
+      <p>QuickBooks opens a bill with empty Category and Description lines. Midday asks for a category on each transaction from a long chart-of-accounts list, and several rows sit at "No receipt". Nothing suggests a code from the vendor's history, and nothing explains why a code fits.</p>
+      <ul><li>The same vendor gets coded differently by different clerks</li><li>Receipt chasing is manual</li><li>No bulk accept for confident suggestions</li></ul>
+      <div class="fix"><b>Response:</b> F2 Smart Coding</div>
+    </div>
+    <div class="shots">
+      <figure><img src="assets/quickbooks-bill.webp" alt="QuickBooks bill with empty category and description rows" loading="lazy" width="768" height="523"><figcaption><b>QuickBooks</b> · blank category lines on a new bill. <a href="https://mobbin.com/flows/99023f72-2b24-40a4-9abe-0731cccc6643">Mobbin flow</a></figcaption></figure>
+      <figure><img src="assets/midday-transactions.webp" alt="Midday transaction table with category dropdown open and No receipt statuses" loading="lazy" width="768" height="523"><figcaption><b>Midday</b> · manual category pick, "No receipt" rows. <a href="https://mobbin.com/screens/b65169e5-9f16-427f-bd0c-062cf511bdb5">Mobbin screen</a></figcaption></figure>
+    </div>
+  </article>
+
+  <article class="gap">
+    <div class="gap-body">
+      <div class="gap-id"><span class="pill hi">High impact</span><span class="label">G3 · Approve</span></div>
+      <h3>Approvers decide without context</h3>
+      <p>Approval rules are built on one dimension, usually amount. Airwallex routes card expenses over 100 SGD to a manager; Acctual's rule is "amount ≥ $1.00, require 1 approval". At decision time Xero shows a one-click Approve button beside the amount and GL code, with no budget remaining, no vendor history, and no reason the item needs attention.</p>
+      <ul><li>Low-risk bills wait in the same queue as risky ones</li><li>Rubber-stamping becomes the norm</li><li>Policy authoring requires thinking in rules rather than intent</li></ul>
+      <div class="fix"><b>Response:</b> F3 Approval Brief & risk-based routing</div>
+    </div>
+    <div class="shots">
+      <figure><img src="assets/airwallex-approvals.webp" alt="Airwallex card expense approvals workflow with amount condition" loading="lazy" width="768" height="523"><figcaption><b>Airwallex</b> · routing on amount only. <a href="https://mobbin.com/flows/947a8b7c-4157-4dbf-9aed-45bc894cf29f">Mobbin flow</a></figcaption></figure>
+      <figure><img src="assets/xero-expense-approve.webp" alt="Xero expenses list with inline Approve button" loading="lazy" width="768" height="523"><figcaption><b>Xero</b> · one-click approve, no decision context. <a href="https://mobbin.com/screens/e4a6f6e1-5668-4e73-98ae-2ab3bb4f7274">Mobbin screen</a></figcaption></figure>
+    </div>
+  </article>
+
+  <article class="gap">
+    <div class="gap-body">
+      <div class="gap-id"><span class="pill hi">High impact</span><span class="label">G4 · Duplicate & fraud</span></div>
+      <h3>Duplicates are caught after they exist</h3>
+      <p>Xero's Duplicate bill review lists vendors with two or three bills each and offers "Keep all" as the main action, so detection happens as cleanup after entry. Mercury is the exception: it warns "A similar payment has been created" inside the payment form. No product captured checks for changed vendor bank details, the most common invoice-fraud vector.</p>
+      <div class="fix"><b>Response:</b> F4 Guardrails</div>
+    </div>
+    <div class="shots one">
+      <figure><img src="assets/xero-duplicate-review.webp" alt="Xero duplicate bill review listing vendors with multiple bills and Keep all buttons" loading="lazy" width="768" height="523"><figcaption><b>Xero</b> · after-the-fact duplicate cleanup. <a href="https://mobbin.com/screens/eaa61031-530a-4257-8597-19988a07959f">Mobbin screen</a></figcaption></figure>
+    </div>
+  </article>
+
+  <article class="gap">
+    <div class="gap-body">
+      <div class="gap-id"><span class="pill med">Medium impact</span><span class="label">G5 · Pay</span></div>
+      <h3>Pay dates ignore cash and terms</h3>
+      <p>Wise tells the user "You'll need enough money in your account to pay on the scheduled date". The cash risk sits with the person. Shopify Bill Pay lets you "Schedule 3 payments" in bulk but does not suggest when. No product captured recommends paying early to take a 2/10 net-30 discount or holding a payment to protect runway.</p>
+      <div class="fix"><b>Response:</b> F5 Pay Planner</div>
+    </div>
+    <div class="shots">
+      <figure><img src="assets/wise-schedule.webp" alt="Wise scheduled transfer dialog warning that the user needs enough money on the date" loading="lazy" width="768" height="523"><figcaption><b>Wise</b> · cash risk left to the user. <a href="https://mobbin.com/screens/5205ae80-60c8-4e49-a77e-b6d7ae04b989">Mobbin screen</a></figcaption></figure>
+      <figure><img src="assets/shopify-bill-pay.webp" alt="Shopify Bill Pay list with overdue bills, Enter missing details prompts, and bulk schedule" loading="lazy" width="768" height="523"><figcaption><b>Shopify Bill Pay</b> · bulk schedule with no timing advice. <a href="https://mobbin.com/screens/2b2c6bc8-1991-4cce-8a70-cc056d32facc">Mobbin screen</a></figcaption></figure>
+    </div>
+  </article>
+
+  <article class="gap">
+    <div class="gap-body">
+      <div class="gap-id"><span class="pill med">Medium impact</span><span class="label">G6 · Reconcile</span></div>
+      <h3>Matching waits for the next sync</h3>
+      <p>Midday handles receipt matching well, and its message, "We didn't find a match yet — we'll check again when new transactions arrive", is honest. It is also passive: the user gets no candidate matches, no confidence, and no nudge to the person who holds the missing document. Airwallex prompts the user to connect Xero or QuickBooks, but exceptions still surface at month-end.</p>
+      <div class="fix"><b>Response:</b> F6 Close Agent</div>
+    </div>
+    <div class="shots one">
+      <figure><img src="assets/midday-match.webp" alt="Midday receipt matching with tooltip saying no match found yet" loading="lazy" width="768" height="523"><figcaption><b>Midday</b> · passive "we'll check again" matching. <a href="https://mobbin.com/screens/598a7d3c-339d-4709-a97b-91703a44ee36">Mobbin screen</a></figcaption></figure>
+    </div>
+  </article>
+
+  <article class="gap">
+    <div class="gap-body">
+      <div class="gap-id"><span class="pill med">Strategic</span><span class="label">G7 · Across stages</span></div>
+      <h3>AI lives in a side chat, not in the task</h3>
+      <p>The strongest assistants on Mobbin (Klaviyo Composer, Shopify Sidekick) are general chat panels. Shopify's Sidekick sits in the same admin as Bill Pay but was not shown acting on bills. Finance users need AI that acts on the object in front of them, cites the source document, and leaves an audit trail.</p>
+      <div class="fix"><b>Response:</b> F7 Ask Ledger, plus AI embedded in F1–F6</div>
+    </div>
+    <div class="shots one">
+      <figure><img src="assets/klaviyo-assistant.webp" alt="Klaviyo dashboard with a Composer AI chat panel on the right" loading="lazy" width="768" height="523"><figcaption><b>Klaviyo</b> · side-panel assistant pattern. <a href="https://mobbin.com/screens/164f1689-4f2b-45a5-8cfc-8a41a8b79ccc">Mobbin screen</a></figcaption></figure>
+    </div>
+  </article>
+</section>
+
+<section id="features" aria-labelledby="h-feat">
+  <div class="sec-head">
+    <span class="label"><b>05</b> · Solution</span>
+    <h2 id="h-feat">AI features that close the gaps</h2>
+    <p>Ledgerline puts AI inside each stage. The model drafts and the person confirms. Every suggestion carries a confidence level, a source, and an undo.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-top"><h3>F1 · Invoice Autopilot</h3><span class="pill ai">Capture</span></div>
+      <p>Reads every inbound invoice from email, upload or portal. Extracts header fields and line items, matches the vendor record, and links the PO.</p>
+      <dl><dt>AI</dt><dd>Document extraction with field-level confidence; tap a field to highlight its source on the PDF</dd><dt>Human</dt><dd>Reviews only fields below the confidence threshold</dd><dt>Metric</dt><dd>Touchless invoice rate; minutes per invoice</dd></dl></div>
+    <div class="feat"><div class="feat-top"><h3>F2 · Smart Coding</h3><span class="pill ai">Code</span></div>
+      <p>Predicts GL account, department, class and tax code from vendor history and line-item text. Runs 3-way match against PO and goods receipt.</p>
+      <dl><dt>AI</dt><dd>Classifier trained on the company's own ledger; shows "why" (for example, "last 11 AWS bills → 6420 Cloud hosting")</dd><dt>Human</dt><dd>Bulk-accepts confident codes; corrections retrain</dd><dt>Metric</dt><dd>Coding accuracy; reclass entries at close</dd></dl></div>
+    <div class="feat"><div class="feat-top"><h3>F3 · Approval Brief</h3><span class="pill ai">Approve</span></div>
+      <p>A one-screen summary for the approver: budget left, cost vs. this vendor's average, contract terms, and anything unusual. Routing uses risk, not just amount.</p>
+      <dl><dt>AI</dt><dd>Generates the brief; scores risk; lets admins write policy in plain language ("Marketing spend over budget needs the CMO")</dd><dt>Human</dt><dd>Approves, rejects or asks a question in one tap</dd><dt>Metric</dt><dd>Approval cycle time; % of bills auto-approved within policy</dd></dl></div>
+    <div class="feat"><div class="feat-top"><h3>F4 · Guardrails</h3><span class="pill ai">Protect</span></div>
+      <p>Checks each bill before it is saved: duplicates by fuzzy match on vendor, amount, date and invoice number; bank-detail changes; unusual amounts or new payees.</p>
+      <dl><dt>AI</dt><dd>Anomaly detection across the vendor graph</dd><dt>Human</dt><dd>Must confirm a bank-detail change through a second channel</dd><dt>Metric</dt><dd>Duplicate payments prevented; fraud losses</dd></dl></div>
+    <div class="feat"><div class="feat-top"><h3>F5 · Pay Planner</h3><span class="pill ai">Pay</span></div>
+      <p>Proposes a pay date and funding account for each approved bill using the cash forecast, terms, early-payment discounts and FX rates.</p>
+      <dl><dt>AI</dt><dd>Optimizes a payment run: "Pay these 14 on the 28th, take $3,120 in discounts, keep 45 days of runway"</dd><dt>Human</dt><dd>Controller releases the run; money never moves without a person</dd><dt>Metric</dt><dd>Discounts captured; late fees; days payable outstanding</dd></dl></div>
+    <div class="feat"><div class="feat-top"><h3>F6 · Close Agent</h3><span class="pill ai">Reconcile</span></div>
+      <p>Reconciles continuously. Matches bank debits to bills and receipts, proposes candidates with confidence, and chases missing documents from the right person.</p>
+      <dl><dt>AI</dt><dd>Match suggestions; drafted nudge messages; exception queue ranked by close impact</dd><dt>Human</dt><dd>Clears exceptions; signs off the period</dd><dt>Metric</dt><dd>Days to close; open exceptions at period end</dd></dl></div>
+    <div class="feat" style="grid-column:1/-1"><div class="feat-top"><h3>F7 · Ask Ledger</h3><span class="pill ai">Everywhere</span></div>
+      <p>A contextual assistant that knows which bill, vendor or report is open. It answers with citations ("Q3 SaaS spend is up 18%; see 42 bills") and can act on a request ("Hold all unpaid bills from Northwind until the contract is renewed"), always showing a preview and writing to the audit log.</p></div>
+  </div>
+</section>
+
+<section id="concept" aria-labelledby="h-concept">
+  <div class="sec-head">
+    <span class="label"><b>06</b> · Concept</span>
+    <h2 id="h-concept">Two key screens</h2>
+    <p>Low-fidelity concepts for the two moments with the most time lost: reviewing an extracted invoice, and approving it. Example data only.</p>
+  </div>
+  <div class="mock-row">
+    <div class="mock" aria-label="Concept: invoice review">
+      <div class="mock-bar"><b>Review bill · INV-20931</b><span class="ai-tag">AUTOPILOT · 6 OF 7 FIELDS READY</span></div>
+      <div class="mock-body">
+        <div class="field"><span class="k">Vendor</span><span class="v">Northwind Logistics Pte Ltd</span><span class="conf">99%</span></div>
+        <div class="field"><span class="k">Amount</span><span class="v num">SGD 18,420.00</span><span class="conf">99%</span></div>
+        <div class="field"><span class="k">Due date</span><span class="v num">27 Oct 2026 · Net 30</span><span class="conf">97%</span></div>
+        <div class="field"><span class="k">PO match</span><span class="v">PO-3381 · 3 of 3 lines</span><span class="conf">95%</span></div>
+        <div class="field"><span class="k">GL code</span><span class="v">5210 Freight inbound</span><span class="conf">94%</span></div>
+        <div class="field warn"><span class="k">Tax code</span><span class="v">GST 9% or zero-rated?</span><span class="conf">62%</span></div>
+        <p class="why">Tax code needs you: the invoice lists an overseas leg. Tap a field to see where it was read on the PDF.</p>
+        <div class="btns"><button class="btn" type="button">Open PDF</button><button class="btn pri" type="button">Confirm & send for approval</button></div>
+      </div>
+    </div>
+    <div class="mock" aria-label="Concept: approval brief">
+      <div class="mock-bar"><b>Approval brief</b><span class="ai-tag">RISK · LOW</span></div>
+      <div class="mock-body brief">
+        <div class="brief-row"><span>Northwind Logistics · Freight</span><span class="num">SGD 18,420</span></div>
+        <div class="brief-row"><span>vs. 6-month vendor average</span><span class="num">+4%</span></div>
+        <div class="brief-row"><span>Contract</span><span>MSA-114, rates valid to Dec 2026</span></div>
+        <div style="display:grid;gap:6px"><div class="brief-row" style="border:0;padding:0"><span>Ops Q4 budget used</span><span class="num">72% of SGD 410k</span></div><div class="meter"><i></i></div></div>
+        <div class="flag">Bank account ending 7719 matches the verified record from March. No duplicates found in the last 180 days.</div>
+        <p class="why">Why you: freight over SGD 15k routes to the Ops head under policy "Logistics spend".</p>
+        <div class="btns"><button class="btn" type="button">Ask a question</button><button class="btn" type="button">Reject</button><button class="btn pri" type="button">Approve</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="principles" aria-labelledby="h-prin">
+  <div class="sec-head">
+    <span class="label"><b>07</b> · Principles</span>
+    <h2 id="h-prin">Trust rules for AI that touches money</h2>
+  </div>
+  <div class="cols3">
+    <div class="card"><h3>Show the source</h3><p>Every extracted or suggested value links back to the document line, ledger history or policy it came from.</p></div>
+    <div class="card"><h3>Say how sure it is</h3><p>Confidence is visible per field. Low confidence changes the UI: highlight, ask, never silently fill.</p></div>
+    <div class="card"><h3>People move money</h3><p>AI can draft a payment run. A named person releases it. Bank-detail changes always need out-of-band confirmation.</p></div>
+    <div class="card"><h3>Everything is logged</h3><p>Each AI action records the input, output, model version and the person who accepted it, ready for SOX and external audit.</p></div>
+    <div class="card"><h3>Undo is one click</h3><p>Bulk actions preview first and can be reversed until the period is locked.</p></div>
+    <div class="card"><h3>Autonomy is earned</h3><p>Admins raise automation per vendor or category as accuracy is proven, using the ladder below.</p></div>
+  </div>
+  <div class="ladder" aria-label="Autonomy ladder">
+    <div class="rung"><span class="label">Level 1</span><div class="lvl"></div><h3>Suggest</h3><p>AI proposes; the person fills the field.</p></div>
+    <div class="rung"><span class="label">Level 2</span><div class="lvl"></div><h3>Pre-fill</h3><p>AI fills; the person reviews every bill.</p></div>
+    <div class="rung"><span class="label">Level 3</span><div class="lvl"></div><h3>Review exceptions</h3><p>AI completes; the person sees only low-confidence items.</p></div>
+    <div class="rung"><span class="label">Level 4</span><div class="lvl"></div><h3>Auto within policy</h3><p>Trusted vendors flow through; sampled for audit.</p></div>
+  </div>
+</section>
+
+<section id="metrics" aria-labelledby="h-met">
+  <div class="sec-head">
+    <span class="label"><b>08</b> · Measurement</span>
+    <h2 id="h-met">How we will know it works</h2>
+    <p>Baselines come from a two-week time study with pilot customers. Targets are hypotheses to validate, not results.</p>
+  </div>
+  <div class="scroll" role="region" aria-label="Success metrics" tabindex="0">
+    <table>
+      <thead><tr><th scope="col">Metric</th><th scope="col">Gap</th><th scope="col">Feature</th><th scope="col">Target hypothesis</th><th scope="col">Guardrail</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Minutes per invoice</th><td>G1</td><td>F1</td><td>Cut by 60% or more</td><td>Field accuracy ≥ 99% on amount and due date</td></tr>
+        <tr><th scope="row">Touchless invoice rate</th><td>G1 G2</td><td>F1 F2</td><td>40% of bills in 6 months</td><td>Audit sample error rate below manual baseline</td></tr>
+        <tr><th scope="row">Approval cycle time</th><td>G3</td><td>F3</td><td>Median under 1 business day</td><td>No rise in post-approval reversals</td></tr>
+        <tr><th scope="row">Duplicate payments</th><td>G4</td><td>F4</td><td>Zero reaching payment</td><td>False-positive rate below 5%</td></tr>
+        <tr><th scope="row">Early-pay discounts captured</th><td>G5</td><td>F5</td><td>2× baseline</td><td>Runway never below the controller's floor</td></tr>
+        <tr><th scope="row">Days to close</th><td>G6</td><td>F6</td><td>Reduce by 3 days</td><td>Open exceptions at close trending down</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="roadmap" aria-labelledby="h-road">
+  <div class="sec-head">
+    <span class="label"><b>09</b> · Plan</span>
+    <h2 id="h-road">Roadmap</h2>
+  </div>
+  <div class="phases">
+    <div class="phase"><span class="label">Phase 1 · Months 0–3</span><h3>Stop the typing</h3><ul><li>F1 Invoice Autopilot at Level 2</li><li>F2 Smart Coding suggestions</li><li>F4 duplicate check at entry</li><li>Audit log foundation</li></ul></div>
+    <div class="phase"><span class="label">Phase 2 · Months 3–6</span><h3>Decide faster</h3><ul><li>F3 Approval Brief in app, email and Slack</li><li>Plain-language policy builder</li><li>F4 bank-detail change detection</li><li>Level 3 autonomy for trusted vendors</li></ul></div>
+    <div class="phase"><span class="label">Phase 3 · Months 6–12</span><h3>Run the close</h3><ul><li>F5 Pay Planner with cash forecast</li><li>F6 Close Agent and ERP sync</li><li>F7 Ask Ledger with actions</li><li>Level 4 within policy</li></ul></div>
+  </div>
+  <div class="cols3">
+    <div class="card"><span class="pill hi" style="justify-self:start">Risk</span><h3>Wrong numbers, confidently shown</h3><p>Mitigate with per-field confidence, source highlighting and hard validation (totals equal the sum of lines, dates are plausible).</p></div>
+    <div class="card"><span class="pill hi" style="justify-self:start">Risk</span><h3>Over-trust by approvers</h3><p>Mitigate by sampling auto-approved bills for review, and by stating what the brief did not check.</p></div>
+    <div class="card"><span class="pill hi" style="justify-self:start">Risk</span><h3>Data residency & privacy</h3><p>Mitigate with per-tenant model isolation, regional processing, and no training on customer data without opt-in.</p></div>
+  </div>
+</section>
+
+<section id="sources" aria-labelledby="h-src">
+  <div class="sec-head">
+    <span class="label"><b>10</b> · Sources</span>
+    <h2 id="h-src">Mobbin references</h2>
+    <p>All captures are web flows and screens retrieved from Mobbin on 27 Sep 2026. Screenshots © their respective owners, curated by Mobbin.</p>
+  </div>
+  <ul class="sources">
+    <li><a href="https://mobbin.com/flows/30099a43-f093-441a-b868-b6a69e2da697">Airwallex · Adding a bill</a> (9 screens)</li>
+    <li><a href="https://mobbin.com/flows/947a8b7c-4157-4dbf-9aed-45bc894cf29f">Airwallex · Updating card expense approvals</a></li>
+    <li><a href="https://mobbin.com/flows/d4334c5a-90b2-443f-8f40-4a4a5a7ead22">Melio · Creating a bill</a> (13 screens)</li>
+    <li><a href="https://mobbin.com/flows/99023f72-2b24-40a4-9abe-0731cccc6643">QuickBooks · Adding a bill</a> (9 screens)</li>
+    <li><a href="https://mobbin.com/flows/8131cf84-1b89-4dde-a474-a87c42c32316">Acctual · Creating a bill</a> (7 screens)</li>
+    <li><a href="https://mobbin.com/flows/3084f1e0-1cac-4c8c-8494-7b970bd8ad36">Acctual · Adding an approval rule</a></li>
+    <li><a href="https://mobbin.com/flows/85d92c96-8ad2-4ca0-9e1a-7cac3e6fbf28">Navan · Setting up more policies</a></li>
+    <li><a href="https://mobbin.com/screens/24ddf949-5a89-49d3-855c-bc98fad27c6b">Mercury · Pre-filled bill payment</a></li>
+    <li><a href="https://mobbin.com/screens/eaa61031-530a-4257-8597-19988a07959f">Xero · Duplicate bill review</a></li>
+    <li><a href="https://mobbin.com/screens/e4a6f6e1-5668-4e73-98ae-2ab3bb4f7274">Xero · Expenses with quick approve</a></li>
+    <li><a href="https://mobbin.com/screens/b65169e5-9f16-427f-bd0c-062cf511bdb5">Midday · Transactions and categories</a></li>
+    <li><a href="https://mobbin.com/screens/598a7d3c-339d-4709-a97b-91703a44ee36">Midday · Receipt matching</a></li>
+    <li><a href="https://mobbin.com/screens/2b2c6bc8-1991-4cce-8a70-cc056d32facc">Shopify · Bill Pay list</a></li>
+    <li><a href="https://mobbin.com/screens/5205ae80-60c8-4e49-a77e-b6d7ae04b989">Wise · Scheduled transfer</a></li>
+    <li><a href="https://mobbin.com/screens/164f1689-4f2b-45a5-8cfc-8a41a8b79ccc">Klaviyo · Composer assistant</a></li>
+    <li><a href="https://mobbin.com/screens/6e86f9d6-9202-48ed-8a10-055911b2c0a9">Shopify · Sidekick assistant</a></li>
+  </ul>
+</section>
+
+<footer>
+  <span>Ledgerline is a concept product created for this case study. Personas are composites; target metrics are hypotheses.</span>
+  <span class="label">Scope limit: ratings reflect Mobbin captures, which show selected flows and may lag each product's latest release.</span>
+</footer>
+
+</div>
