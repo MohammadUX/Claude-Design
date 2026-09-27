@@ -47,6 +47,12 @@ Example dashboard widget: `<Planner compact maxRows={8} filter="issues" readOnly
 ## Keyboard
 ← → period · T today · N new tour · / search · Esc close · Shift/⌘-click multi-select · ⌘/Ctrl+Z undo
 
+## Multi-day tours
+A tour can run over several days (`endDate`, inclusive). It is indexed on every day it covers, so busy counts, double-booking, absences, expired documents and vehicle availability all apply to each day.
+- Week view: one bar across the days (dashed edge when it continues outside the visible week).
+- Day view: the bar fills the day with "Day 3 of 5"; the first/last day start/end at the real times.
+- Drag & drop keeps the day you grabbed under the pointer and checks the whole trip range.
+
 ## Assumptions
 - No Figma link was provided; visual tokens were taken from the Figma dashboard screenshot.
 - Orange CTA uses dark text (white on orange fails WCAG AA).

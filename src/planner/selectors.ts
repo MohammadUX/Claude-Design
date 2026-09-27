@@ -3,7 +3,7 @@
  * (e.g. a Drivers page showing the same doc rules, a Dashboard widget, tests).
  */
 import { DOC_RULES, DOCS, TOUR_STATUS, type DocKey, type DocState, type FilterKey } from './config';
-import { diffDays, toMin } from './date';
+import { addDays, diffDays, fmtShortDay, rangeDays, toMin } from './date';
 import type { Absence, Client, Depot, Driver, Issue, Maintenance, PlannerData, Tour, Tractor, Trailer } from './types';
 
 /* ------------------------------------------------------------------ Docs */
@@ -31,8 +31,36 @@ export const docLabel = (key: DocKey) => DOCS.find((d) => d.key === key)!.label;
 
 export const isActive = (t: Tour) => TOUR_STATUS[t.status].occupies;
 
-export const overlaps = (a: Tour, b: Tour) =>
-  !!(a.start && a.end && b.start && b.end) && toMin(a.start) < toMin(b.end) && toMin(b.start) < toMin(a.end);
+/* ------------------------------------------------------------ Multi-day */
+
+export const lastDay = (t: Pick<Tour, 'date' | 'endDate'>) => (t.endDate && t.endDate > t.date ? t.endDate : t.date);
+export const isMultiDay = (t: Pick<Tour, 'date' | 'endDate'>) => lastDay(t) !== t.date;
+export const tourDays = (t: Pick<Tour, 'date' | 'endDate'>) => rangeDays(t.date, lastDay(t));
+export const coversDate = (t: Pick<Tour, 'date' | 'endDate'>, date: string) => t.date <= date && lastDay(t) >= date;
+/** 1-based day number and total, e.g. day 3 of 5. */
+export const dayOfTour = (t: Tour, date: string) => ({ n: diffDays(date, t.date) + 1, total: diffDays(lastDay(t), t.date) + 1 });
+
+/**
+ * Minutes [from, to) the tour occupies on `date`. A multi-day tour fills the whole day
+ * between its first and last day. Single-day tours without times return null (unknown).
+ */
+export function windowOn(t: Pick<Tour, 'date' | 'endDate' | 'start' | 'end'>, date: string): [number, number] | null {
+  if (!coversDate(t, date)) return null;
+  if (!isMultiDay(t)) return t.start && t.end ? [toMin(t.start), toMin(t.end)] : null;
+  const from = date === t.date && t.start ? toMin(t.start) : 0;
+  const to = date === lastDay(t) && t.end ? toMin(t.end) : 24 * 60;
+  return [from, to];
+}
+
+/** Do two tours occupy the same time on `date` (default: `a`'s first day)? */
+export const overlaps = (a: Tour, b: Tour, date = a.date) => {
+  const wa = windowOn(a, date);
+  const wb = windowOn(b, date);
+  return !!(wa && wb) && wa[0] < wb[1] && wb[0] < wa[1];
+};
+
+/** Do two tours share at least one day, and clash on it? Returns the first clashing day. */
+export const clashDay = (a: Tour, b: Tour) => tourDays(a).find((d) => coversDate(b, d) && overlaps(a, b, d));
 
 export const hasRoute = (t: Tour) => t.stops.filter((s) => s.city.trim()).length >= 2;
 export const hasVehicles = (t: Tour) => !!(t.tractorId && t.trailerId);
@@ -52,12 +80,16 @@ export const routeFull = (t: Tour) =>
     .filter(Boolean)
     .join(' → ');
 
-export const timeLabel = (t: Tour) => (t.start ? `${t.start}${t.end ? `–${t.end}` : ''}` : 'All day');
+export const timeLabel = (t: Tour) => {
+  if (isMultiDay(t)) return `${fmtShortDay(t.date)}${t.start ? ` ${t.start}` : ''} → ${fmtShortDay(lastDay(t))}${t.end ? ` ${t.end}` : ''}`;
+  return t.start ? `${t.start}${t.end ? `–${t.end}` : ''}` : 'All day';
+};
 
 export const etaLabel = (t: Tour) => {
   if (t.status !== 'delayed' || !t.end || !t.delayMin) return undefined;
   const m = toMin(t.end) + t.delayMin;
-  return `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+  const time = `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+  return isMultiDay(t) ? `${fmtShortDay(lastDay(t))} ${time}` : time;
 };
 
 /* ----------------------------------------------------------------- Index */
@@ -115,9 +147,13 @@ export function getIndex(data: PlannerData): PlannerIndex {
   const byStart = (a: Tour, b: Tour) => (a.start ?? '').localeCompare(b.start ?? '');
   const byDate = new Map<string, Tour[]>();
   for (const t of data.tours) {
-    if (t.driverId) push(idx.cells, cellKey(t.driverId, t.date), t);
-    else push(idx.unassigned, t.date, t);
-    push(byDate, t.date, t);
+    // A multi-day tour is indexed on every day it covers, so every rule sees it.
+    // Unassigned tours only show on the day they leave.
+    for (const d of tourDays(t)) {
+      if (t.driverId) push(idx.cells, cellKey(t.driverId, d), t);
+      push(byDate, d, t);
+    }
+    if (!t.driverId) push(idx.unassigned, t.date, t);
   }
   idx.cells.forEach((arr) => arr.sort(byStart));
   idx.unassigned.forEach((arr) => arr.sort(byStart));
@@ -135,12 +171,13 @@ export function getIndex(data: PlannerData): PlannerIndex {
       const a = active[i];
       for (let j = i + 1; j < active.length; j++) {
         const b = active[j];
-        if (a.driverId && a.driverId === b.driverId && overlaps(a, b)) {
+        if (a.driverId && a.driverId === b.driverId && overlaps(a, b, date)) {
           add(a, { kind: 'driver_conflict', severity: 'error', message: `Driver double-booked with ${b.id}` });
           add(b, { kind: 'driver_conflict', severity: 'error', message: `Driver double-booked with ${a.id}` });
         }
         const sameDriver = a.driverId && a.driverId === b.driverId;
-        const clash = sameDriver ? overlaps(a, b) : !(a.start && b.start) || overlaps(a, b);
+        const known = windowOn(a, date) && windowOn(b, date);
+        const clash = sameDriver ? overlaps(a, b, date) : !known || overlaps(a, b, date);
         if (!clash) continue;
         for (const [key, kind] of [['tractorId', 'Tractor'], ['trailerId', 'Trailer']] as const) {
           if (a[key] && a[key] === b[key] && !sameDriver) {
@@ -159,10 +196,11 @@ export function getIndex(data: PlannerData): PlannerIndex {
       if (!hasRoute(t)) add(t, { kind: 'missing_route', severity: 'warning', message: 'Route to fill in' });
       if (t.driverId) {
         const abs = absenceOn(idx, t.driverId, date);
-        if (abs) add(t, { kind: 'driver_absent', severity: 'error', message: `Driver absent (${abs.reason === 'sick' ? 'sick leave' : abs.reason})` });
+        const on = isMultiDay(t) ? ` on ${fmtShortDay(date)}` : '';
+        if (abs) add(t, { kind: 'driver_absent', severity: 'error', message: `Driver absent${on} (${abs.reason === 'sick' ? 'sick leave' : abs.reason})` });
         const d = idx.driverById.get(t.driverId);
         const doc = d && blockingDoc(d, date);
-        if (doc) add(t, { kind: 'driver_blocked', severity: 'error', message: `Driver blocked: ${docLabel(doc)} expired` });
+        if (doc) add(t, { kind: 'driver_blocked', severity: 'error', message: `Driver blocked${on}: ${docLabel(doc)} expired` });
       }
       for (const vid of [t.tractorId, t.trailerId]) {
         const m = vid && maintenanceOn(idx, vid, date);
@@ -261,15 +299,28 @@ export const matchesFilter = (s: DriverPeriodStats, f: FilterKey) => (f === 'all
 
 export type Availability = { state: 'available' } | { state: 'busy'; reason: string } | { state: 'unavailable'; reason: string };
 
-export function driverAvailability(idx: PlannerIndex, driver: Driver, draft: Pick<Tour, 'id' | 'date' | 'start' | 'end'>): Availability {
-  const abs = absenceOn(idx, driver.id, draft.date);
-  if (abs) return { state: 'unavailable', reason: abs.reason === 'holiday' ? 'On holiday' : abs.reason === 'sick' ? 'Sick leave' : 'Absent' };
-  const doc = blockingDoc(driver, draft.date);
-  if (doc) return { state: 'unavailable', reason: `${docLabel(doc)} expired` };
-  const others = toursFor(idx, driver.id, draft.date).filter((t) => t.id !== draft.id && isActive(t));
-  const clash = others.find((t) => overlaps(t, draft as Tour));
+type Draft = Pick<Tour, 'id' | 'date' | 'endDate' | 'start' | 'end'>;
+
+const absenceWord = (r: string) => (r === 'holiday' ? 'on holiday' : r === 'sick' ? 'sick leave' : 'absent');
+
+/** Can this driver take the draft tour? Checks every day the tour covers. */
+export function driverAvailability(idx: PlannerIndex, driver: Driver, draft: Draft): Availability {
+  const days = tourDays(draft);
+  const multi = days.length > 1;
+  for (const d of days) {
+    const abs = absenceOn(idx, driver.id, d);
+    if (abs) {
+      const w = absenceWord(abs.reason);
+      return { state: 'unavailable', reason: multi ? `${w[0].toUpperCase()}${w.slice(1)} ${fmtShortDay(d)}` : `${w[0].toUpperCase()}${w.slice(1)}` };
+    }
+    const doc = blockingDoc(driver, d);
+    if (doc) return { state: 'unavailable', reason: `${docLabel(doc)} expired${multi ? ` by ${fmtShortDay(d)}` : ''}` };
+  }
+  const others = new Map<string, Tour>();
+  for (const d of days) for (const t of toursFor(idx, driver.id, d)) if (t.id !== draft.id && isActive(t)) others.set(t.id, t);
+  const clash = [...others.values()].find((t) => clashDay(draft as Tour, t));
   if (clash) return { state: 'unavailable', reason: `Already on tour ${clash.id}` };
-  if (others.length) return { state: 'busy', reason: `Also on ${others.map((t) => t.id).join(', ')}` };
+  if (others.size) return { state: 'busy', reason: `Also on ${[...others.keys()].join(', ')}` };
   return { state: 'available' };
 }
 
@@ -277,19 +328,18 @@ export function vehicleAvailability(
   idx: PlannerIndex,
   vehicleId: string,
   key: 'tractorId' | 'trailerId',
-  draft: Pick<Tour, 'id' | 'date' | 'start' | 'end' | 'driverId'>,
+  draft: Draft & Pick<Tour, 'driverId'>,
 ): Availability {
-  const m = maintenanceOn(idx, vehicleId, draft.date);
-  if (m) return { state: 'unavailable', reason: 'In maintenance' };
-  const clash = idx.data.tours.find(
-    (t) =>
-      t.date === draft.date &&
-      t.id !== draft.id &&
-      t[key] === vehicleId &&
-      isActive(t) &&
-      t.status !== 'completed' &&
-      (!draft.driverId || t.driverId !== draft.driverId || overlaps(t, draft as Tour)),
-  );
+  const days = tourDays(draft);
+  for (const d of days) if (maintenanceOn(idx, vehicleId, d)) return { state: 'unavailable', reason: days.length > 1 ? `In maintenance ${fmtShortDay(d)}` : 'In maintenance' };
+  const clash = idx.data.tours.find((t) => {
+    if (t.id === draft.id || t[key] !== vehicleId || !isActive(t) || t.status === 'completed') return false;
+    return days.some((d) => {
+      if (!coversDate(t, d)) return false;
+      if (draft.driverId && t.driverId === draft.driverId) return overlaps(t, draft as Tour, d);
+      return true;
+    });
+  });
   if (clash) return { state: 'unavailable', reason: `Already on tour ${clash.id}` };
   return { state: 'available' };
 }
@@ -299,17 +349,25 @@ export type DropCheck = { ok: true; warning?: string } | { ok: false; reason: st
 
 export function checkDrop(idx: PlannerIndex, tours: Tour[], driverId: string | undefined, date: string): DropCheck {
   if (tours.some((t) => !TOUR_STATUS[t.status].editable)) return { ok: false, reason: 'Completed tours can’t be moved' };
-  if (!driverId) return { ok: true };
+  if (!driverId || !tours.length) return { ok: true };
   const driver = idx.driverById.get(driverId)!;
-  const abs = absenceOn(idx, driverId, date);
-  if (abs) return { ok: false, reason: `Can’t assign · ${abs.reason === 'holiday' ? 'on holiday' : abs.reason === 'sick' ? 'sick leave' : 'absent'}` };
-  const doc = blockingDoc(driver, date);
-  if (doc) return { ok: false, reason: `Can’t assign · ${docLabel(doc)} expired` };
+  const offset = diffDays(date, tours[0].date);
+  const moved = tours.map((t) => ({ ...t, date: addDays(t.date, offset), endDate: t.endDate && addDays(t.endDate, offset) }));
+  for (const t of moved) {
+    const days = tourDays(t);
+    for (const d of days) {
+      const abs = absenceOn(idx, driverId, d);
+      if (abs) return { ok: false, reason: `Can’t assign · ${absenceWord(abs.reason)}${days.length > 1 ? ` ${fmtShortDay(d)}` : ''}` };
+      const doc = blockingDoc(driver, d);
+      if (doc) return { ok: false, reason: `Can’t assign · ${docLabel(doc)} expired${days.length > 1 ? ` by ${fmtShortDay(d)}` : ''}` };
+    }
+  }
   const moving = new Set(tours.map((t) => t.id));
-  const existing = toursFor(idx, driverId, date).filter((t) => !moving.has(t.id) && isActive(t));
-  const clash = existing.find((e) => tours.some((t) => overlaps(e, { ...t, date })));
+  const existing = new Map<string, Tour>();
+  for (const t of moved) for (const d of tourDays(t)) for (const e of toursFor(idx, driverId, d)) if (!moving.has(e.id) && isActive(e)) existing.set(e.id, e);
+  const clash = [...existing.values()].find((e) => moved.some((t) => clashDay(t, e)));
   if (clash) return { ok: true, warning: `Overlaps ${clash.id}` };
-  if (existing.length) return { ok: true, warning: `+${existing.length} tour${existing.length > 1 ? 's' : ''} that day` };
+  if (existing.size) return { ok: true, warning: `+${existing.size} tour${existing.size > 1 ? 's' : ''} those days` };
   return { ok: true };
 }
 
@@ -329,6 +387,15 @@ export function driverNow(idx: PlannerIndex, driver: Driver, date: string, today
   const tours = toursFor(idx, driver.id, date).filter(isActive);
   if (!tours.length) return { tone: 'free', text: date === today ? 'Available all day' : 'Available' };
   const dest = (t: Tour) => t.stops.map((s) => s.city).filter(Boolean).at(-1) ?? '?';
+  const trip = tours.find(isMultiDay);
+  if (trip) {
+    const { n, total } = dayOfTour(trip, date);
+    const back = date === lastDay(trip) ? `arrives ${dest(trip)}${trip.end ? ` ${trip.end}` : ''}` : `back ${fmtDay(lastDay(trip))}`;
+    if (trip.status === 'delayed' && date === today) return { tone: 'late', text: `Delayed ${trip.delayMin} min · day ${n} of ${total}, ${back}` };
+    if (n === 1 && trip.start && (date > today || (date === today && toMin(trip.start) > now)))
+      return { tone: 'free', text: `Leaves ${trip.start} · ${total}-day tour to ${dest(trip)}` };
+    return { tone: date < today ? 'done' : 'road', text: `Day ${n} of ${total} to ${dest(trip)} · ${back}` };
+  }
   if (date !== today) {
     const first = tours.find((t) => t.start);
     const n = tours.length;

@@ -233,6 +233,60 @@ export function generateMock(opts: { drivers?: number; scenario?: Scenario } = {
 
   const tours: Tour[] = [];
   const noTours = opts.scenario === 'no-tours';
+  /** Driver → date ranges of multi-day tours they're on. */
+  const trips = new Map<string, [string, string][]>();
+  const INTL = ['München', 'Wien', 'Lyon', 'Zürich', 'Ljubljana', 'Innsbruck', 'Paris', 'Barcelona', 'Rotterdam', 'Hamburg', 'Praha', 'Budapest'];
+  const tripStatus = (from: string, to: string): { status: TourStatus; delayMin?: number } => {
+    if (to < today) return { status: 'completed' };
+    if (from > today) return { status: 'assigned' };
+    return chance(0.2) ? { status: 'delayed', delayMin: int(3, 9) * 10 } : { status: 'in_transit' };
+  };
+  const canTrip = (d: Driver, from: string, len: number) => {
+    for (let i = 0; i < len; i++) {
+      const day = addDays(from, i);
+      if (isAbsent(d.id, day) || isBlocked(d, day) || day > periodEnd) return false;
+      if ((trips.get(d.id) ?? []).some(([f, t]) => f <= day && t >= day)) return false;
+      if (tours.some((x) => x.driverId === d.id && x.date === day)) return false;
+    }
+    return true;
+  };
+  const makeTrip = (d: Driver, from: string, len: number, forced?: { start: string; end: string; dest: string }) => {
+    const depot = depots.find((x) => x.id === d.depotId)!;
+    const to = addDays(from, len - 1);
+    const dest = forced?.dest ?? pick(INTL);
+    const mid = pick(CITIES.filter((c) => c !== depot.city));
+    const st = tripStatus(from, to);
+    const id = nextId();
+    tours.push({
+      id,
+      date: from,
+      endDate: to,
+      driverId: d.id,
+      tractorId: d.defaultTractorId,
+      trailerId: d.defaultTrailerId,
+      start: forced?.start ?? fromMin(int(20, 32) * 15),
+      end: forced?.end ?? fromMin(int(44, 68) * 15),
+      stops: [
+        { id: `${id}-o`, city: depot.city },
+        { id: `${id}-m`, city: mid },
+        { id: `${id}-d`, city: dest },
+      ],
+      clientId: pick(clients).id,
+      status: st.status,
+      delayMin: st.delayMin,
+      notes: 'International · CMR on board',
+    });
+    trips.set(d.id, [...(trips.get(d.id) ?? []), [from, to]]);
+  };
+
+  // Two showcase trips so the multi-day case is always visible: one running through today, one leaving tomorrow.
+  if (!noTours && driverCount >= 20) {
+    const pickFree = (from: string, len: number, skip: number) => drivers.filter((d) => d.defaultTractorId && canTrip(d, from, len))[skip];
+    const a = pickFree(addDays(today, -2), 5, 3);
+    if (a) makeTrip(a, addDays(today, -2), 5, { start: '06:00', end: '14:00', dest: 'Wien' });
+    const b = pickFree(addDays(today, 1), 5, 8);
+    if (b && b !== a) makeTrip(b, addDays(today, 1), 5, { start: '05:30', end: '16:00', dest: 'Lyon' });
+  }
 
   for (let date = periodStart; date <= periodEnd && !noTours; date = addDays(date, 1)) {
     const dow = fromISO(date).getDay();
@@ -243,10 +297,26 @@ export function generateMock(opts: { drivers?: number; scenario?: Scenario } = {
     const freeTrailers = () => trailers.filter((t) => !usedTrailers.has(t.id) && !inMaint(t.id, date));
 
     // Drivers with default vehicles first, so spare drivers pick up the leftovers.
-    const working = drivers.filter((d) => !isAbsent(d.id, date) && !isBlocked(d, date) && chance(0.74 * factor));
+    // Vehicles already out on a multi-day trip are not available today.
+    for (const t of tours) if (t.endDate && t.date <= date && t.endDate >= date) {
+      if (t.tractorId) usedTractors.add(t.tractorId);
+      if (t.trailerId) usedTrailers.add(t.trailerId);
+    }
+    const onTrip = (d: Driver) => (trips.get(d.id) ?? []).some(([f, t]) => f <= date && t >= date);
+    const working = drivers.filter((d) => !onTrip(d) && !isAbsent(d.id, date) && !isBlocked(d, date) && chance(0.74 * factor));
     working.sort((a, b) => (a.defaultTractorId ? 0 : 1) - (b.defaultTractorId ? 0 : 1));
 
     for (const d of working) {
+      // About 7% of weekday departures are international trips of 2–5 days.
+      if (!isWeekend(date) && d.defaultTractorId && !usedTractors.has(d.defaultTractorId) && chance(0.07)) {
+        const len = int(2, 5);
+        if (canTrip(d, date, len)) {
+          makeTrip(d, date, len);
+          usedTractors.add(d.defaultTractorId);
+          if (d.defaultTrailerId) usedTrailers.add(d.defaultTrailerId);
+          continue;
+        }
+      }
       let tractorId = d.defaultTractorId && !usedTractors.has(d.defaultTractorId) && !inMaint(d.defaultTractorId, date) ? d.defaultTractorId : undefined;
       if (!tractorId) tractorId = freeTractors().find((t) => t.depotId === d.depotId)?.id;
       let trailerId = d.defaultTrailerId && !usedTrailers.has(d.defaultTrailerId) && !inMaint(d.defaultTrailerId, date) ? d.defaultTrailerId : undefined;

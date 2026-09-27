@@ -4,7 +4,7 @@ import { createContext, memo, useContext, useEffect, useLayoutEffect, useMemo, u
 import { DAY_VIEW, DENSITY, TOUR_STATUS, WEEK_VIEW } from '../config';
 import { useDnd } from '../actions';
 import { fromMin, nowMin, toMin } from '../date';
-import { absenceOn, blockingDoc, daySummary, EMPTY_TOURS, etaLabel, isActive, routeFull, routeLabel, timeLabel, tourIssues, toursFor } from '../selectors';
+import { absenceOn, blockingDoc, dayOfTour, daySummary, EMPTY_TOURS, etaLabel, isActive, isMultiDay, lastDay, routeFull, routeLabel, timeLabel, tourIssues, toursFor, windowOn } from '../selectors';
 import type { Driver, Tour } from '../types';
 import { usePlannerCtx } from './context';
 import { DayStateLabel, DriverCell, GROUP_ROW_HEIGHT, GroupRow, ROW_GAP, SummaryCell, UnassignedHead, type RowItem } from './rows';
@@ -31,24 +31,36 @@ const TIMELINE_W = (END - START) * PX;
 const xOf = (min: number) => (Math.max(START, Math.min(END, min)) - START) * PX;
 const snap = (min: number) => Math.round(min / DAY_VIEW.snapMin) * DAY_VIEW.snapMin;
 
+/** Minutes the bar covers on `date`, including delay on the tour's last day. Null = no time set. */
+function barWindow(t: Tour, date: string): [number, number] | null {
+  const w = windowOn(t, date) ?? (t.start ? [toMin(t.start), toMin(t.start) + 60] : null);
+  if (!w) return null;
+  const delay = t.status === 'delayed' && date === lastDay(t) ? t.delayMin ?? 0 : 0;
+  return [w[0], w[1] + delay];
+}
+
+/** Tours drawn on the timeline (timed, or spanning several days); the rest go to the "No time set" lane. */
+const onTimeline = (t: Tour) => !!t.start || isMultiDay(t);
+
 /** Greedy lane assignment for overlapping bars. */
-function lanes(tours: Tour[]) {
+function lanes(tours: Tour[], date: string) {
   const ends: number[] = [];
   const lane = new Map<string, number>();
-  for (const t of [...tours].sort((a, b) => toMin(a.start!) - toMin(b.start!))) {
-    const s = toMin(t.start!);
-    let i = ends.findIndex((e) => e <= s);
+  const withWin = tours.map((t) => [t, barWindow(t, date) ?? [0, 0]] as const).sort((a, b) => a[1][0] - b[1][0]);
+  for (const [t, [s, e]] of withWin) {
+    let i = ends.findIndex((end) => end <= s);
     if (i === -1) i = ends.length;
-    ends[i] = toMin(t.end ?? t.start!) + (t.status === 'delayed' ? t.delayMin ?? 0 : 0);
+    ends[i] = e;
     lane.set(t.id, i);
   }
   return { lane, count: Math.max(1, ends.length) };
 }
 
-function freeGaps(tours: Tour[]) {
+function freeGaps(tours: Tour[], date: string) {
   const busy = tours
-    .filter((t) => t.start && t.end && isActive(t))
-    .map((t) => [toMin(t.start!), toMin(t.end!) + (t.delayMin ?? 0)] as const)
+    .filter(isActive)
+    .map((t) => barWindow(t, date))
+    .filter((w): w is [number, number] => !!w)
     .sort((a, b) => a[0] - b[0]);
   if (!busy.length) return [];
   const gaps: [number, number][] = [];
@@ -61,14 +73,17 @@ function freeGaps(tours: Tour[]) {
   return gaps;
 }
 
-const TourBar = memo(function TourBar({ tour, lane, laneCount }: { tour: Tour; lane: number; laneCount: number }) {
+const TourBar = memo(function TourBar({ tour, lane, laneCount, date }: { tour: Tour; lane: number; laneCount: number; date: string }) {
   const ctx = usePlannerCtx();
-  const { draggable, dragging, onDragStart, onDragEnd } = useTourDrag(tour);
-  const s = toMin(tour.start!);
-  const e = toMin(tour.end ?? fromMin(s + 60));
+  const { draggable, dragging, onDragStart, onDragEnd } = useTourDrag(tour, date);
+  const win = windowOn(tour, date) ?? [toMin(tour.start!), toMin(tour.end ?? fromMin(toMin(tour.start!) + 60))];
+  const s = win[0];
+  const e = win[1];
+  const multi = isMultiDay(tour);
+  const day = multi ? dayOfTour(tour, date) : null;
   const left = xOf(s);
   const width = Math.max(28, xOf(e) - left);
-  const delayW = tour.status === 'delayed' && tour.delayMin ? xOf(e + tour.delayMin) - xOf(e) : 0;
+  const delayW = tour.status === 'delayed' && tour.delayMin && date === lastDay(tour) ? xOf(e + tour.delayMin) - xOf(e) : 0;
   const status = TOUR_STATUS[tour.status];
   const errors = tourIssues(ctx.idx, tour.id).filter((i) => i.severity === 'error');
   const eta = etaLabel(tour);
@@ -98,6 +113,8 @@ const TourBar = memo(function TourBar({ tour, lane, laneCount }: { tour: Tour; l
           tour.status === 'completed' ? 'is-completed' : '',
           ctx.matches?.has(tour.id) ? 'is-match' : '',
           delayW ? 'has-delay' : '',
+          multi && s <= START ? 'is-cut-left' : '',
+          multi && e >= END ? 'is-cut-right' : '',
         ].join(' ')}
         style={{ left, width, top, height, ['--status' as string]: status.color }}
         draggable={draggable}
@@ -115,13 +132,14 @@ const TourBar = memo(function TourBar({ tour, lane, laneCount }: { tour: Tour; l
         <span className="tbar__row">
           {errors.length > 0 && <TriangleAlert size={13} strokeWidth={2.4} className="tbar__warn" aria-hidden />}
           <span className="tbar__route">{routeLabel(tour) || 'Route to fill in'}</span>
+          {day && <span className="tbar__days">Day {day.n} of {day.total}</span>}
         </span>
         {laneCount === 1 && (
           <span className="tbar__row tbar__row--meta">
             <span className="tbar__time">{timeLabel(tour)}</span>
             <span aria-hidden>·</span>
             <span className="tbar__status">
-              {tour.status === 'delayed' ? `+${tour.delayMin} min · ETA ${eta}` : tour.status === 'assigned' ? tour.id : status.label}
+              {tour.status === 'delayed' ? `+${tour.delayMin} min${eta ? ` · ETA ${eta}` : ''}` : tour.status === 'assigned' ? tour.id : status.label}
             </span>
           </span>
         )}
@@ -160,10 +178,10 @@ function useTimelineDrop(driverId: string | null, date: string) {
     onDrop: (e: DragEvent) => {
       e.preventDefault();
       const ids = useDnd.getState().ids;
-      useDnd.getState().end();
       const g = ghost;
       setGhost(null);
       if (ids) ctx.drop(ids, driverId, date, g?.min ?? minAt(e));
+      useDnd.getState().end();
     },
   };
   // The ghost is only shown while this row is the active drop target.
@@ -189,8 +207,8 @@ function AllDayCell({ driverId, date, tours, free }: { driverId: string | null; 
       onDrop={(e) => {
         e.preventDefault();
         const ids = useDnd.getState().ids;
-        useDnd.getState().end();
         if (ids) ctx.drop(ids, driverId, date, null);
+        useDnd.getState().end();
       }}
     >
       {tours.length === 1 && <TourCard tour={tours[0]} />}
@@ -203,11 +221,11 @@ function AllDayCell({ driverId, date, tours, free }: { driverId: string | null; 
 const TimelineCell = memo(function TimelineCell({ driver, date }: { driver: Driver; date: string }) {
   const ctx = usePlannerCtx();
   const all = toursFor(ctx.idx, driver.id, date);
-  const timed = all.filter((t) => t.start);
-  const { lane, count } = useMemo(() => lanes(timed), [timed]);
+  const timed = useMemo(() => all.filter(onTimeline), [all]);
+  const { lane, count } = useMemo(() => lanes(timed, date), [timed, date]);
   const absence = absenceOn(ctx.idx, driver.id, date);
   const doc = absence ? undefined : blockingDoc(driver, date);
-  const gaps = useMemo(() => (absence || doc ? [] : freeGaps(all)), [all, absence, doc]);
+  const gaps = useMemo(() => (absence || doc ? [] : freeGaps(all, date)), [all, absence, doc, date]);
   const { drop, ghost, handlers, minAt } = useTimelineDrop(driver.id, date);
 
   const create = (e: MouseEvent) => {
@@ -239,7 +257,7 @@ const TimelineCell = memo(function TimelineCell({ driver, date }: { driver: Driv
         </span>
       ))}
       {timed.map((t) => (
-        <TourBar key={t.id} tour={t} lane={lane.get(t.id) ?? 0} laneCount={count} />
+        <TourBar key={t.id} tour={t} lane={lane.get(t.id) ?? 0} laneCount={count} date={date} />
       ))}
       <Ghost ghost={ghost} />
       <NowSeg />
@@ -251,7 +269,7 @@ const TimelineCell = memo(function TimelineCell({ driver, date }: { driver: Driv
 
 const DayRow = memo(function DayRow({ driver, date }: { driver: Driver; date: string }) {
   const ctx = usePlannerCtx();
-  const untimed = toursFor(ctx.idx, driver.id, date).filter((t) => !t.start);
+  const untimed = toursFor(ctx.idx, driver.id, date).filter((t) => !onTimeline(t));
   const free = !absenceOn(ctx.idx, driver.id, date) && !blockingDoc(driver, date) && toursFor(ctx.idx, driver.id, date).filter(isActive).length === 0;
   return (
     <>
@@ -263,12 +281,12 @@ const DayRow = memo(function DayRow({ driver, date }: { driver: Driver; date: st
 });
 
 function UnassignedTimeline({ date, tours }: { date: string; tours: Tour[] }) {
-  const { lane, count } = useMemo(() => lanes(tours), [tours]);
+  const { lane, count } = useMemo(() => lanes(tours, date), [tours, date]);
   const { drop, ghost, handlers } = useTimelineDrop(null, date);
   return (
     <div className={`timeline ${drop.check ? 'is-drop-ok' : ''}`} style={{ width: TIMELINE_W }} {...handlers}>
       {tours.map((t) => (
-        <TourBar key={t.id} tour={t} lane={lane.get(t.id) ?? 0} laneCount={count} />
+        <TourBar key={t.id} tour={t} lane={lane.get(t.id) ?? 0} laneCount={count} date={date} />
       ))}
       <Ghost ghost={ghost} />
       <NowSeg />
@@ -283,7 +301,10 @@ function OnRoadCell({ date, drivers }: { date: string; drivers: Driver[] }) {
     for (let h = DAY_VIEW.startHour; h < DAY_VIEW.endHour; h++) {
       const m = h * 60 + 30;
       let n = 0;
-      for (const d of drivers) if (toursFor(ctx.idx, d.id, date).some((t) => isActive(t) && t.start && t.end && toMin(t.start) <= m && toMin(t.end) + (t.delayMin ?? 0) > m)) n++;
+      for (const d of drivers) if (toursFor(ctx.idx, d.id, date).some((t) => {
+          const w = isActive(t) && barWindow(t, date);
+          return !!w && w[0] <= m && w[1] > m;
+        })) n++;
       out.push(n);
     }
     return out;
@@ -354,9 +375,9 @@ export function DayGrid({ date, items, allDrivers, unassigned, showSummary, show
   });
   useEffect(() => v.measure(), [rowH, items, v]);
 
-  const timedU = unassigned.filter((t) => t.start);
-  const untimedU = unassigned.filter((t) => !t.start);
-  const uLanes = lanes(timedU).count;
+  const timedU = unassigned.filter(onTimeline);
+  const untimedU = unassigned.filter((t) => !onTimeline(t));
+  const uLanes = lanes(timedU, date).count;
   const cols = `${WEEK_VIEW.driverColWidth}px ${ALLDAY_W}px ${TIMELINE_W}px`;
   const hours = Array.from({ length: DAY_VIEW.endHour - DAY_VIEW.startHour }, (_, i) => DAY_VIEW.startHour + i);
   const summary = useMemo(() => daySummary(ctx.idx, allDrivers, date), [ctx.idx, allDrivers, date]);

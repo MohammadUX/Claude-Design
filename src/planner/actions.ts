@@ -4,7 +4,7 @@
  */
 import { create } from 'zustand';
 import { addDays, diffDays, fmtMedium, fromMin, toMin } from './date';
-import { driverName, getIndex, isComplete, maintenanceOn, vehicleAvailability, type DropCheck } from './selectors';
+import { driverName, getIndex, isComplete, isMultiDay, lastDay, maintenanceOn, vehicleAvailability, type DropCheck } from './selectors';
 import { usePlannerStore } from './store';
 import type { Tour } from './types';
 
@@ -12,9 +12,11 @@ import type { Tour } from './types';
 
 interface DndState {
   ids: string[] | null;
+  /** The day the user grabbed (a multi-day bar can be grabbed on any of its days). */
+  anchor: string | null;
   overKey: string | null;
   check: DropCheck | null;
-  start: (ids: string[]) => void;
+  start: (ids: string[], anchor: string) => void;
   over: (key: string, check: DropCheck) => void;
   leave: (key: string) => void;
   end: () => void;
@@ -25,9 +27,10 @@ interface DndState {
 let lastOver = 0;
 export const useDnd = create<DndState>((set, get) => ({
   ids: null,
+  anchor: null,
   overKey: null,
   check: null,
-  start: (ids) => set({ ids, overKey: null, check: null }),
+  start: (ids, anchor) => set({ ids, anchor, overKey: null, check: null }),
   over: (key, check) => {
     lastOver = performance.now();
     if (get().overKey !== key) set({ overKey: key, check });
@@ -38,7 +41,7 @@ export const useDnd = create<DndState>((set, get) => ({
       if (get().overKey === key && lastOver < at) set({ overKey: null, check: null });
     }, 90);
   },
-  end: () => set({ ids: null, overKey: null, check: null }),
+  end: () => set({ ids: null, anchor: null, overKey: null, check: null }),
 }));
 
 /* --------------------------------------------------------------- Status */
@@ -91,9 +94,11 @@ export function moveTours(ids: string[], target: MoveTarget, primaryId = ids[0])
   store.updateTours(
     ids,
     (t) => {
-      let next: Tour = { ...t, date: addDays(t.date, offset) };
+      let next: Tour = { ...t, date: addDays(t.date, offset), endDate: t.endDate && addDays(t.endDate, offset) };
       if (target.driverId !== undefined) next.driverId = target.driverId ?? undefined;
-      if (target.startMin === null) {
+      if (isMultiDay(t)) {
+        // Times of a multi-day tour are edited in the panel; a drop only moves days / driver.
+      } else if (target.startMin === null) {
         next.start = undefined;
         next.end = undefined;
       } else if (target.startMin !== undefined && t.id === primaryId) {
@@ -109,7 +114,7 @@ export function moveTours(ids: string[], target: MoveTarget, primaryId = ids[0])
       if (r.added) addedVehicles = true;
       return normalizeStatus(r.tour);
     },
-    moveMessage(ids.length, target, idx.driverById.get(target.driverId ?? '')),
+    moveMessage(ids.length, target, idx.driverById.get(target.driverId ?? ''), isMultiDay(primary) ? addDays(lastDay(primary), offset) : undefined),
   );
 
   if (addedVehicles) {
@@ -118,9 +123,10 @@ export function moveTours(ids: string[], target: MoveTarget, primaryId = ids[0])
   }
 }
 
-function moveMessage(n: number, target: MoveTarget, driver?: Parameters<typeof driverName>[0]) {
+function moveMessage(n: number, target: MoveTarget, driver: Parameters<typeof driverName>[0], until?: string) {
   const what = n === 1 ? 'Tour' : `${n} tours`;
+  const when = until ? `${fmtMedium(target.date)} → ${fmtMedium(until)}` : fmtMedium(target.date);
   if (target.driverId === null) return `${what} moved to Unassigned`;
-  if (target.driverId) return `${what} assigned to ${driverName(driver)} · ${fmtMedium(target.date)}`;
-  return `${what} moved to ${fmtMedium(target.date)}`;
+  if (target.driverId) return `${what} assigned to ${driverName(driver)} · ${when}`;
+  return `${what} moved to ${when}`;
 }

@@ -946,3 +946,14 @@ input[type='date']::-webkit-calendar-picker-indicator, input[type='time']::-webk
 .spanbar.has-tours > * { display: none; }
 [data-tone='live'] { background: #202024; border-color: #3a3a41; }
 .tbar__progress { background: #34343b; border-right: 1px solid #4a4a52; }
+
+/* Multi-day tours ------------------------------------------------------- */
+.tspan { margin: 5px; z-index: 2; min-width: 0; }
+.tspan.is-cut-left { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 2px dashed #4a4a52; }
+.tspan.is-cut-right { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 2px dashed #4a4a52; }
+.tcard__days, .tbar__days {
+  flex: none; font-size: 10.5px; font-weight: 600; line-height: 16px; padding: 0 7px; border-radius: 999px;
+  color: var(--text-2); border: 1px solid #3a3a41; white-space: nowrap;
+}
+.tbar.is-cut-left { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 2px dashed #4a4a52; }
+.tbar.is-cut-right { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 2px dashed #4a4a52; }

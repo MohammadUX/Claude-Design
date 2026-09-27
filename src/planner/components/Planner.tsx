@@ -21,9 +21,9 @@ import {
   CalendarArrowUp,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
-import { moveTours } from '../actions';
+import { moveTours, useDnd } from '../actions';
 import { ABSENCE, FILTERS, GROUP_BY, TOUR_STATUS, type Density, type FilterKey, type GroupBy } from '../config';
-import { addDays, fmtLong, fmtMedium, fmtRange, fmtShortDay, rangeDays, startOfWeek, todayISO } from '../date';
+import { addDays, diffDays, fmtLong, fmtMedium, fmtRange, fmtShortDay, rangeDays, startOfWeek, todayISO } from '../date';
 import {
   absenceOn,
   checkDrop,
@@ -35,6 +35,7 @@ import {
   initials,
   isActive,
   matchesFilter,
+  routeFull,
   routeLabel,
   timeLabel,
   toursFor,
@@ -91,6 +92,13 @@ const isTyping = (el: EventTarget | null) => {
   const t = el as HTMLElement | null;
   return !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
 };
+
+/** Where the tour's first day lands, given the day that was grabbed and the day it was dropped on. */
+function shiftedDate(primary: Tour | undefined, dropDate: string) {
+  const anchor = useDnd.getState().anchor;
+  if (!primary || !anchor) return dropDate;
+  return addDays(primary.date, diffDays(dropDate, anchor));
+}
 
 export function Planner({
   view: viewProp = 'day',
@@ -174,6 +182,7 @@ export function Planner({
           t.clientId && idx.clientById.get(t.clientId)?.name,
           t.tractorId && idx.tractorById.get(t.tractorId)?.plate,
           t.trailerId && idx.trailerById.get(t.trailerId)?.plate,
+          routeFull(t),
         ]
           .filter(Boolean)
           .join(' ')
@@ -296,12 +305,12 @@ export function Planner({
       hoverDriver,
       checkDrop: (ids, driverId, date) => {
         const tours = ids.map((id) => idx.tourById.get(id)).filter(Boolean) as Tour[];
-        return checkDrop(idx, tours, driverId ?? undefined, date);
+        return checkDrop(idx, tours, driverId ?? undefined, shiftedDate(tours[0], date));
       },
       drop: (ids, driverId, date, startMin) => {
         setSelection(new Set());
         setPopup(null);
-        moveTours(ids, { driverId, date, startMin });
+        moveTours(ids, { driverId, date: shiftedDate(idx.tourById.get(ids[0]), date), startMin });
       },
       openDay: (date) => {
         setAnchor(date);
@@ -432,7 +441,7 @@ export function Planner({
           <div className="toolbar">
             <div className="search">
               <Search size={15} aria-hidden />
-              <input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search driver, plate, client, tour ID" aria-label="Search driver, plate, client or tour ID" />
+              <input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search driver, city, plate, client, tour ID" aria-label="Search driver, city, plate, client or tour ID" />
               {search ? (
                 <button className="iconbtn iconbtn--sm" onClick={() => setSearch('')} aria-label="Clear search">
                   <X size={14} />

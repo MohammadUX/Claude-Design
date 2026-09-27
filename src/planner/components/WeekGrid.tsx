@@ -3,12 +3,12 @@ import { Plus } from 'lucide-react';
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { ABSENCE, DENSITY, WEEK_VIEW } from '../config';
 import { useDnd } from '../actions';
-import { fmtDayNum, fmtMedium, fmtWeekday, isWeekend } from '../date';
-import { absenceOn, blockingDoc, daySummary, docLabel, EMPTY_TOURS, toursFor } from '../selectors';
+import { diffDays, fmtDayNum, fmtMedium, fmtWeekday, isWeekend } from '../date';
+import { absenceOn, blockingDoc, daySummary, docLabel, EMPTY_TOURS, isActive, isMultiDay, lastDay, toursFor } from '../selectors';
 import type { Driver, Tour } from '../types';
 import { usePlannerCtx } from './context';
 import { daySpans, DriverCell, GROUP_ROW_HEIGHT, GroupRow, ROW_GAP, SpanBar, UnassignedHead, type RowItem } from './rows';
-import { MultiTourChip, TourCard } from './TourCard';
+import { MultiTourChip, TourCard, type SpanPlacement } from './TourCard';
 
 interface Props {
   days: string[];
@@ -47,8 +47,8 @@ export function useDropTarget(driverId: string | null, date: string) {
       onDrop: (e: DragEvent) => {
         e.preventDefault();
         const ids = useDnd.getState().ids;
-        useDnd.getState().end();
         if (ids) ctx.drop(ids, driverId, date);
+        useDnd.getState().end();
       },
     },
   };
@@ -61,13 +61,23 @@ function DropHint({ check }: { check: ReturnType<typeof useDropTarget>['check'] 
   return <span className="drophint drophint--ok">Drop to assign</span>;
 }
 
+/** Columns a multi-day tour occupies in the visible days, and whether it runs past either edge. */
+function placement(t: Tour, days: string[]): SpanPlacement {
+  const from = Math.max(0, diffDays(t.date, days[0]));
+  const to = Math.min(days.length - 1, diffDays(lastDay(t), days[0]));
+  return { gridColumn: `${from + 2} / ${to + 3}`, firstDay: days[from], nDays: to - from + 1, cutLeft: t.date < days[0], cutRight: lastDay(t) > days.at(-1)! };
+}
+
 const WeekCell = memo(function WeekCell({ driver, date, isToday, col }: { driver: Driver; date: string; isToday: boolean; col: number }) {
   const ctx = usePlannerCtx();
-  const tours = toursFor(ctx.idx, driver.id, date);
+  const all = toursFor(ctx.idx, driver.id, date);
+  // Multi-day tours are drawn once across the row (see DriverRow), not in each cell.
+  const tours = all.filter((t) => !isMultiDay(t));
+  const covered = all.some((t) => isMultiDay(t) && isActive(t));
   const absence = absenceOn(ctx.idx, driver.id, date);
   const doc = absence ? undefined : blockingDoc(driver, date);
   const drop = useDropTarget(driver.id, date);
-  const canCreate = !ctx.readOnly && !absence && !doc;
+  const canCreate = !ctx.readOnly && !absence && !doc && !covered;
 
   return (
     <div
@@ -103,6 +113,7 @@ const WeekCell = memo(function WeekCell({ driver, date, isToday, col }: { driver
 const DriverRow = memo(function DriverRow({ driver, days, today }: { driver: Driver; days: string[]; today: string }) {
   const ctx = usePlannerCtx();
   const spans = daySpans(ctx.idx, driver, days);
+  const multi = [...new Set(days.flatMap((d) => toursFor(ctx.idx, driver.id, d)))].filter(isMultiDay);
   const tourCount = days.reduce((n, d) => n + toursFor(ctx.idx, driver.id, d).filter((t) => t.status !== 'cancelled').length, 0);
   return (
     <>
@@ -113,6 +124,9 @@ const DriverRow = memo(function DriverRow({ driver, days, today }: { driver: Dri
       />
       {days.map((d, i) => (
         <WeekCell key={d} driver={driver} date={d} isToday={d === today} col={i} />
+      ))}
+      {multi.map((t) => (
+        <TourCard key={t.id} tour={t} span={placement(t, days)} />
       ))}
       {spans.map((sp) => (
         <SpanBar key={sp.from} span={sp} hasTours={days.slice(sp.from, sp.to + 1).some((d) => toursFor(ctx.idx, driver.id, d).length > 0)} />

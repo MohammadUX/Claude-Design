@@ -64,7 +64,10 @@ export interface Stop {
 
 export interface Tour {
   id: string;
+  /** Day the tour leaves. */
   date: string;
+  /** Day the tour arrives, for multi-day tours (inclusive). Omitted = same day. */
+  endDate?: string;
   driverId?: string;
   tractorId?: string;
   trailerId?: string;

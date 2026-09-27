@@ -122,6 +122,7 @@ export const usePlannerStore = create<PlannerStore>((set, get) => {
           copies.push({
             ...t,
             date: addDays(t.date, off),
+            endDate: t.endDate && addDays(t.endDate, off),
             status: t.status === 'draft' ? 'draft' : 'assigned',
             delayMin: undefined,
             stops: t.stops.map((s) => ({ ...s, id: `${s.id}-c${off}` })),

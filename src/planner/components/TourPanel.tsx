@@ -20,7 +20,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { normalizeStatus } from '../actions';
 import { SEVERITY, TOUR_STATUS, TOUR_STATUS_FLOW, type TourStatus } from '../config';
-import { addDays, fmtLong, fmtMedium, toMin } from '../date';
+import { addDays, diffDays, fmtLong, fmtMedium, toMin } from '../date';
 import { CITIES } from '../mock';
 import {
   driverAvailability,
@@ -154,8 +154,10 @@ export function TourPanel({
     const e: Record<string, string> = {};
     if (!form.date) e.date = 'Pick a date';
     if (!hasRoute(probe)) e.stops = 'Add at least an origin and a destination';
-    if (form.start && form.end && toMin(form.end) <= toMin(form.start)) e.end = 'End must be after start';
-    if ((form.start && !form.end) || (!form.start && form.end)) e.end = 'Set both start and end, or neither';
+    const multi = !!form.endDate && form.endDate > form.date;
+    if (form.endDate && form.endDate < form.date) e.endDate = 'Arrival day must be on or after the departure day';
+    if (!multi && form.start && form.end && toMin(form.end) <= toMin(form.start)) e.end = 'Arrival time must be after departure';
+    if (!multi && ((form.start && !form.end) || (!form.start && form.end))) e.end = 'Set both times, or neither';
     if (driver) {
       const a = driverAvailability(idx, driver, probe);
       if (a.state === 'unavailable' && existing?.driverId !== driver.id) e.driverId = a.reason;
@@ -222,7 +224,7 @@ export function TourPanel({
             {existing && <StatusBadge status={existing.status} delayMin={existing.delayMin} />}
             {dirty && <span className="panel__dirty">Unsaved changes</span>}
           </h2>
-          <div className="panel__sub">{fmtLong(form.date)}</div>
+          <div className="panel__sub">{form.endDate && form.endDate > form.date ? `${fmtMedium(form.date)} → ${fmtMedium(form.endDate)}` : fmtLong(form.date)}</div>
         </div>
         <button className="iconbtn" onClick={onClose} aria-label="Close panel" data-tip="Close (Esc)">
           <X size={18} />
@@ -294,30 +296,60 @@ export function TourPanel({
 
           <section className="fsection">
             <h3>When</h3>
-            <div className="field-row field-row--3">
+            <div className="field-row">
               <div className="field">
-                <label htmlFor="f-date">Date</label>
+                <label htmlFor="f-date">Leaves on</label>
                 <div className="field__control input-icon">
                   <CalendarDays size={15} aria-hidden />
-                  <input id="f-date" type="date" value={form.date} onChange={(e) => set('date', e.target.value)} required />
+                  <input
+                    id="f-date"
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => {
+                      const d = e.target.value;
+                      // Keep the trip length when the start day moves.
+                      const len = form.endDate ? diffDays(form.endDate, form.date) : 0;
+                      setForm((f) => ({ ...f, date: d, endDate: len > 0 && d ? addDays(d, len) : undefined }));
+                      setErrors((er) => ({ ...er, date: '', endDate: '' }));
+                    }}
+                    required
+                  />
                 </div>
                 {errors.date && <p className="field__error">{errors.date}</p>}
               </div>
               <div className="field">
                 <label htmlFor="f-start">
-                  Start <span className="field__opt">optional</span>
+                  at <span className="field__opt">optional</span>
                 </label>
                 <input id="f-start" className="field__control" type="time" step={900} value={form.start ?? ''} onChange={(e) => set('start', e.target.value || undefined)} />
               </div>
+            </div>
+            <div className="field-row">
+              <div className="field">
+                <label htmlFor="f-enddate">
+                  Arrives on <span className="field__opt">same day if empty</span>
+                </label>
+                <div className={`field__control input-icon ${errors.endDate ? 'is-invalid' : ''}`}>
+                  <CalendarDays size={15} aria-hidden />
+                  <input id="f-enddate" type="date" min={form.date} value={form.endDate ?? ''} onChange={(e) => set('endDate', e.target.value && e.target.value !== form.date ? e.target.value : undefined)} />
+                </div>
+              </div>
               <div className="field">
                 <label htmlFor="f-end">
-                  End <span className="field__opt">optional</span>
+                  at <span className="field__opt">optional</span>
                 </label>
                 <input id="f-end" className={`field__control ${errors.end ? 'is-invalid' : ''}`} type="time" step={900} value={form.end ?? ''} onChange={(e) => set('end', e.target.value || undefined)} />
               </div>
             </div>
+            {errors.endDate && <p className="field__error">{errors.endDate}</p>}
             {errors.end && <p className="field__error">{errors.end}</p>}
-            {!form.start && !form.end && <p className="field__help">No times = the tour sits in the “All day” lane.</p>}
+            {form.endDate && form.endDate > form.date ? (
+              <p className="field__help">
+                {diffDays(form.endDate, form.date) + 1}-day tour · the driver and vehicles are booked every day from {fmtMedium(form.date)} to {fmtMedium(form.endDate)}.
+              </p>
+            ) : (
+              !form.start && !form.end && <p className="field__help">No times: the tour sits in the “No time set” lane.</p>
+            )}
           </section>
 
           <section className="fsection">

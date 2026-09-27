@@ -2,12 +2,13 @@ import { Layers, TriangleAlert, Truck } from 'lucide-react';
 import { memo, type DragEvent } from 'react';
 import { SEVERITY, TOUR_STATUS } from '../config';
 import { useDnd } from '../actions';
-import { etaLabel, routeFull, routeLabel, timeLabel, tourIssues } from '../selectors';
+import { addDays } from '../date';
+import { dayOfTour, etaLabel, isMultiDay, routeFull, routeLabel, timeLabel, tourIssues } from '../selectors';
 import type { Tour } from '../types';
 import { usePlannerCtx } from './context';
 import { Trunc } from './ui';
 
-export function useTourDrag(tour: Tour) {
+export function useTourDrag(tour: Tour, grabDate: string | ((e: DragEvent) => string) = tour.date) {
   const ctx = usePlannerCtx();
   const draggable = !ctx.readOnly && TOUR_STATUS[tour.status].editable;
   const dragging = useDnd((s) => !!s.ids?.includes(tour.id));
@@ -16,7 +17,8 @@ export function useTourDrag(tour: Tour) {
     e.dataTransfer.setData('text/plain', ids.join(','));
     e.dataTransfer.effectAllowed = 'move';
     // Let the browser snapshot the element before we dim it.
-    requestAnimationFrame(() => useDnd.getState().start(ids));
+    const anchor = typeof grabDate === 'function' ? grabDate(e) : grabDate;
+    requestAnimationFrame(() => useDnd.getState().start(ids, anchor));
   };
   const onDragEnd = () => useDnd.getState().end();
   return { draggable, dragging, onDragStart, onDragEnd };
@@ -43,9 +45,29 @@ export function VehicleLine({ tour }: { tour: Tour }) {
   );
 }
 
-export const TourCard = memo(function TourCard({ tour, full = false }: { tour: Tour; full?: boolean }) {
+/** Placement of a multi-day tour drawn across several week columns. */
+export interface SpanPlacement {
+  gridColumn: string;
+  firstDay: string;
+  nDays: number;
+  cutLeft: boolean;
+  cutRight: boolean;
+}
+
+export const TourCard = memo(function TourCard({ tour, full = false, span }: { tour: Tour; full?: boolean; span?: SpanPlacement }) {
   const ctx = usePlannerCtx();
-  const { draggable, dragging, onDragStart, onDragEnd } = useTourDrag(tour);
+  const { draggable, dragging, onDragStart, onDragEnd } = useTourDrag(
+    tour,
+    span
+      ? (e) => {
+          // Which of the spanned days did the user grab?
+          const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+          const i = Math.max(0, Math.min(span.nDays - 1, Math.floor(((e.clientX - r.left) / r.width) * span.nDays)));
+          return addDays(span.firstDay, i);
+        }
+      : tour.date,
+  );
+  const days = isMultiDay(tour) ? dayOfTour(tour, tour.date).total : 0;
   const status = TOUR_STATUS[tour.status];
   const issues = tourIssues(ctx.idx, tour.id);
   const errors = issues.filter((i) => i.severity === 'error');
@@ -66,6 +88,9 @@ export const TourCard = memo(function TourCard({ tour, full = false }: { tour: T
       aria-pressed={selected}
       className={[
         'tcard',
+        span ? 'tspan' : '',
+        span?.cutLeft ? 'is-cut-left' : '',
+        span?.cutRight ? 'is-cut-right' : '',
         compact ? 'tcard--compact' : '',
         full ? 'tcard--full' : '',
         selected ? 'is-selected' : '',
@@ -76,7 +101,7 @@ export const TourCard = memo(function TourCard({ tour, full = false }: { tour: T
         ctx.matches?.has(tour.id) ? 'is-match' : '',
         draggable ? 'is-draggable' : '',
       ].join(' ')}
-      style={{ ['--status' as string]: status.color }}
+      style={{ ['--status' as string]: status.color, ...(span ? { gridColumn: span.gridColumn, gridRow: 1 } : null) }}
       data-tone={
         !tour.driverId
           ? 'unassigned'
@@ -106,6 +131,11 @@ export const TourCard = memo(function TourCard({ tour, full = false }: { tour: T
         ) : (
           <span className="tcard__route tcard__route--missing">Route to fill in</span>
         )}
+        {days > 0 && (
+          <span className="tcard__days" data-tip={`${days}-day tour · ${timeLabel(tour)}`}>
+            {days} days
+          </span>
+        )}
         {stopsExtra > 0 && (
           <span className="tcard__stops" data-tip={routeFull(tour)}>
             +{stopsExtra}
@@ -121,7 +151,7 @@ export const TourCard = memo(function TourCard({ tour, full = false }: { tour: T
         <span className="tcard__time">{timeLabel(tour)}</span>
         <span aria-hidden>·</span>
         <span className="tcard__status">
-          {tour.status === 'delayed' ? `+${tour.delayMin} min · ETA ${eta}` : tour.status === 'assigned' ? tour.id : status.label}
+          {tour.status === 'delayed' ? `+${tour.delayMin} min${eta ? ` · ETA ${eta}` : ''}` : tour.status === 'assigned' ? tour.id : status.label}
         </span>
       </div>
       {!compact && (
