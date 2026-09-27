@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pulse — Progress</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F4F2EC;color:#17191E}
+a{color:#17191E}a:hover{color:#C24A22}
+</style>
+</helmet>
+<div style="width: 390px; height: 1100px; box-sizing: border-box; background: #F4F2EC; display: flex; flex-direction: column; font-family: 'DM Sans', system-ui, sans-serif; color: #17191E">
+<div style="padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; flex-grow: 1">
+
+<header style="display: flex; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #5E6168; font-weight: 500">Goal: 76 kg by December</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Progress</h1>
+</div>
+<div role="tablist" aria-label="Range" style="display: flex; gap: 4px; background: #E9E6DE; padding: 4px; border-radius: 14px">
+<sc-for list="{{ranges}}" as="r" hint-placeholder-count="2">
+<button role="tab" aria-selected="{{r.on}}" onClick="{{r.pick}}" style="{{r.style}}">{{r.label}}</button>
+</sc-for>
+</div>
+</header>
+
+<section aria-labelledby="w-h" style="background: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 id="w-h" style="margin: 0; font-size: 15px; font-weight: 600; color: #5E6168">Weight</h2>
+<span style="font-size: 13px; font-weight: 700; color: #2A55D6">{{delta}} kg</span>
+</div>
+<span style="font-family: 'Bricolage Grotesque', serif; font-size: 36px; font-weight: 700; letter-spacing: -1px">78.8 <span style="font-size: 16px; font-family: 'DM Sans', sans-serif; font-weight: 500; color: #5E6168">kg</span></span>
+<svg width="310" height="130" viewBox="0 0 310 130" role="img" aria-label="{{chartLabel}}">
+<line x1="0" y1="22" x2="310" y2="22" stroke="#EFECE4" stroke-width="1"></line>
+<line x1="0" y1="64" x2="310" y2="64" stroke="#EFECE4" stroke-width="1"></line>
+<line x1="0" y1="106" x2="310" y2="106" stroke="#EFECE4" stroke-width="1"></line>
+<text x="310" y="18" text-anchor="end" font-size="10" fill="#5E6168" font-family="DM Sans, sans-serif">{{top}}</text>
+<text x="310" y="102" text-anchor="end" font-size="10" fill="#5E6168" font-family="DM Sans, sans-serif">{{bottom}}</text>
+<polyline points="{{points}}" fill="none" stroke="#2A55D6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>
+<circle cx="{{lastX}}" cy="{{lastY}}" r="5" fill="#2A55D6" stroke="#FFFFFF" stroke-width="2"></circle>
+<text x="0" y="126" font-size="10" fill="#5E6168" font-family="DM Sans, sans-serif">{{startLabel}}</text>
+<text x="300" y="126" text-anchor="end" font-size="10" fill="#5E6168" font-family="DM Sans, sans-serif">Today</text>
+</svg>
+</section>
+
+<section aria-labelledby="c-h" style="background: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 id="c-h" style="margin: 0; font-size: 15px; font-weight: 600; color: #5E6168">Calories this week</h2>
+<span style="font-size: 13px; color: #5E6168">avg <span style="font-weight: 700; color: #17191E">2,084</span></span>
+</div>
+<div style="position: relative; height: 140px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: end">
+<div style="position: absolute; left: 0; right: 0; bottom: 105px; border-top: 1.5px dashed #8E919A"></div>
+<span style="position: absolute; right: 0; bottom: 109px; font-size: 10px; color: #5E6168; background: #FFFFFF; padding-left: 4px">goal 2,100</span>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="7">
+<div title="{{b.title}}" style="{{b.style}}"></div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; text-align: center; font-size: 11px; color: #5E6168; font-weight: 600">
+<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+</div>
+<div style="display: flex; gap: 16px; font-size: 12px; color: #5E6168">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #17191E"></span>At or under goal</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #E8875F"></span>Over goal</span>
+</div>
+</section>
+
+<section aria-label="Weekly AI summary" style="background: #17191E; color: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F08A5D" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #F4C7B3">Your week, summarised</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.5">On pace for 76 kg by 14 Dec. Saturdays are your pattern: +380 kcal, mostly from drinks. Pre-logging dinner on Friday cut the overshoot by half last month.</p>
+<a href="Coach.dc.html" style="align-self: flex-start; min-height: 44px; padding: 0 18px; border-radius: 22px; background: #FFFFFF; color: #17191E; font-weight: 700; font-size: 14px; display: flex; align-items: center; text-decoration: none">Talk it through</a>
+</section>
+
+<section aria-label="Highlights" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 700; font-family: 'Bricolage Grotesque', serif">18</span><span style="font-size: 12px; color: #5E6168">day logging streak</span></div>
+<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 700; font-family: 'Bricolage Grotesque', serif">4 / 4</span><span style="font-size: 12px; color: #5E6168">workouts this week</span></div>
+<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 700; font-family: 'Bricolage Grotesque', serif">112 g</span><span style="font-size: 12px; color: #5E6168">avg protein / day</span></div>
+</section>
+</div>
+
+<nav aria-label="Primary" style="display: flex; justify-content: space-around; padding: 8px 8px 24px; background: #FFFFFF; border-top: 1px solid #E4E1D8">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
+<a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
+<a href="Train.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
+<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
+<a href="Progress.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #C24A22; font-size: 11px; font-weight: 700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { range: '3M' };
+}
+renderVals() {
+var self = this;
+var all = [82.4, 81.9, 81.7, 81.2, 80.9, 80.8, 80.3, 79.9, 79.6, 79.5, 79.1, 78.8];
+var data = this.state.range === '3M' ? all : [79.6, 79.5, 79.3, 79.4, 79.1, 79.0, 78.9, 78.8];
+var hi = Math.ceil(Math.max.apply(null, data) * 2) / 2;
+var lo = Math.floor(Math.min.apply(null, data) * 2) / 2;
+var pts = data.map(function (v, i) {
+var x = 4 + i * (286 / (data.length - 1));
+var y = 22 + (hi - v) / (hi - lo) * 84;
+return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
+});
+var last = pts[pts.length - 1];
+var ranges = ['4W', '3M'].map(function (r) {
+var on = self.state.range === r;
+return {
+label: r, on: on,
+pick: function () { self.setState({ range: r }); },
+style: 'min-height: 36px; min-width: 48px; border: none; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 700; color: #17191E; background: ' + (on ? '#FFFFFF' : 'transparent') + ';'
+};
+});
+var kcal = [2050, 1980, 2210, 1890, 2060, 2480, 1920];
+var names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+var bars = kcal.map(function (k, i) {
+var over = k > 2100;
+return {
+title: names[i] + ': ' + k.toLocaleString('en-US') + ' kcal',
+style: 'height: ' + Math.round(k / 2100 * 105) + 'px; border-radius: 8px 8px 4px 4px; background: ' + (over ? '#E8875F' : '#17191E') + ';'
+};
+});
+var d = Math.round((data[data.length - 1] - data[0]) * 10) / 10;
+return {
+ranges: ranges, bars: bars,
+points: pts.map(function (p) { return p.join(','); }).join(' '),
+lastX: last[0], lastY: last[1],
+top: hi.toFixed(1), bottom: lo.toFixed(1),
+delta: (d > 0 ? '+' : '') + d.toFixed(1),
+startLabel: this.state.range === '3M' ? '12 weeks ago' : '4 weeks ago',
+chartLabel: 'Weight trend from ' + data[0] + ' to ' + data[data.length - 1] + ' kg'
+};
+}
+}
+</script>
+</body>
+</html>

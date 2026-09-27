@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pulse — Workouts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F4F2EC;color:#17191E}
+a{color:#17191E}a:hover{color:#C24A22}
+</style>
+</helmet>
+<div style="width: 390px; height: 1100px; box-sizing: border-box; background: #F4F2EC; display: flex; flex-direction: column; font-family: 'DM Sans', system-ui, sans-serif; color: #17191E">
+<div style="padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; flex-grow: 1">
+
+<header style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #5E6168; font-weight: 500">Week 6 of Strength Builder</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Workouts</h1>
+</header>
+
+<ol aria-label="This week" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{week}}" as="d" hint-placeholder-count="7">
+<li style="{{d.style}}"><span style="font-size: 11px; font-weight: 600">{{d.day}}</span><span style="font-size: 15px; font-weight: 700">{{d.date}}</span><span style="{{d.dot}}"></span></li>
+</sc-for>
+</ol>
+
+<section aria-label="Readiness" style="background: #FFFFFF; border-radius: 24px; padding: 18px 20px; display: flex; align-items: center; gap: 16px">
+<div style="width: 64px; height: 64px; border-radius: 32px; border: 6px solid #2A55D6; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', serif; font-size: 22px; font-weight: 700; flex-shrink: 0">82</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-weight: 700; font-size: 16px">Ready to push</span>
+<span style="font-size: 13px; line-height: 1.4; color: #5E6168">7h 20m sleep, resting HR 58, soreness low. Pulse kept today's load at 100%.</span>
+</div>
+</section>
+
+<section aria-labelledby="plan-h" style="background: #17191E; color: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 8px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F08A5D" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #F4C7B3">AI plan for today</span>
+</div>
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px">
+<h2 id="plan-h" style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 24px; font-weight: 700; line-height: 1.1">Upper body strength</h2>
+<span style="font-size: 13px; color: #C9CBD1; white-space: nowrap">42 min · ~310 kcal</span>
+</div>
+<div style="height: 6px; border-radius: 3px; background: #33363D"><div style="width: {{pct}}%; height: 6px; border-radius: 3px; background: #F08A5D"></div></div>
+<span style="font-size: 13px; color: #C9CBD1">{{doneCount}} of 5 exercises done</span>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<sc-for list="{{moves}}" as="m" hint-placeholder-count="5">
+<li style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #2C2F36">
+<button onClick="{{m.toggle}}" aria-pressed="{{m.done}}" aria-label="Mark {{m.name}} done" style="{{m.box}}"><sc-if value="{{m.done}}" hint-placeholder-val="{{false}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#17191E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></sc-if></button>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-weight: 600; font-size: 15px">{{m.name}}</span>
+<span style="font-size: 13px; color: #A9ACB3">{{m.detail}}</span>
+</div>
+</li>
+</sc-for>
+</ul>
+<button style="min-height: 52px; border-radius: 26px; border: none; background: #FFFFFF; color: #17191E; font-family: inherit; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"></path></svg>Start workout</button>
+</section>
+
+<section aria-labelledby="recent-h" style="background: #FFFFFF; border-radius: 24px; padding: 8px 20px; display: flex; flex-direction: column">
+<h2 id="recent-h" style="margin: 0; padding: 12px 0 4px; font-family: 'Bricolage Grotesque', serif; font-size: 20px; font-weight: 700">Recent</h2>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EFECE4">
+<div style="width: 44px; height: 44px; border-radius: 14px; background: #E8EDFB; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A55D6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="4.5" r="1.8"></circle><path d="M8 21l3-6 3 2v5M6 12l3-4 4 1 2 4 3 1"></path></svg></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Morning run</span><span style="font-size: 13px; color: #5E6168">Thu · 5.2 km · 5:48 /km</span></div>
+<span style="font-weight: 700; font-size: 15px">346</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0">
+<div style="width: 44px; height: 44px; border-radius: 14px; background: #E8EDFB; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A55D6" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Lower body strength</span><span style="font-size: 13px; color: #5E6168">Wed · 48 min · new squat PR</span></div>
+<span style="font-weight: 700; font-size: 15px">372</span>
+</div>
+</section>
+</div>
+
+<nav aria-label="Primary" style="display: flex; justify-content: space-around; padding: 8px 8px 24px; background: #FFFFFF; border-top: 1px solid #E4E1D8">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
+<a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
+<a href="Train.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #C24A22; font-size: 11px; font-weight: 700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
+<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
+<a href="Progress.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { done: [true, true, false, false, false] };
+}
+renderVals() {
+var self = this;
+var done = this.state.done;
+var list = [
+{ name: 'Bench press', detail: '4 × 8 · 62.5 kg (+2.5)' },
+{ name: 'Bent-over row', detail: '4 × 10 · 50 kg' },
+{ name: 'Overhead press', detail: '3 × 8 · 37.5 kg' },
+{ name: 'Lat pulldown', detail: '3 × 12 · 45 kg' },
+{ name: 'Plank', detail: '3 × 45 s' }
+];
+var moves = list.map(function (x, i) {
+var d = done[i];
+return {
+name: x.name, detail: x.detail, done: d,
+box: 'width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; display: flex; align-items: center; justify-content: center; padding: 0; ' + (d ? 'border: none; background: #F08A5D;' : 'border: 2px solid #5A5D65; background: transparent;'),
+toggle: function () { var n = done.slice(); n[i] = !n[i]; self.setState({ done: n }); }
+};
+});
+var count = done.filter(function (x) { return x; }).length;
+var days = [['M', 22, 'done'], ['T', 23, 'rest'], ['W', 24, 'done'], ['T', 25, 'done'], ['F', 26, 'rest'], ['S', 27, 'today'], ['S', 28, 'plan']];
+var week = days.map(function (d) {
+var today = d[2] === 'today';
+return {
+day: d[0], date: d[1],
+style: 'display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0; border-radius: 14px; ' + (today ? 'background: #17191E; color: #FFFFFF;' : 'background: #FFFFFF; color: #17191E;'),
+dot: 'width: 6px; height: 6px; border-radius: 3px; background: ' + (d[2] === 'done' ? '#2A55D6' : today ? '#F08A5D' : d[2] === 'plan' ? '#B9BCC4' : 'transparent') + ';'
+};
+});
+return { moves: moves, doneCount: count, pct: count * 20, week: week };
+}
+}
+</script>
+</body>
+</html>

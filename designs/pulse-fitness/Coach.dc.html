@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pulse — AI Coach</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F4F2EC;color:#17191E}
+a{color:#17191E}a:hover{color:#C24A22}
+</style>
+</helmet>
+<div style="width: 390px; height: 1100px; box-sizing: border-box; background: #F4F2EC; display: flex; flex-direction: column; font-family: 'DM Sans', system-ui, sans-serif; color: #17191E">
+
+<header style="padding: 24px 20px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #E4E1D8">
+<div style="width: 48px; height: 48px; border-radius: 16px; background: #17191E; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F08A5D" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg></div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 24px; font-weight: 700; letter-spacing: -0.5px">Coach Pulse</h1>
+<span style="font-size: 13px; color: #5E6168">Knows your meals, workouts and sleep</span>
+</div>
+<button aria-label="Conversation history" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17191E" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg></button>
+</header>
+
+<div role="log" aria-label="Conversation" style="flex-grow: 1; padding: 20px; display: flex; flex-direction: column; gap: 14px; overflow: hidden">
+<span style="align-self: center; font-size: 12px; color: #5E6168; font-weight: 600">Today, 9:12</span>
+<sc-for list="{{messages}}" as="msg" hint-placeholder-count="4">
+<sc-if value="{{msg.mine}}" hint-placeholder-val="{{false}}">
+<div style="align-self: flex-end; max-width: 78%; background: #17191E; color: #FFFFFF; padding: 12px 16px; border-radius: 20px 20px 6px 20px; font-size: 15px; line-height: 1.45">{{msg.text}}</div>
+</sc-if>
+<sc-if value="{{msg.theirs}}" hint-placeholder-val="{{true}}">
+<div style="align-self: flex-start; max-width: 86%; display: flex; flex-direction: column; gap: 10px; background: #FFFFFF; padding: 14px 16px; border-radius: 20px 20px 20px 6px; font-size: 15px; line-height: 1.45">
+<span>{{msg.text}}</span>
+<sc-if value="{{msg.hasCard}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 8px; background: #F4F2EC; border-radius: 14px; padding: 12px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5E6168">{{msg.cardTitle}}</span>
+<sc-for list="{{msg.rows}}" as="row" hint-placeholder-count="3">
+<div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px"><span>{{row.a}}</span><span style="font-weight: 700">{{row.b}}</span></div>
+</sc-for>
+</div>
+<button style="align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 22px; border: none; background: #17191E; color: #FFFFFF; font-family: inherit; font-weight: 700; font-size: 14px">{{msg.action}}</button>
+</sc-if>
+</div>
+</sc-if>
+</sc-for>
+<sc-if value="{{thinking}}" hint-placeholder-val="{{false}}">
+<div aria-label="Coach is typing" style="align-self: flex-start; background: #FFFFFF; padding: 14px 18px; border-radius: 20px 20px 20px 6px; display: flex; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #B9BCC4"></span><span style="width: 8px; height: 8px; border-radius: 4px; background: #8E919A"></span><span style="width: 8px; height: 8px; border-radius: 4px; background: #B9BCC4"></span></div>
+</sc-if>
+</div>
+
+<div style="padding: 0 20px 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{chips}}" as="chip" hint-placeholder-count="3">
+<button onClick="{{chip.ask}}" style="min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid #DAD6CC; background: #FFFFFF; font-family: inherit; font-size: 13px; font-weight: 600; color: #17191E">{{chip.label}}</button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border-radius: 26px; padding: 4px 4px 4px 18px; border: 1px solid #E4E1D8">
+<label for="ask" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Message Coach Pulse</label>
+<input id="ask" type="text" placeholder="Ask about food, training, sleep…" style="flex-grow: 1; min-width: 0; border: none; outline: none; font-family: inherit; font-size: 15px; color: #17191E; background: transparent; min-height: 44px">
+<button aria-label="Speak" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: #F4F2EC; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17191E" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"></path></svg></button>
+<button aria-label="Send" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: #C24A22; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></button>
+</div>
+</div>
+
+<nav aria-label="Primary" style="display: flex; justify-content: space-around; padding: 8px 8px 24px; background: #FFFFFF; border-top: 1px solid #E4E1D8">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
+<a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
+<a href="Train.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
+<a href="Coach.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #C24A22; font-size: 11px; font-weight: 700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
+<a href="Progress.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { extra: [], thinking: false, asked: {} };
+}
+componentWillUnmount() { clearTimeout(this.t); }
+renderVals() {
+var self = this;
+var base = [
+{ mine: true, text: 'I have a work dinner tonight at an Italian place. How do I stay on track?' },
+{ mine: false, text: 'You have 680 kcal left and need about 38 g more protein. Aim for a grilled fish or chicken main, swap the pasta side for vegetables, and keep bread to one piece.', hasCard: true, cardTitle: 'Good picks under 650 kcal', rows: [{ a: 'Branzino, roasted vegetables', b: '~520 kcal' }, { a: 'Chicken piccata, side salad', b: '~590 kcal' }, { a: 'Minestrone + half margherita', b: '~640 kcal' }], action: 'Save to Dinner' },
+{ mine: true, text: 'And should I still train tomorrow?' },
+{ mine: false, text: 'Yes. Readiness is 82 and Sunday is your planned rest-light day, so I moved a 30-minute zone 2 walk there instead of intervals. A later dinner won’t change that.' }
+];
+var answers = {
+'Why is my weight flat?': 'Your average intake is 1,980 kcal against a 2,100 target, and weekends run about 450 kcal higher. Water retention after Wednesday’s leg day also hides progress. The 7-day average is down 0.3 kg, so the trend is working.',
+'Plan my meals for tomorrow': 'Done: overnight oats (430), tuna salad wrap (560), apple and cheese (220), salmon, rice and greens (720). That is 1,930 kcal and 128 g protein, leaving room for a snack.',
+'Swap today’s workout': 'I can swap Upper body strength for a 35-minute full-body circuit with dumbbells only. Same training volume, about 290 kcal. Want me to replace it?'
+};
+var msgs = base.concat(this.state.extra).map(function (m) {
+return { mine: m.mine, theirs: !m.mine, text: m.text, hasCard: !!m.hasCard, cardTitle: m.cardTitle || '', rows: m.rows || [], action: m.action || '' };
+});
+var chips = Object.keys(answers).filter(function (k) { return !self.state.asked[k]; }).map(function (k) {
+return {
+label: k,
+ask: function () {
+var asked = Object.assign({}, self.state.asked); asked[k] = true;
+self.setState({ asked: asked, thinking: true, extra: self.state.extra.concat([{ mine: true, text: k }]) });
+clearTimeout(self.t);
+self.t = setTimeout(function () {
+self.setState({ thinking: false, extra: self.state.extra.concat([{ mine: false, text: answers[k] }]) });
+}, 900);
+}
+};
+});
+return { messages: msgs.slice(-6), chips: chips, thinking: this.state.thinking };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pulse — Today</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F4F2EC;color:#17191E}
+a{color:#17191E}a:hover{color:#C24A22}
+</style>
+</helmet>
+<div style="width: 390px; height: 1100px; box-sizing: border-box; background: #F4F2EC; display: flex; flex-direction: column; font-family: 'DM Sans', system-ui, sans-serif; color: #17191E">
+<div style="padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; flex-grow: 1">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #5E6168; font-weight: 500">Saturday, 27 Sep</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Good morning, Alex</h1>
+</div>
+<button aria-label="Profile and settings" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: #17191E; color: #FFFFFF; font-weight: 700; font-size: 15px; font-family: inherit">AK</button>
+</header>
+
+<section aria-label="Calories today" style="background: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: center; gap: 20px">
+<div style="position: relative; width: 150px; height: 150px; flex-shrink: 0">
+<svg width="150" height="150" viewBox="0 0 160 160" aria-hidden="true">
+<circle cx="80" cy="80" r="70" fill="none" stroke="#EFECE4" stroke-width="14"></circle>
+<circle cx="80" cy="80" r="70" fill="none" stroke="#D9542B" stroke-width="14" stroke-linecap="round" stroke-dasharray="297 440" transform="rotate(-90 80 80)"></circle>
+</svg>
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center">
+<span style="font-family: 'Bricolage Grotesque', serif; font-size: 34px; font-weight: 700; letter-spacing: -1px">680</span>
+<span style="font-size: 12px; color: #5E6168">kcal left</span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; flex-grow: 1">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; color: #5E6168">Eaten</span>
+<span style="font-size: 18px; font-weight: 700">1,420 <span style="font-size: 13px; font-weight: 500; color: #5E6168">/ 2,100</span></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; color: #5E6168">Burned</span>
+<span style="font-size: 18px; font-weight: 700">412 <span style="font-size: 13px; font-weight: 500; color: #5E6168">kcal active</span></span>
+</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; color: #5E6168">Protein</span>
+<div style="height: 6px; border-radius: 3px; background: #EFECE4"><div style="width: 68%; height: 6px; border-radius: 3px; background: #2A55D6"></div></div>
+<span style="font-size: 13px; font-weight: 600">82 / 120 g</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; color: #5E6168">Carbs</span>
+<div style="height: 6px; border-radius: 3px; background: #EFECE4"><div style="width: 71%; height: 6px; border-radius: 3px; background: #B7791F"></div></div>
+<span style="font-size: 13px; font-weight: 600">164 / 230 g</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; color: #5E6168">Fat</span>
+<div style="height: 6px; border-radius: 3px; background: #EFECE4"><div style="width: 62%; height: 6px; border-radius: 3px; background: #7A5AC8"></div></div>
+<span style="font-size: 13px; font-weight: 600">43 / 70 g</span>
+</div>
+</div>
+</section>
+
+<section aria-label="Coach insight" style="background: #17191E; color: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F08A5D" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #F4C7B3">Pulse AI · insight</span>
+</div>
+<p style="margin: 0; font-size: 16px; line-height: 1.45">You're 38 g short on protein. A Greek yogurt bowl with berries at 4 pm closes the gap and still leaves 390 kcal for dinner.</p>
+<div style="display: flex; gap: 8px">
+<button style="min-height: 44px; padding: 0 18px; border-radius: 22px; border: none; background: #FFFFFF; color: #17191E; font-weight: 700; font-size: 14px; font-family: inherit">Add to plan</button>
+<a href="Coach.dc.html" style="min-height: 44px; padding: 0 18px; border-radius: 22px; border: 1px solid #4A4D55; color: #FFFFFF; font-weight: 600; font-size: 14px; display: flex; align-items: center; text-decoration: none">Ask coach</a>
+</div>
+</section>
+
+<section aria-label="Activity" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A55D6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 20c-2 0-3-1.5-3-3.5S6 13 6 11s1-4 3-4 2.5 2 2.5 4-1.5 3-1.5 5.5S10 20 8 20zM16 14c-1.8 0-2.5-1.2-2.5-2.8S14.5 8 14.5 6.5 15.3 3 17 3s2.2 1.6 2.2 3.2-1.2 2.7-1.2 4.8S17.8 14 16 14z"></path></svg>
+<span style="font-size: 18px; font-weight: 700">7,842</span>
+<span style="font-size: 12px; color: #5E6168">of 10,000 steps</span>
+</div>
+<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A55D6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg>
+<span style="font-size: 18px; font-weight: 700">5 / 8</span>
+<span style="font-size: 12px; color: #5E6168">glasses water</span>
+</div>
+<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A55D6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg>
+<span style="font-size: 18px; font-weight: 700">7h 20m</span>
+<span style="font-size: 12px; color: #5E6168">sleep last night</span>
+</div>
+</section>
+
+<section aria-labelledby="meals-h" style="background: #FFFFFF; border-radius: 24px; padding: 8px 20px; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0 4px">
+<h2 id="meals-h" style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 20px; font-weight: 700">Meals</h2>
+<a href="Food.dc.html" style="font-size: 14px; font-weight: 600; min-height: 44px; display: flex; align-items: center">Scan a meal</a>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EFECE4">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Breakfast</span><span style="font-size: 13px; color: #5E6168">Oats, banana, peanut butter</span></div>
+<span style="font-weight: 700; font-size: 15px">420</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EFECE4">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Lunch</span><span style="font-size: 13px; color: #5E6168">Chicken wrap, side salad</span></div>
+<span style="font-weight: 700; font-size: 15px">640</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EFECE4">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Snack</span><span style="font-size: 13px; color: #5E6168">Latte, almonds</span></div>
+<span style="font-weight: 700; font-size: 15px">360</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Dinner</span><span style="font-size: 13px; color: #5E6168">Not logged yet</span></div>
+<a href="Food.dc.html" aria-label="Log dinner" style="width: 44px; height: 44px; border-radius: 22px; background: #F4F2EC; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></a>
+</div>
+</section>
+</div>
+
+<nav aria-label="Primary" style="display: flex; justify-content: space-around; padding: 8px 8px 24px; background: #FFFFFF; border-top: 1px solid #E4E1D8">
+<a href="Main.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #C24A22; font-size: 11px; font-weight: 700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
+<a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
+<a href="Train.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
+<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
+<a href="Progress.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
