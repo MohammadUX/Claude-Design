@@ -1,0 +1,529 @@
+<title>Ledgerline Product Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --sunk:#EAEEF4;
+  --ink:#131A27; --ink-2:#3A4356; --muted:#5E6779; --line:#D9DEE7;
+  --accent:#2946C8; --accent-soft:#E4E9FB;
+  --gap:#A65F00; --gap-soft:#FBEFD9;
+  --ok:#1D7447; --ok-soft:#DDF1E6;
+  --risk:#B3261E; --risk-soft:#F9E1DF;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0D1119; --surface:#151B26; --sunk:#1B2230;
+    --ink:#E7EAF1; --ink-2:#C2C8D5; --muted:#949DB0; --line:#283042;
+    --accent:#93A6FF; --accent-soft:#1E2748;
+    --gap:#F2AE55; --gap-soft:#33260F;
+    --ok:#62C995; --ok-soft:#112C20;
+    --risk:#F08C84; --risk-soft:#3A1614;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0D1119; --surface:#151B26; --sunk:#1B2230;
+  --ink:#E7EAF1; --ink-2:#C2C8D5; --muted:#949DB0; --line:#283042;
+  --accent:#93A6FF; --accent-soft:#1E2748;
+  --gap:#F2AE55; --gap-soft:#33260F;
+  --ok:#62C995; --ok-soft:#112C20;
+  --risk:#F08C84; --risk-soft:#3A1614;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:clamp(16px,4vw,40px);padding-block:32px 80px}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1;letter-spacing:-.01em}
+h1{font-size:clamp(2.2rem,5.4vw,3.9rem);font-weight:800}
+h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700}
+h3{font-size:1.2rem;font-weight:700;line-height:1.25}
+p{margin:0;max-width:66ch}
+.label{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:1.15rem;color:var(--ink-2);max-width:62ch}
+.num{font-variant-numeric:tabular-nums}
+section{padding-top:72px;display:grid;gap:22px}
+.sec-head{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:22px}
+.sec-head .label b{color:var(--accent);font-weight:500}
+
+/* Masthead */
+.mast{display:grid;gap:22px;padding-top:16px}
+.mast-top{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;align-items:baseline}
+.brand{font-family:var(--display);font-weight:800;font-size:1.05rem;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.brand i{display:inline-block;width:18px;height:18px;border-radius:4px;background:
+  linear-gradient(var(--accent),var(--accent)) 0 3px/100% 2px no-repeat,
+  linear-gradient(var(--accent),var(--accent)) 0 8px/70% 2px no-repeat,
+  linear-gradient(var(--accent),var(--accent)) 0 13px/85% 2px no-repeat;border:1.5px solid var(--accent)}
+h1 em{font-style:normal;color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;gap:10px 28px;padding:16px 0;border-block:1px solid var(--line)}
+.meta div{display:grid;gap:2px}
+.meta span:last-child{font-weight:500}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stat{background:var(--surface);padding:18px 20px;display:grid;gap:6px;align-content:start}
+.stat b{font-family:var(--display);font-size:2.2rem;line-height:1;font-weight:700}
+.stat p{font-size:.9rem;color:var(--muted)}
+
+/* Callout */
+.thesis{background:var(--accent-soft);border-radius:var(--r);padding:22px 24px;display:grid;gap:10px}
+.thesis p{font-size:1.08rem;color:var(--ink)}
+
+/* Pipeline */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;counter-reset:st}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:6px;align-content:start;counter-increment:st}
+.stage .label::before{content:counter(st,decimal-leading-zero) " · "}
+.stage h3{font-size:1.02rem}
+.stage p{font-size:.86rem;color:var(--muted)}
+.stage .owner{font-family:var(--mono);font-size:.72rem;color:var(--ink-2);background:var(--sunk);border-radius:4px;padding:2px 6px;justify-self:start}
+@media (max-width:820px){.pipe{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.pipe{grid-template-columns:1fr}}
+
+/* Personas */
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:grid;gap:8px;align-content:start}
+.card p,.card li{font-size:.93rem;color:var(--ink-2)}
+.card ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.quote{font-style:italic;color:var(--ink)!important}
+
+/* Chart */
+.chart-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:14px}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:130px 1fr 34px;gap:12px;align-items:center;font-size:.9rem}
+.bar .track{height:22px;background:var(--sunk);border-radius:4px;position:relative;overflow:hidden}
+.bar .fill{height:100%;background:var(--muted);border-radius:4px}
+.bar.target .fill{background:var(--accent)}
+.bar.target span:first-child{font-weight:600;color:var(--accent)}
+.bar .v{font-family:var(--mono);text-align:right}
+.axis{display:grid;grid-template-columns:130px 1fr 34px;gap:12px}
+.axis .ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+@media (max-width:520px){.bar,.axis{grid-template-columns:92px 1fr 28px;gap:8px}}
+
+/* Matrix */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:.88rem}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+thead th{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--sunk)}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+tbody th{font-weight:600;white-space:nowrap}
+td.c{text-align:center}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);vertical-align:middle}
+.dot.full{background:var(--ok);border-color:var(--ok)}
+.dot.half{background:linear-gradient(90deg,var(--gap) 50%,transparent 50%);border-color:var(--gap)}
+.dot.none{border-color:var(--risk)}
+.dot.na{border:0;width:auto;height:auto;color:var(--muted)}
+.dot.na::before{content:"–"}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.84rem;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+
+/* Gaps */
+.gap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;padding:26px 0;border-top:1px dashed var(--line)}
+.gap:first-of-type{border-top:0}
+.gap-body{display:grid;gap:12px;align-content:start}
+.gap-id{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pill{font-family:var(--mono);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:500}
+.pill.med{background:var(--gap-soft);color:var(--gap)}
+.pill.hi{background:var(--risk-soft);color:var(--risk)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.ai{background:var(--accent-soft);color:var(--accent)}
+.gap-body ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.93rem;color:var(--ink-2)}
+.fix{background:var(--sunk);border-radius:8px;padding:12px 14px;font-size:.92rem;display:grid;gap:4px}
+.fix b{color:var(--accent)}
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
+.shots.one{grid-template-columns:1fr}
+figure{margin:0;display:grid;gap:6px}
+figure img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:var(--sunk)}
+figcaption{font-size:.8rem;color:var(--muted);line-height:1.45}
+figcaption a{color:var(--muted)}
+figcaption b{color:var(--ink-2);font-weight:600}
+@media (max-width:820px){.gap{grid-template-columns:1fr}}
+@media (max-width:460px){.shots{grid-template-columns:1fr}}
+
+/* Features */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.feat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:10px;align-content:start}
+.feat-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.feat dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.88rem}
+.feat dt{font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-top:3px}
+.feat dd{margin:0;color:var(--ink-2)}
+
+/* Mock UI */
+.mock-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:820px){.mock-row{grid-template-columns:1fr}}
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:grid;align-content:start;box-shadow:0 1px 0 var(--line),0 18px 40px -28px rgba(20,30,60,.45)}
+.mock-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.mock-bar b{font-size:.86rem}
+.mock-body{padding:14px;display:grid;gap:10px}
+.field{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:.86rem;padding:8px 10px;border-radius:6px;border:1px solid var(--line)}
+.field .k{color:var(--muted);font-size:.8rem}
+.field .v{font-weight:500}
+.field.warn{border-color:var(--gap);background:var(--gap-soft)}
+.conf{font-family:var(--mono);font-size:.72rem;color:var(--ok)}
+.field.warn .conf{color:var(--gap)}
+.why{font-size:.8rem;color:var(--muted)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{font:500 .84rem var(--body);padding:7px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.brief{display:grid;gap:8px}
+.brief-row{display:flex;justify-content:space-between;gap:10px;font-size:.86rem;border-bottom:1px solid var(--line);padding-bottom:6px}
+.brief-row span:last-child{font-family:var(--mono);font-size:.82rem;text-align:right}
+.meter{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden}
+.meter i{display:block;height:100%;width:72%;background:var(--accent)}
+.flag{display:flex;gap:8px;align-items:flex-start;font-size:.84rem;background:var(--gap-soft);color:var(--ink);padding:8px 10px;border-radius:6px}
+.flag::before{content:"!";font:700 .75rem var(--mono);color:var(--gap);border:1.5px solid var(--gap);border-radius:50%;width:18px;height:18px;display:grid;place-items:center;flex:none}
+.ai-tag{font-family:var(--mono);font-size:.68rem;color:var(--accent);letter-spacing:.05em}
+
+/* Autonomy ladder */
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.rung{padding:16px;display:grid;gap:6px;align-content:start;border-right:1px solid var(--line)}
+.rung:last-child{border-right:0}
+.rung p{font-size:.86rem;color:var(--ink-2)}
+.rung .lvl{height:6px;border-radius:3px;background:var(--accent)}
+.rung:nth-child(1) .lvl{width:25%}.rung:nth-child(2) .lvl{width:50%}.rung:nth-child(3) .lvl{width:75%}.rung:nth-child(4) .lvl{width:100%}
+@media (max-width:720px){.ladder{grid-template-columns:1fr 1fr}.rung:nth-child(2){border-right:0}.rung:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media (max-width:420px){.ladder{grid-template-columns:1fr}.rung{border-right:0;border-bottom:1px solid var(--line)}.rung:last-child{border-bottom:0}}
+
+/* Roadmap */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:820px){.phases{grid-template-columns:1fr}}
+.phase{border-top:3px solid var(--accent);background:var(--surface);border-radius:0 0 var(--r) var(--r);padding:16px 18px;display:grid;gap:8px;align-content:start;border-inline:1px solid var(--line);border-bottom:1px solid var(--line)}
+.phase:nth-child(2){border-top-color:color-mix(in srgb,var(--accent) 65%,var(--bg))}
+.phase:nth-child(3){border-top-color:color-mix(in srgb,var(--accent) 35%,var(--bg))}
+.phase ul{margin:0;padding-left:18px;font-size:.9rem;color:var(--ink-2);display:grid;gap:4px}
+
+.sources{columns:2 300px;column-gap:28px;font-size:.86rem;color:var(--ink-2);padding-left:18px;margin:0}
+.sources li{break-inside:avoid;margin-bottom:6px}
+footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-size:.84rem;color:var(--muted);display:grid;gap:6px}
+@media (prefers-reduced-motion:no-preference){.meter i{animation:grow 1.2s ease-out both}@keyframes grow{from{width:8%}}}
+</style>
+<style>
+.mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.mod{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:grid;gap:8px;align-content:start}
+.mod ul{margin:0;padding-left:18px;font-size:.9rem;color:var(--ink-2);display:grid;gap:3px}
+.mod .later{font-size:.84rem;color:var(--muted)}
+.tier{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.gaplist{display:grid;gap:0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.gl{display:grid;grid-template-columns:56px minmax(0,1.4fr) minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-size:.92rem}
+.gl:last-child{border-bottom:0}
+.gl .id{font-family:var(--mono);color:var(--accent);font-weight:500}
+.gl .sol{color:var(--ink-2)}
+@media (max-width:720px){.gl{grid-template-columns:44px 1fr}.gl .sol,.gl .pill{grid-column:2}.gl .pill{justify-self:start}}
+.pair .bar{grid-template-columns:150px 1fr 64px}
+.pair .axis{grid-template-columns:150px 1fr 64px}
+.bar.ai .fill{background:var(--accent)}
+.bar.ai span:first-child{color:var(--muted);font-size:.84rem}
+.bar.man span:first-child{font-weight:600}
+.pair .grp{display:grid;gap:4px}
+@media (max-width:520px){.pair .bar,.pair .axis{grid-template-columns:100px 1fr 52px}}
+.pat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:grid;gap:10px;align-content:start}
+.pat h3 a{color:inherit;text-decoration-color:var(--line)}
+.pat h3 a:hover{text-decoration-color:var(--accent)}
+.pat .use{font-size:.93rem;color:var(--ink-2)}
+.pat .avoid{font-size:.86rem;color:var(--ink-2);background:var(--risk-soft);border-radius:6px;padding:8px 10px}
+.pat .avoid b{color:var(--risk)}
+.pat .where{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:.7rem;padding:2px 7px;border-radius:4px;background:var(--sunk);color:var(--ink-2)}
+.slider{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.slider div{padding:14px 16px;display:grid;gap:6px;align-content:start;border-right:1px solid var(--line)}
+.slider div:last-child{border-right:0}
+.slider p{font-size:.88rem;color:var(--ink-2)}
+.slider .eg{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+.slider div:nth-child(2){background:color-mix(in srgb,var(--accent-soft) 50%,var(--surface))}
+.slider div:nth-child(3){background:var(--accent-soft)}
+@media (max-width:640px){.slider{grid-template-columns:1fr}.slider div{border-right:0;border-bottom:1px solid var(--line)}.slider div:last-child{border-bottom:0}}
+.dont{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.dont div{display:flex;gap:10px;font-size:.92rem;color:var(--ink-2);padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.dont div::before{content:"✕";font:600 .8rem var(--mono);color:var(--risk);flex:none;padding-top:2px}
+.nav{display:flex;gap:16px;flex-wrap:wrap;font-size:.88rem}
+.deliv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.deliv div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:4px}
+.deliv b{font-size:.95rem}
+.deliv span{font-size:.84rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="mast-top">
+    <div class="brand"><i aria-hidden="true"></i>Ledgerline</div>
+    <span class="label">Product plan · B2B fintech · v1.0</span>
+  </div>
+  <h1>An AP workspace where <em>AI does the prep</em> and finance teams make the calls.</h1>
+  <p class="lede">This plan turns the gap analysis into a product: what Ledgerline must have, which problems it solves first, where AI saves the most time, and which AI UX patterns from <a href="https://aiuxplayground.com/patterns/">AI UX Playground</a> each feature should use.</p>
+  <div class="meta">
+    <div><span class="label">Market</span><span>Mid-market companies, 50–1,000 staff</span></div>
+    <div><span class="label">Workflow</span><span>Invoice → code → approve → pay → reconcile</span></div>
+    <div><span class="label">Horizon</span><span>12 months, 3 phases</span></div>
+    <div><span class="label">Companion</span><span><a href="https://claude.ai/artifact/EsFxEAEkw4QrkisWEFMsGe">Gap analysis case study</a></span></div>
+  </div>
+  <nav class="nav" aria-label="Sections">
+    <a href="#problem">Problem</a><a href="#have">What to have</a><a href="#gaps">Gaps</a><a href="#efficiency">AI efficiency</a><a href="#patterns">AI patterns</a><a href="#agentic">Agent rules</a><a href="#roadmap">Roadmap</a><a href="#metrics">Metrics</a>
+  </nav>
+</header>
+
+<section id="problem" aria-labelledby="h-problem">
+  <div class="sec-head">
+    <span class="label"><b>01</b> · Problem</span>
+    <h2 id="h-problem">What we are solving</h2>
+  </div>
+  <div class="thesis">
+    <span class="label">Problem statement</span>
+    <p>Finance teams at growing companies lose most of their AP time to <strong>copying, checking and chasing</strong>: typing invoices into forms, picking account codes, waiting on approvers who lack context, and fixing mismatches at month-end. Current tools digitize the paperwork but leave the work itself manual.</p>
+  </div>
+  <div class="cols3">
+    <div class="card"><span class="label">AP specialist</span><h3>"Get bills in correctly without retyping them."</h3><ul><li>Capture every invoice from any channel</li><li>Code it right the first time</li><li>Stop chasing missing POs and receipts</li></ul></div>
+    <div class="card"><span class="label">Budget owner</span><h3>"Approve in seconds, and know what I'm approving."</h3><ul><li>See budget impact and vendor history</li><li>Approve from Slack, email or phone</li><li>Only see what needs judgment</li></ul></div>
+    <div class="card"><span class="label">Controller</span><h3>"Pay on time, protect cash, close faster."</h3><ul><li>No duplicate or fraudulent payments</li><li>Pay dates that fit cash and discounts</li><li>A clean, audit-ready ledger every day</li></ul></div>
+  </div>
+</section>
+
+<section id="have" aria-labelledby="h-have">
+  <div class="sec-head">
+    <span class="label"><b>02</b> · Scope</span>
+    <h2 id="h-have">What the product must have</h2>
+    <p>AI only works on top of a solid AP system. Build the table-stakes foundation first; the differentiation comes from the AI layer on top of it.</p>
+  </div>
+  <div class="tier"><span class="pill ok">Foundation</span><span style="font-size:.9rem;color:var(--muted)">Must match competitors on day one</span></div>
+  <div class="mods">
+    <div class="mod"><h3>Bill inbox</h3><ul><li>Email forwarding address, upload, drag-and-drop</li><li>Status tabs: draft, in approval, scheduled, paid</li><li>Bulk actions</li></ul><p class="later">Later: vendor portal, EDI</p></div>
+    <div class="mod"><h3>Vendors</h3><ul><li>Vendor records with verified bank details</li><li>Tax forms (W-9 / GST registration)</li><li>Payment terms per vendor</li></ul><p class="later">Later: vendor self-onboarding</p></div>
+    <div class="mod"><h3>Approvals engine</h3><ul><li>Rules by amount, department, entity, vendor</li><li>Multi-step and parallel approvers, delegates</li><li>Approve in app, email, Slack</li></ul><p class="later">Later: plain-language policies</p></div>
+    <div class="mod"><h3>Payments</h3><ul><li>ACH, wire, virtual card</li><li>Multi-currency with FX quote</li><li>Scheduling and payment runs</li></ul><p class="later">Later: cross-border local rails</p></div>
+    <div class="mod"><h3>Purchase orders</h3><ul><li>PO creation and approval</li><li>2- and 3-way match</li></ul><p class="later">Later: goods-receipt capture</p></div>
+    <div class="mod"><h3>Accounting sync</h3><ul><li>Two-way sync: QuickBooks, Xero, NetSuite</li><li>Chart of accounts, classes, departments</li><li>Bank feeds</li></ul><p class="later">Later: Sage Intacct, SAP B1</p></div>
+    <div class="mod"><h3>Controls & audit</h3><ul><li>Roles and permissions, SSO</li><li>Full audit log of every change</li><li>Segregation of duties</li></ul><p class="later">Later: SOC 1 report pack</p></div>
+    <div class="mod"><h3>Reporting</h3><ul><li>AP aging, cash requirements</li><li>Spend by vendor and department</li></ul><p class="later">Later: budget vs actual</p></div>
+  </div>
+  <div class="tier" style="margin-top:8px"><span class="pill ai">AI layer</span><span style="font-size:.9rem;color:var(--muted)">Where Ledgerline wins</span></div>
+  <div class="mods">
+    <div class="mod"><h3>F1 Invoice Autopilot</h3><p style="font-size:.9rem;color:var(--ink-2)">Reads invoices and fills the bill, with confidence per field.</p></div>
+    <div class="mod"><h3>F2 Smart Coding</h3><p style="font-size:.9rem;color:var(--ink-2)">Suggests GL, department and tax code from history.</p></div>
+    <div class="mod"><h3>F3 Approval Brief</h3><p style="font-size:.9rem;color:var(--ink-2)">Gives approvers context and routes bills by risk.</p></div>
+    <div class="mod"><h3>F4 Guardrails</h3><p style="font-size:.9rem;color:var(--ink-2)">Blocks duplicates and bank-detail fraud before saving.</p></div>
+    <div class="mod"><h3>F5 Pay Planner</h3><p style="font-size:.9rem;color:var(--ink-2)">Proposes payment runs against cash and discounts.</p></div>
+    <div class="mod"><h3>F6 Close Agent</h3><p style="font-size:.9rem;color:var(--ink-2)">Reconciles continuously and chases exceptions.</p></div>
+    <div class="mod"><h3>F7 Ask Ledger</h3><p style="font-size:.9rem;color:var(--ink-2)">Answers and acts on the bill or report in view.</p></div>
+  </div>
+</section>
+
+<section id="gaps" aria-labelledby="h-gaps">
+  <div class="sec-head">
+    <span class="label"><b>03</b> · Gaps</span>
+    <h2 id="h-gaps">Gaps to solve, in priority order</h2>
+    <p>From the Mobbin benchmark of nine products. Evidence for each gap is in the <a href="https://claude.ai/artifact/EsFxEAEkw4QrkisWEFMsGe">case study</a>.</p>
+  </div>
+  <div class="gaplist">
+    <div class="gl"><span class="id">G1</span><span><b>Invoices are uploaded but typed by hand</b></span><span class="sol">F1 Invoice Autopilot</span><span class="pill hi">P0</span></div>
+    <div class="gl"><span class="id">G4</span><span><b>Duplicates and fraud caught too late</b></span><span class="sol">F4 Guardrails</span><span class="pill hi">P0</span></div>
+    <div class="gl"><span class="id">G2</span><span><b>GL coding is a dropdown per row</b></span><span class="sol">F2 Smart Coding</span><span class="pill hi">P0</span></div>
+    <div class="gl"><span class="id">G3</span><span><b>Approvers decide without context</b></span><span class="sol">F3 Approval Brief</span><span class="pill med">P1</span></div>
+    <div class="gl"><span class="id">G5</span><span><b>Pay dates ignore cash and terms</b></span><span class="sol">F5 Pay Planner</span><span class="pill med">P2</span></div>
+    <div class="gl"><span class="id">G6</span><span><b>Reconciliation waits for month-end</b></span><span class="sol">F6 Close Agent</span><span class="pill med">P2</span></div>
+    <div class="gl"><span class="id">G7</span><span><b>AI sits in a side chat, not in the task</b></span><span class="sol">F7 Ask Ledger + embedded AI</span><span class="pill med">P2</span></div>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted)">G4 is P0 despite lower frequency because one fraudulent payment can cost more than a year of manual entry, and bank-detail checks are a buyer requirement for controllers.</p>
+</section>
+
+<section id="efficiency" aria-labelledby="h-eff">
+  <div class="sec-head">
+    <span class="label"><b>04</b> · AI efficiency</span>
+    <h2 id="h-eff">Where AI saves time</h2>
+    <p>Planning estimates for one invoice's hands-on time. Validate these in a two-week time study with pilot customers before quoting them externally.</p>
+  </div>
+  <div class="chart-box pair">
+    <div style="display:grid;gap:4px"><span class="label">Hands-on minutes per invoice · estimate</span>
+      <div class="legend"><span><i class="dot" style="background:var(--muted);border-color:var(--muted);border-radius:3px"></i>Manual today</span><span><i class="dot" style="background:var(--accent);border-color:var(--accent);border-radius:3px"></i>With Ledgerline AI</span></div></div>
+    <div class="bars" role="img" aria-label="Estimated minutes per invoice. Capture: 6 manual, 1 with AI. Coding: 3 manual, 0.5 with AI. Approval review: 4 manual, 1 with AI. Duplicate check: 2 manual, 0 with AI. Matching: 3 manual, 0.5 with AI.">
+      <div class="grp"><div class="bar man"><span>Capture & entry</span><div class="track"><div class="fill" style="width:75%"></div></div><span class="v">6 min</span></div><div class="bar ai"><span>with AI</span><div class="track"><div class="fill" style="width:12.5%"></div></div><span class="v">1 min</span></div></div>
+      <div class="grp"><div class="bar man"><span>Approval review</span><div class="track"><div class="fill" style="width:50%"></div></div><span class="v">4 min</span></div><div class="bar ai"><span>with AI</span><div class="track"><div class="fill" style="width:12.5%"></div></div><span class="v">1 min</span></div></div>
+      <div class="grp"><div class="bar man"><span>GL coding</span><div class="track"><div class="fill" style="width:37.5%"></div></div><span class="v">3 min</span></div><div class="bar ai"><span>with AI</span><div class="track"><div class="fill" style="width:6.25%"></div></div><span class="v">0.5 min</span></div></div>
+      <div class="grp"><div class="bar man"><span>Bank matching</span><div class="track"><div class="fill" style="width:37.5%"></div></div><span class="v">3 min</span></div><div class="bar ai"><span>with AI</span><div class="track"><div class="fill" style="width:6.25%"></div></div><span class="v">0.5 min</span></div></div>
+      <div class="grp"><div class="bar man"><span>Duplicate check</span><div class="track"><div class="fill" style="width:25%"></div></div><span class="v">2 min</span></div><div class="bar ai"><span>with AI</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="v">0 min</span></div></div>
+    </div>
+    <div class="axis" aria-hidden="true"><span></span><div class="ticks"><span>0</span><span>4</span><span>8 min</span></div><span></span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="label">Per invoice · estimate</span><b class="num">18 → 3 min</b><p>Hands-on time across the five tasks above</p></div>
+    <div class="stat"><span class="label">At 500 bills / month</span><b class="num">≈125 h</b><p>Hours returned to the finance team each month, if estimates hold</p></div>
+    <div class="stat"><span class="label">Approval wait</span><b class="num">Days → hours</b><p>Low-risk bills auto-route; approvers see a one-screen brief</p></div>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted)">Calculation: (18 − 3) min × 500 bills = 7,500 min = 125 h. The larger win is elapsed time: approval waits and month-end surprises, which the minutes above do not capture.</p>
+</section>
+
+<section id="patterns" aria-labelledby="h-pat">
+  <div class="sec-head">
+    <span class="label"><b>05</b> · AI UX patterns</span>
+    <h2 id="h-pat">Pattern playbook</h2>
+    <p>Patterns from <a href="https://aiuxplayground.com/patterns/">AI UX Playground</a>'s catalog, applied to money workflows. Each card names where the pattern appears in Ledgerline and the misuse to avoid.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="pat"><div class="feat-top"><h3><a href="https://aiuxplayground.com/pattern/confidence-score/">Confidence score</a></h3><span class="pill ai">Trust</span></div>
+      <p class="use">Every extracted field shows a confidence tier. Above 95% it is filled and quiet; 70–95% is filled and highlighted; below 70% is left blank with a question.</p>
+      <div class="where"><span class="chip">F1</span><span class="chip">F2</span><span class="chip">F6</span></div>
+      <p class="avoid"><b>Avoid:</b> using a percentage in place of a source. Confidence complements citations; it never replaces them.</p></div>
+    <div class="pat"><div class="feat-top"><h3>Citations & sources</h3><span class="pill ai">Trust</span></div>
+      <p class="use">Tap any field to highlight where it was read on the PDF. Ask Ledger answers link to the exact bills and ledger lines they used.</p>
+      <div class="where"><span class="chip">F1</span><span class="chip">F3</span><span class="chip">F7</span></div>
+      <p class="avoid"><b>Avoid:</b> a footnote dump of sources nobody can inspect in context.</p></div>
+    <div class="pat"><div class="feat-top"><h3><a href="https://aiuxplayground.com/pattern/smart-autocomplete/">Smart autocomplete</a></h3><span class="pill ai">Inputs</span></div>
+      <p class="use">GL code, department and memo appear as ghost suggestions. Tab accepts one; "Accept all confident" accepts a batch.</p>
+      <div class="where"><span class="chip">F2</span></div>
+      <p class="avoid"><b>Avoid:</b> committing a suggestion on pause without an explicit accept, or suggestions nobody can switch off.</p></div>
+    <div class="pat"><div class="feat-top"><h3><a href="https://aiuxplayground.com/pattern/human-in-the-loop/">Human in the loop</a></h3><span class="pill ai">Collab</span></div>
+      <p class="use">A named person must approve payment release, new payees, bank-detail changes and period lock. The agent stages; the person commits.</p>
+      <div class="where"><span class="chip">F4</span><span class="chip">F5</span><span class="chip">F6</span></div>
+      <p class="avoid"><b>Avoid:</b> a gate on every trivial step. Too many confirmations train people to click through.</p></div>
+    <div class="pat"><div class="feat-top"><h3><a href="https://aiuxplayground.com/guides/designing-ai-agents/">Intent preview (plan, then execute)</a></h3><span class="pill ai">Agents</span></div>
+      <p class="use">A payment run shows its plan first: which bills, from which account, on which date, total fees and discounts taken, and cash left after. The same applies to bulk holds and reclasses.</p>
+      <div class="where"><span class="chip">F5</span><span class="chip">F7</span></div>
+      <p class="avoid"><b>Avoid:</b> plans written as prose. Show a table the controller can edit line by line.</p></div>
+    <div class="pat"><div class="feat-top"><h3>Autonomy slider</h3><span class="pill ai">Agents</span></div>
+      <p class="use">Admins set Suggest, Co-pilot or Autopilot per vendor, category or amount band. Defaults follow risk: new vendors start at Suggest.</p>
+      <div class="where"><span class="chip">F1</span><span class="chip">F2</span><span class="chip">F3</span></div>
+      <p class="avoid"><b>Avoid:</b> one global switch for the whole company.</p></div>
+    <div class="pat"><div class="feat-top"><h3>Autonomy budget</h3><span class="pill ai">Agents</span></div>
+      <p class="use">Caps on what runs unattended, such as "auto-approve up to SGD 2,000 per bill and SGD 20,000 per day for trusted SaaS vendors". Hitting a cap routes to a person.</p>
+      <div class="where"><span class="chip">F3</span><span class="chip">F5</span></div>
+      <p class="avoid"><b>Avoid:</b> hidden limits. Show the remaining budget where the admin can see it.</p></div>
+    <div class="pat"><div class="feat-top"><h3><a href="https://www.aiuxplayground.com/pattern/correction/">Self-correction</a></h3><span class="pill ai">Agents</span></div>
+      <p class="use">Before a bill is shown, the agent checks its own work: line items sum to the total, tax matches the rate, due date follows the terms. It fixes what it can and flags what it cannot.</p>
+      <div class="where"><span class="chip">F1</span><span class="chip">F6</span></div>
+      <p class="avoid"><b>Avoid:</b> silent fixes. Say what was corrected and why.</p></div>
+    <div class="pat"><div class="feat-top"><h3>Error recovery</h3><span class="pill ai">Agents</span></div>
+      <p class="use">A failed payment comes with next steps: retry tomorrow, switch from ACH to wire, or email the vendor for corrected details (draft included).</p>
+      <div class="where"><span class="chip">F5</span></div>
+      <p class="avoid"><b>Avoid:</b> an error code with no path forward.</p></div>
+    <div class="pat"><div class="feat-top"><h3><a href="https://aiuxplayground.com/pattern/context-menu/">AI context menu</a></h3><span class="pill ai">Inputs</span></div>
+      <p class="use">Right-click a bill or vendor: "Explain this variance", "Draft email to vendor", "Find similar bills". AI works on the selected object, not a blank prompt.</p>
+      <div class="where"><span class="chip">F7</span></div>
+      <p class="avoid"><b>Avoid:</b> a menu of vague actions that open a generic chat.</p></div>
+    <div class="pat"><div class="feat-top"><h3><a href="https://aiuxplayground.com/pattern/follow-up-chips/">Follow-up chips</a></h3><span class="pill ai">Inputs</span></div>
+      <p class="use">After Ask Ledger answers "Why is Q3 SaaS spend up 18%?", chips offer "Show the 42 bills", "Hold unused subscriptions", "Compare to Q2".</p>
+      <div class="where"><span class="chip">F7</span></div>
+      <p class="avoid"><b>Avoid:</b> chips that trigger money movement without a preview.</p></div>
+    <div class="pat"><div class="feat-top"><h3>Edit, reject, flag</h3><span class="pill ai">Trust</span></div>
+      <p class="use">Every AI output has visible controls to edit, reject or flag it. Flags go to a review queue and improve the model for that company.</p>
+      <div class="where"><span class="chip">All</span></div>
+      <p class="avoid"><b>Avoid:</b> corrections that vanish. Show "Learned: Northwind freight → 5210" after a fix.</p></div>
+    <div class="pat"><div class="feat-top"><h3><a href="https://aiuxplayground.com/pattern/ai-tips-tricks">AI onboarding</a></h3><span class="pill ai">Onboarding</span></div>
+      <p class="use">First run imports 90 days of bills from the ERP, then shows what the AI learned: top vendors, their usual codes, and which ones it can already handle.</p>
+      <div class="where"><span class="chip">Setup</span></div>
+      <p class="avoid"><b>Avoid:</b> an empty product that asks users to "try asking AI anything".</p></div>
+  </div>
+
+  <div class="sec-head" style="border-top:0;padding-top:12px">
+    <h3>Autonomy levels in Ledgerline</h3>
+  </div>
+  <div class="slider" aria-label="Autonomy levels">
+    <div><span class="label">Suggest</span><p>AI proposes values. The person fills or accepts each one.</p><span class="eg">Default: new vendors, bills over SGD 25k</span></div>
+    <div><span class="label">Co-pilot</span><p>AI fills the bill and drafts routing. The person reviews and submits.</p><span class="eg">Default: known vendors</span></div>
+    <div><span class="label">Autopilot</span><p>AI processes within policy and budget caps. People see exceptions and audit samples.</p><span class="eg">Opt-in: recurring, trusted vendors</span></div>
+  </div>
+</section>
+
+<section id="agentic" aria-labelledby="h-agentic">
+  <div class="sec-head">
+    <span class="label"><b>06</b> · Agent rules</span>
+    <h2 id="h-agentic">Agentic UX territories, applied to AP</h2>
+    <p>AI UX Playground's <a href="https://aiuxplayground.com/frameworks/agentic/">Agentic UX framework</a> covers seven territories. Here is the Ledgerline rule for each.</p>
+  </div>
+  <div class="scroll" role="region" aria-label="Agentic territories" tabindex="0">
+    <table>
+      <thead><tr><th scope="col">Territory</th><th scope="col">Question</th><th scope="col">Ledgerline rule</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Permission</th><td>What may the agent touch?</td><td>The agent acts with the permissions of the person who enabled it, never more. It can never add payees or change bank details.</td></tr>
+        <tr><th scope="row">Reversibility</th><td>How is an action undone?</td><td>Everything is reversible until payment release or period lock. Irreversible steps always need a person.</td></tr>
+        <tr><th scope="row">Autonomy</th><td>How much runs unattended?</td><td>Suggest, Co-pilot and Autopilot, set per vendor, category and amount band, with budget caps.</td></tr>
+        <tr><th scope="row">Cost</th><td>What does this action cost?</td><td>Every payment run shows fees, FX spread, discounts taken or missed, and cash remaining before release.</td></tr>
+        <tr><th scope="row">Cross-app handoffs</th><td>What happens outside Ledgerline?</td><td>Slack and email approvals carry the full brief. ERP sync previews the journal entries before posting.</td></tr>
+        <tr><th scope="row">Ambient & voice</th><td>When does the agent interrupt?</td><td>A daily digest by default. Real-time alerts only for fraud signals and payments at risk of failing.</td></tr>
+        <tr><th scope="row">Trust</th><td>How do users verify what happened?</td><td>An activity log records each AI action with its inputs, sources, confidence, and who accepted it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sec-head" style="border-top:0;padding-top:12px"><h3>Anti-patterns to avoid</h3></div>
+  <div class="dont">
+    <div>A chat box as the main way to use AI in a form-heavy workflow</div>
+    <div>AI that moves money without a named person releasing it</div>
+    <div>Filling a low-confidence field silently instead of asking</div>
+    <div>"AI-powered" marketing on a form that is still manual</div>
+    <div>Confirmation dialogs on every step, which train people to click through</div>
+    <div>Explanations that restate the answer instead of showing sources</div>
+  </div>
+</section>
+
+<section id="roadmap" aria-labelledby="h-road">
+  <div class="sec-head">
+    <span class="label"><b>07</b> · Roadmap</span>
+    <h2 id="h-road">Build plan</h2>
+  </div>
+  <div class="phases">
+    <div class="phase"><span class="label">Phase 1 · Months 0–3</span><h3>Stop the typing</h3><ul><li>Foundation: bill inbox, vendors, approvals, ACH, QuickBooks/Xero sync, audit log</li><li>F1 Invoice Autopilot at Co-pilot</li><li>F2 Smart Coding suggestions</li><li>F4 duplicate check at entry</li><li>Patterns: confidence score, citations, smart autocomplete, edit/reject/flag</li></ul></div>
+    <div class="phase"><span class="label">Phase 2 · Months 3–6</span><h3>Decide faster</h3><ul><li>F3 Approval Brief in app, Slack and email</li><li>Risk-based routing and plain-language policies</li><li>F4 bank-detail change detection</li><li>Autonomy slider and budgets</li><li>Patterns: human in the loop, autonomy slider, AI onboarding</li></ul></div>
+    <div class="phase"><span class="label">Phase 3 · Months 6–12</span><h3>Run the close</h3><ul><li>F5 Pay Planner with cash forecast</li><li>F6 Close Agent, NetSuite sync</li><li>F7 Ask Ledger with actions</li><li>Autopilot for trusted vendors</li><li>Patterns: intent preview, self-correction, error recovery, context menu, follow-up chips</li></ul></div>
+  </div>
+  <div class="sec-head" style="border-top:0;padding-top:12px"><h3>Design deliverables for the case study</h3></div>
+  <div class="deliv">
+    <div><b>Bill review with confidence</b><span>F1 · extracted fields, PDF source highlight, low-confidence question</span></div>
+    <div><b>Coding table with ghost suggestions</b><span>F2 · Tab to accept, "why" tooltip, bulk accept</span></div>
+    <div><b>Approval brief on mobile and Slack</b><span>F3 · budget meter, vendor history, one-tap decision</span></div>
+    <div><b>Duplicate and fraud interrupt</b><span>F4 · side-by-side compare, verify bank change</span></div>
+    <div><b>Payment run preview</b><span>F5 · editable plan, cost and cash-after summary</span></div>
+    <div><b>Autonomy settings</b><span>Suggest / Co-pilot / Autopilot per vendor, with caps</span></div>
+    <div><b>AI activity log</b><span>Every AI action with source, confidence, accepter</span></div>
+    <div><b>First-run onboarding</b><span>"Here's what I learned from 90 days of bills"</span></div>
+  </div>
+</section>
+
+<section id="metrics" aria-labelledby="h-met">
+  <div class="sec-head">
+    <span class="label"><b>08</b> · Metrics</span>
+    <h2 id="h-met">How we measure success</h2>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="label">North star</span><b>Touchless rate</b><p>Share of bills that go from inbox to scheduled payment with no field edited by a person. Target: 40% by month 6.</p></div>
+    <div class="stat"><span class="label">Efficiency</span><b>Minutes / bill</b><p>Hands-on time per invoice. Target: under 4 minutes.</p></div>
+    <div class="stat"><span class="label">Speed</span><b>Approval time</b><p>Median time from submit to approve. Target: under 1 business day.</p></div>
+    <div class="stat"><span class="label">Trust</span><b>Override rate</b><p>Share of AI suggestions edited or rejected. Falling over time means the model is learning; a sudden rise means something broke.</p></div>
+  </div>
+  <div class="cols3">
+    <div class="card"><span class="label">Next step · week 1–2</span><h3>Validate the problem</h3><p>Interview 8 AP specialists and 5 controllers. Run a time study on 50 real invoices per pilot company.</p></div>
+    <div class="card"><span class="label">Next step · week 3–4</span><h3>Prototype F1 + F2</h3><p>Clickable prototype of bill review and coding. Test whether people trust and correct confidence tiers as intended.</p></div>
+    <div class="card"><span class="label">Next step · week 5–6</span><h3>Measure extraction</h3><p>Benchmark extraction accuracy on 500 real invoices to set the confidence thresholds before building.</p></div>
+  </div>
+</section>
+
+<section id="sources" aria-labelledby="h-src">
+  <div class="sec-head">
+    <span class="label"><b>09</b> · Sources</span>
+    <h2 id="h-src">References</h2>
+  </div>
+  <ul class="sources">
+    <li><a href="https://aiuxplayground.com/patterns/">AI UX Playground · Pattern catalog</a></li>
+    <li><a href="https://aiuxplayground.com/frameworks/agentic/">AI UX Playground · Agentic UX framework</a></li>
+    <li><a href="https://www.aiuxplayground.com/frameworks/">AI UX Playground · Frameworks (Agentic, Chat, Trust Scaffolding)</a></li>
+    <li><a href="https://aiuxplayground.com/guides/designing-ai-agents/">AI UX Playground · Designing for AI agents</a></li>
+    <li><a href="https://aiuxplayground.com/pattern/confidence-score/">Pattern · Confidence score</a></li>
+    <li><a href="https://aiuxplayground.com/pattern/confidence-indicators/">Pattern · Confidence indicators</a></li>
+    <li><a href="https://aiuxplayground.com/pattern/human-in-the-loop/">Pattern · Human in the loop</a></li>
+    <li><a href="https://aiuxplayground.com/pattern/smart-autocomplete/">Pattern · Smart autocomplete</a></li>
+    <li><a href="https://www.aiuxplayground.com/pattern/correction/">Pattern · Self-correction</a></li>
+    <li><a href="https://aiuxplayground.com/pattern/context-menu/">Pattern · AI context menu</a></li>
+    <li><a href="https://aiuxplayground.com/pattern/follow-up-chips/">Pattern · Follow-up chips</a></li>
+    <li><a href="https://www.aiuxplayground.com/blog/trust-stack">AI UX Playground · The Trust Stack</a></li>
+    <li><a href="https://claude.ai/artifact/EsFxEAEkw4QrkisWEFMsGe">Ledgerline AP Case Study (Mobbin gap analysis)</a></li>
+  </ul>
+</section>
+
+<footer>
+  <span>Ledgerline is a concept product. Time savings and targets are planning estimates to validate with pilot customers.</span>
+  <span class="label">Pattern descriptions summarized from AI UX Playground search listings; the site itself could not be opened from this environment.</span>
+</footer>
+
+</div>
