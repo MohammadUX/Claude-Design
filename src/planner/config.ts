@@ -140,8 +140,8 @@ export const SEVERITY = {
 /* --------------------------------------------------------- Layout / views */
 
 export const DENSITY = {
-  compact: { rowHeight: 52, label: 'Compact' },
-  comfortable: { rowHeight: 76, label: 'Comfortable' },
+  compact: { rowHeight: 64, label: 'Compact' },
+  comfortable: { rowHeight: 100, label: 'Comfortable' },
 } as const;
 export type Density = keyof typeof DENSITY;
 

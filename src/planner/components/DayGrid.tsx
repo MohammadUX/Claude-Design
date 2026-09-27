@@ -7,7 +7,7 @@ import { fromMin, nowMin, toMin } from '../date';
 import { absenceOn, blockingDoc, daySummary, EMPTY_TOURS, etaLabel, isActive, routeFull, routeLabel, timeLabel, tourIssues, toursFor } from '../selectors';
 import type { Driver, Tour } from '../types';
 import { usePlannerCtx } from './context';
-import { DayStateLabel, DriverCell, GROUP_ROW_HEIGHT, GroupRow, SummaryCell, UnassignedHead, type RowItem } from './rows';
+import { DayStateLabel, DriverCell, GROUP_ROW_HEIGHT, GroupRow, ROW_GAP, SummaryCell, UnassignedHead, type RowItem } from './rows';
 import { MultiTourChip, TourCard, useTourDrag, VehicleLine } from './TourCard';
 import { useDropTarget } from './WeekGrid';
 
@@ -20,7 +20,7 @@ function NowSeg({ label = false }: { label?: boolean }) {
   if (now === null || now < START || now > END) return null;
   return (
     <span className="nowseg" style={{ left: xOf(now) }} aria-hidden={!label}>
-      {label && <span className="nowseg__label">{fromMin(now)}</span>}
+      {label && <span className="nowseg__label">Now {fromMin(now)}</span>}
     </span>
   );
 }
@@ -74,7 +74,7 @@ const TourBar = memo(function TourBar({ tour, lane, laneCount }: { tour: Tour; l
   const eta = etaLabel(tour);
   const top = `calc(4px + (100% - 8px) / ${laneCount} * ${lane})`;
   const height = `calc((100% - 8px) / ${laneCount} - ${laneCount > 1 ? 2 : 0}px)`;
-  const tall = ctx.density === 'comfortable' && laneCount === 1;
+  const tall = ctx.density === 'comfortable' && laneCount === 1 && width > 220;
 
   return (
     <>
@@ -104,19 +104,25 @@ const TourBar = memo(function TourBar({ tour, lane, laneCount }: { tour: Tour; l
         aria-label={`${tour.id}, ${routeLabel(tour)}, ${timeLabel(tour)}, ${status.label}`}
       >
         <span className="tbar__row">
-          <status.icon size={12} strokeWidth={2.4} className="tbar__icon" aria-hidden />
-          {errors.length > 0 && <TriangleAlert size={12} strokeWidth={2.4} style={{ color: SEVERITY.error.color, flex: 'none' }} aria-hidden />}
-          <span className="tbar__route">{routeLabel(tour) || 'Route to fill in'}</span>
-          <span className="tbar__time">{timeLabel(tour)}</span>
+          <span className="tbar__time">{tour.start ? `${tour.start} – ${tour.end ?? ''}` : 'All day'}</span>
+          {errors.length > 0 && <TriangleAlert size={13} strokeWidth={2.4} style={{ color: SEVERITY.error.color, flex: 'none' }} aria-hidden />}
+          <span className="tbar__status">
+            <status.icon size={12} strokeWidth={2.4} aria-hidden />
+            {status.label}
+            {eta ? ` · ETA ${eta}` : ''}
+          </span>
         </span>
-        {tall && (
+        {tall ? (
           <span className="tbar__row tbar__row--meta">
-            <span className="tbar__status">
-              {status.label}
-              {eta ? ` +${tour.delayMin}m · ETA ${eta}` : ''}
-            </span>
+            <span className="tbar__route">{routeLabel(tour) || 'Route to fill in'}</span>
             <VehicleLine tour={tour} />
           </span>
+        ) : (
+          laneCount === 1 && (
+            <span className="tbar__row tbar__row--meta">
+              <span className="tbar__route">{routeLabel(tour) || 'Route to fill in'}</span>
+            </span>
+          )
         )}
       </div>
       {delayW > 0 && (
@@ -248,7 +254,7 @@ const DayRow = memo(function DayRow({ driver, date }: { driver: Driver; date: st
   const free = !absenceOn(ctx.idx, driver.id, date) && !blockingDoc(driver, date) && toursFor(ctx.idx, driver.id, date).filter(isActive).length === 0;
   return (
     <>
-      <DriverCell driver={driver} />
+      <DriverCell driver={driver} tourCount={toursFor(ctx.idx, driver.id, date).filter((t) => t.status !== 'cancelled').length} />
       <AllDayCell driverId={driver.id} date={date} tours={untimed} free={free} />
       <TimelineCell driver={driver} date={date} />
     </>
@@ -402,7 +408,7 @@ export function DayGrid({ date, items, allDrivers, unassigned, showSummary, show
           {v.getVirtualItems().map((vi) => {
             const it = items[vi.index];
             return (
-              <div key={vi.key} className={`grid-row ${it.type === 'group' ? 'grid-row--group' : ''}`} role="row" style={{ transform: `translateY(${vi.start - headH}px)`, height: vi.size }}>
+              <div key={vi.key} className={`grid-row ${it.type === 'group' ? 'grid-row--group' : ''}`} role="row" style={{ transform: `translateY(${vi.start - headH}px)`, height: vi.size - (it.type === 'group' ? 0 : ROW_GAP) }}>
                 {it.type === 'group' ? <GroupRow item={it} onToggle={() => onToggleGroup(it.key)} /> : <DayRow driver={it.driver} date={date} />}
               </div>
             );

@@ -1,45 +1,131 @@
 /** Pieces shared by the Week and Day grids: driver cell, group header, day summary. */
-import { ChevronDown, ChevronRight, Inbox, Lock } from 'lucide-react';
+import { ChevronDown, ChevronRight, Inbox, Lock, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { memo } from 'react';
-import { ABSENCE, DOC_STATE } from '../config';
-import { fmtMedium } from '../date';
-import { docLabel, initials, type DaySummary } from '../selectors';
+import { ABSENCE, DOC_STATE, DOCS } from '../config';
+import { diffDays, fmtMedium } from '../date';
+import { absenceOn, blockingDoc, docLabel, docState, initials, worstDocState, type DaySummary, type PlannerIndex } from '../selectors';
 import type { Absence, Driver } from '../types';
 import type { DocKey } from '../config';
 import { usePlannerCtx } from './context';
-import { Avatar, DocDots, Trunc } from './ui';
+import { Avatar, docTooltip, Trunc } from './ui';
 
 export type RowItem =
   | { type: 'group'; key: string; label: string; count: number; busy: number; collapsed: boolean }
   | { type: 'driver'; driver: Driver };
 
-export const GROUP_ROW_HEIGHT = 36;
+export const GROUP_ROW_HEIGHT = 44;
+/** Vertical gap between driver cards. */
+export const ROW_GAP = 8;
 
-export const DriverCell = memo(function DriverCell({ driver }: { driver: Driver }) {
+/** One plain-language document line: only the most urgent document is mentioned. */
+export function DocPill({ driver, refDate }: { driver: Driver; refDate: string }) {
+  const worst = DOCS.map((d) => ({ d, exp: driver.docs[d.key], st: docState(driver.docs[d.key], refDate) }))
+    .sort((a, b) => (a.st === b.st ? a.exp.localeCompare(b.exp) : a.st === 'expired' ? -1 : b.st === 'expired' ? 1 : a.st === 'expiring' ? -1 : 1))[0];
+  const tip = docTooltip(driver, refDate);
+  if (worst.st === 'ok')
+    return (
+      <span className="docpill docpill--ok" data-tip={tip} tabIndex={0}>
+        <ShieldCheck size={12} aria-hidden /> Documents OK
+      </span>
+    );
+  const days = diffDays(worst.exp, refDate);
+  const text = worst.st === 'expired' ? `${worst.d.label} expired` : `${worst.d.label} ${days === 0 ? 'expires today' : `in ${days} days`}`;
+  const c = DOC_STATE[worst.st];
+  return (
+    <span className={`docpill docpill--${worst.st}`} style={{ color: c.color, background: c.bg }} data-tip={tip} tabIndex={0}>
+      {worst.st === 'expired' ? <Lock size={12} aria-hidden /> : <TriangleAlert size={12} aria-hidden />}
+      <span className="trunc">{text}</span>
+    </span>
+  );
+}
+
+export const DriverCell = memo(function DriverCell({ driver, tourCount }: { driver: Driver; tourCount?: number }) {
   const ctx = usePlannerCtx();
   const tractor = driver.defaultTractorId ? ctx.idx.tractorById.get(driver.defaultTractorId) : undefined;
-  const depot = ctx.idx.depotById.get(driver.depotId);
   const name = `${driver.firstName} ${driver.lastName}`;
+  const compact = ctx.density === 'compact';
   return (
     <div
       className="dcell"
       onMouseEnter={(e) => ctx.hoverDriver(driver, e.currentTarget.getBoundingClientRect())}
       onMouseLeave={() => ctx.hoverDriver(null)}
     >
-      <Avatar text={initials(driver)} id={driver.id} size={ctx.density === 'compact' ? 28 : 32} />
+      <Avatar text={initials(driver)} id={driver.id} size={compact ? 32 : 40} />
       <div className="dcell__body">
         <Trunc className="dcell__name">{name}</Trunc>
-        <div className="dcell__meta">
-          <span className={`dcell__plate ${tractor ? '' : 'is-none'}`} data-tip={tractor ? `Default tractor · ${tractor.model}` : 'No default tractor'}>
+        <span className="dcell__meta">
+          <span className={tractor ? '' : 'is-none'} data-tip={tractor ? `Usual tractor · ${tractor.model}` : 'No usual tractor'}>
             {tractor?.plate ?? 'No tractor'}
           </span>
-          <DocDots driver={driver} refDate={ctx.today} />
-        </div>
-        {ctx.density === 'comfortable' && depot && <Trunc className="dcell__depot">{depot.name}</Trunc>}
+          {tourCount !== undefined && (
+            <>
+              <span aria-hidden>·</span>
+              <span>{tourCount === 0 ? 'No tours' : `${tourCount} tour${tourCount > 1 ? 's' : ''}`}</span>
+            </>
+          )}
+        </span>
+        {!compact && <DocPill driver={driver} refDate={ctx.today} />}
       </div>
+      {compact && <DocDot driver={driver} refDate={ctx.today} />}
     </div>
   );
 });
+
+/** Compact mode: a single dot + icon, details in the tooltip. */
+function DocDot({ driver, refDate }: { driver: Driver; refDate: string }) {
+  const st = worstDocState(driver, refDate);
+  if (st === 'ok') return null;
+  const c = DOC_STATE[st];
+  return (
+    <span className="docdot1" style={{ color: c.color, background: c.bg }} data-tip={docTooltip(driver, refDate)} tabIndex={0} aria-label={docTooltip(driver, refDate)}>
+      {st === 'expired' ? <Lock size={12} /> : <TriangleAlert size={12} />}
+    </span>
+  );
+}
+
+/** Consecutive days of absence or blocked documents, drawn as one bar across the week row. */
+export interface DaySpan {
+  from: number;
+  to: number;
+  kind: 'absent' | 'blocked';
+  absence?: Absence;
+  doc?: DocKey;
+}
+
+export function daySpans(idx: PlannerIndex, driver: Driver, days: string[]): DaySpan[] {
+  const spans: DaySpan[] = [];
+  days.forEach((date, i) => {
+    const absence = absenceOn(idx, driver.id, date);
+    const doc = absence ? undefined : blockingDoc(driver, date);
+    if (!absence && !doc) return;
+    const last = spans.at(-1);
+    const same = last && last.to === i - 1 && (absence ? last.absence?.id === absence.id : last.kind === 'blocked' && last.doc === doc);
+    if (same) last.to = i;
+    else spans.push({ from: i, to: i, kind: absence ? 'absent' : 'blocked', absence, doc });
+  });
+  return spans;
+}
+
+export function SpanBar({ span, hasTours }: { span: DaySpan; hasTours: boolean }) {
+  const n = span.to - span.from + 1;
+  const A = span.absence ? ABSENCE[span.absence.reason] : undefined;
+  const label = A ? span.absence!.note ?? A.label : `Can’t drive · ${docLabel(span.doc!)} expired`;
+  const tip = A
+    ? `${A.label}${span.absence!.note ? ` · ${span.absence!.note}` : ''} · ${fmtMedium(span.absence!.from)} → ${fmtMedium(span.absence!.to)}`
+    : `${docLabel(span.doc!)} expired. This driver can’t be assigned until it’s renewed.`;
+  const Icon = A ? A.icon : Lock;
+  return (
+    <div
+      className={`spanbar spanbar--${span.kind} ${hasTours ? 'has-tours' : ''}`}
+      style={{ gridColumn: `${span.from + 2} / ${span.to + 3}` }}
+      data-tip={tip}
+    >
+      <Icon size={14} aria-hidden />
+      <span className="trunc">{label}</span>
+      {A && n > 1 && <span className="spanbar__len">{n} days</span>}
+    </div>
+  );
+}
 
 export function GroupRow({ item, onToggle }: { item: Extract<RowItem, { type: 'group' }>; onToggle: () => void }) {
   return (
@@ -61,11 +147,11 @@ export function SummaryCell({ s, total }: { s: DaySummary; total: number }) {
   return (
     <div
       className="scell"
-      data-tip={`${s.busy} busy · ${s.free} free · ${s.absent} absent${s.blocked ? ` · ${s.blocked} blocked (expired document)` : ''}`}
+      data-tip={`${s.busy} working · ${s.free} free · ${s.absent} absent${s.blocked ? ` · ${s.blocked} blocked (expired document)` : ''}`}
     >
       <div className="scell__nums">
         <span className="scell__n scell__n--busy">
-          <b>{s.busy}</b> busy
+          <b>{s.busy}</b> working
         </span>
         <span className="scell__n scell__n--free">
           <b>{s.free}</b> free

@@ -19,15 +19,20 @@ import {
   CalendarPlus,
   CloudAlert,
   CalendarArrowUp,
+  CircleCheck,
+  Inbox,
+  ListFilter,
+  TreePalm,
+  TriangleAlert,
+  Truck,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { moveTours } from '../actions';
-import { ABSENCE, FILTERS, GROUP_BY, TOUR_STATUS, type Density, type FilterKey, type GroupBy } from '../config';
+import { ABSENCE, FILTERS, GROUP_BY, TOUR_STATUS, TOUR_STATUS_FLOW, type Density, type FilterKey, type GroupBy } from '../config';
 import { addDays, fmtLong, fmtMedium, fmtRange, fmtShortDay, rangeDays, startOfWeek, todayISO } from '../date';
 import {
   absenceOn,
   checkDrop,
-  daySummary,
   driverAvailability,
   driverName,
   driverPeriodStats,
@@ -83,6 +88,7 @@ type Popup =
   | { kind: 'cell'; rect: DOMRect; driverId: string | null; date: string }
   | { kind: 'driver'; rect: DOMRect; driverId: string }
   | { kind: 'group'; rect: DOMRect }
+  | { kind: 'filter'; rect: DOMRect }
   | { kind: 'bulk-assign'; rect: DOMRect }
   | null;
 
@@ -198,9 +204,11 @@ export function Planner({
 
   const counts = useMemo(() => {
     const c = Object.fromEntries(FILTERS.map((f) => [f.key, 0])) as Record<FilterKey, number>;
+    c.issues = 0;
     for (const d of searched) {
       const s = stats.get(d.id)!;
       for (const f of FILTERS) if (matchesFilter(s, f.key)) c[f.key]++;
+      if (s.issues) c.issues++;
     }
     return c;
   }, [searched, stats]);
@@ -242,7 +250,6 @@ export function Planner({
     return m;
   }, [days, idx, matches]);
 
-  const summary = useMemo(() => daySummary(idx, data.drivers, focusDay), [idx, data.drivers, focusDay]);
   const periodUnassigned = days.reduce((n, d) => n + (idx.unassigned.get(d) ?? []).filter(isActive).length, 0);
   const periodTours = useMemo(() => data.tours.filter((t) => days.includes(t.date)).length, [data.tours, days]);
 
@@ -354,6 +361,7 @@ export function Planner({
   const bulkDate = useRef<HTMLInputElement>(null);
 
   /* ------------------------------------------------------------ Render */
+  const periodWord = view === 'day' ? (anchor === today ? 'today' : 'that day') : isCurrentWeek(days, today) ? 'this week' : 'that week';
   const periodLabel = view === 'day' ? fmtLong(anchor) : fmtRange(days[0], days.at(-1)!);
   const isCurrent = days.includes(today);
   const loading = status === 'loading';
@@ -369,40 +377,7 @@ export function Planner({
           <header className="phead">
             <div className="phead__title">
               <h1>{title}</h1>
-              {status === 'ready' && !noDrivers && (
-                <p className="phead__summary" aria-live="polite">
-                  <span className="phead__when">{focusDay === today ? 'Today' : fmtMedium(focusDay)}</span>
-                  <span>
-                    <b>
-                      {summary.busy}/{data.drivers.length}
-                    </b>{' '}
-                    drivers busy
-                  </span>
-                  <span className="dotsep" aria-hidden>
-                    ·
-                  </span>
-                  <span>
-                    <b>{summary.absent}</b> absent
-                  </span>
-                  {summary.blocked > 0 && (
-                    <>
-                      <span className="dotsep" aria-hidden>
-                        ·
-                      </span>
-                      <span className="phead__warn">
-                        <b>{summary.blocked}</b> blocked
-                      </span>
-                    </>
-                  )}
-                  <span className="dotsep" aria-hidden>
-                    ·
-                  </span>
-                  <button className={`phead__link ${periodUnassigned ? 'is-alert' : ''}`} onClick={() => document.querySelector('.grow-unassigned')?.scrollIntoView({ block: 'nearest' })}>
-                    <b>{periodUnassigned}</b> tours unassigned {view === 'week' ? 'this period' : ''}
-                  </button>
-                </p>
-              )}
-              {loading && <p className="phead__summary"><span className="skel skel--text" style={{ width: 320 }} /></p>}
+              <p className="phead__sub">Who drives what, and what still needs a driver.</p>
             </div>
 
             <div className="phead__controls">
@@ -446,6 +421,50 @@ export function Planner({
           </header>
         )}
 
+        {showHeader && !noDrivers && status !== 'error' && (
+          <div className="stats" role="radiogroup" aria-label="Show drivers">
+            {(
+              [
+                { key: 'busy', label: 'Working', icon: Truck, total: true },
+                { key: 'available', label: 'Available', icon: CircleCheck },
+                { key: 'absent', label: 'Absent', icon: TreePalm },
+                { key: 'issues', label: 'Need attention', icon: TriangleAlert, alert: true },
+              ] as const
+            ).map((c) => (
+              <button
+                key={c.key}
+                role="radio"
+                aria-checked={filter === c.key}
+                className={`stat stat--${c.key} ${filter === c.key ? 'is-active' : ''}`}
+                onClick={() => setFilter(filter === c.key ? 'all' : c.key)}
+                data-tip={filter === c.key ? 'Click again to show all drivers' : `Show only these drivers`}
+              >
+                <span className="stat__icon">
+                  <c.icon size={18} aria-hidden />
+                </span>
+                <span className="stat__label">{c.label}</span>
+                <span className="stat__value">
+                  {loading ? <span className="skel skel--text" style={{ width: 48, height: 26 }} /> : counts[c.key]}
+                  {'total' in c && !loading && <small> of {data.drivers.length}</small>}
+                </span>
+                <span className="stat__hint">drivers {periodWord}</span>
+              </button>
+            ))}
+            <button
+              className={`stat stat--unassigned ${periodUnassigned ? 'has-items' : ''}`}
+              onClick={() => document.querySelector('.grow-unassigned')?.scrollIntoView({ block: 'nearest' })}
+              data-tip="Tours planned without a driver. Drag them onto a driver."
+            >
+              <span className="stat__icon">
+                <Inbox size={18} aria-hidden />
+              </span>
+              <span className="stat__label">Waiting for a driver</span>
+              <span className="stat__value">{loading ? <span className="skel skel--text" style={{ width: 48, height: 26 }} /> : periodUnassigned}</span>
+              <span className="stat__hint">tours {periodWord}</span>
+            </button>
+          </div>
+        )}
+
         {showToolbar && !noDrivers && status !== 'error' && (
           <div className="toolbar">
             <div className="search">
@@ -459,15 +478,16 @@ export function Planner({
                 <kbd>/</kbd>
               )}
             </div>
-            <div className="chips" role="radiogroup" aria-label="Filter drivers">
-              {FILTERS.map((f) => (
-                <button key={f.key} role="radio" aria-checked={filter === f.key} className={`chip ${filter === f.key ? 'is-active' : ''} chip--${f.key}`} onClick={() => setFilter(f.key)} data-tip={f.hint}>
-                  {f.label}
-                  <span className="chip__count">{loading ? '–' : counts[f.key]}</span>
-                </button>
-              ))}
-            </div>
+            {filter !== 'all' && (
+              <button className="chip is-active" onClick={() => setFilter('all')} aria-label="Clear filter">
+                {filter === 'issues' ? 'Need attention' : FILTERS.find((f) => f.key === filter)?.label}
+                <X size={14} />
+              </button>
+            )}
             <span className="toolbar__spacer" />
+            <button className="btn btn--ghost btn--sm" onClick={(e) => setPopup({ kind: 'filter', rect: e.currentTarget.getBoundingClientRect() })} aria-haspopup="menu">
+              <ListFilter size={15} /> Show: {filter === 'all' ? 'All drivers' : filter === 'issues' ? 'Need attention' : FILTERS.find((f) => f.key === filter)?.label}
+            </button>
             <button className="btn btn--ghost btn--sm" onClick={(e) => setPopup({ kind: 'group', rect: e.currentTarget.getBoundingClientRect() })} aria-haspopup="menu">
               <Layers size={15} /> Group: {GROUP_BY.find((g) => g.key === groupBy)!.label}
             </button>
@@ -566,6 +586,7 @@ export function Planner({
                   onToggleGroup={(k) => setCollapsed((c) => new Set(c.has(k) ? [...c].filter((x) => x !== k) : [...c, k]))}
                 />
               )}
+              {!noResults && !widget && <Legend />}
               {widget && openPlannerHref && (
                 <a className="planner__open" href={openPlannerHref}>
                   Open planner <ArrowRight size={14} />
@@ -639,6 +660,17 @@ export function Planner({
             }}
           />
         )}
+        {popup?.kind === 'filter' && (
+          <Menu
+            anchor={popup.rect}
+            onClose={() => setPopup(null)}
+            items={[...FILTERS, { key: 'issues' as FilterKey, label: 'Need attention' }].map((f) => ({
+              label: `${f.key === 'all' ? 'All drivers' : f.label} (${counts[f.key]})`,
+              checked: filter === f.key,
+              onClick: () => setFilter(f.key),
+            }))}
+          />
+        )}
         {popup?.kind === 'group' && (
           <Menu
             anchor={popup.rect}
@@ -696,6 +728,33 @@ export function Planner({
 }
 
 /* ------------------------------------------------------------ Sub-views */
+
+const isCurrentWeek = (days: string[], today: string) => days.includes(today);
+
+/** Plain-language key so nobody has to guess what a color means. */
+function Legend() {
+  return (
+    <div className="legend" aria-label="Legend">
+      {TOUR_STATUS_FLOW.map((k) => {
+        const S = TOUR_STATUS[k];
+        return (
+          <span key={k} className="legend__item" style={{ color: S.color }}>
+            <span className="legend__swatch" style={{ background: S.bg, borderColor: S.color }} />
+            <S.icon size={13} strokeWidth={2.4} aria-hidden />
+            <span className="legend__label">{S.label}</span>
+          </span>
+        );
+      })}
+      <span className="legend__item">
+        <span className="legend__swatch legend__swatch--absent" /> <span className="legend__label">Absent</span>
+      </span>
+      <span className="legend__item">
+        <span className="legend__swatch legend__swatch--blocked" /> <span className="legend__label">Can’t drive (document expired)</span>
+      </span>
+      <span className="legend__hint">Drag a tour to move it · Click an empty day to add one</span>
+    </div>
+  );
+}
 
 function Skeleton() {
   return (

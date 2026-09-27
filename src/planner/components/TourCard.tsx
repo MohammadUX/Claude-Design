@@ -5,7 +5,7 @@ import { useDnd } from '../actions';
 import { etaLabel, routeFull, routeLabel, timeLabel, tourIssues } from '../selectors';
 import type { Tour } from '../types';
 import { usePlannerCtx } from './context';
-import { StatusBadge, Trunc } from './ui';
+import { Trunc } from './ui';
 
 export function useTourDrag(tour: Tour) {
   const ctx = usePlannerCtx();
@@ -91,55 +91,76 @@ export const TourCard = memo(function TourCard({ tour, full = false }: { tour: T
         }
       }}
     >
-      <div className="tcard__row">
-        {route ? (
-          <Trunc className="tcard__route" tip={`${tour.id} · ${routeFull(tour)}${client ? `\n${client}` : ''}`}>
-            {route}
-          </Trunc>
-        ) : (
-          <span className="tcard__route tcard__route--missing">Route to fill in</span>
-        )}
-        {stopsExtra > 0 && (
-          <span className="tcard__stops" data-tip={routeFull(tour)}>
-            +{stopsExtra}
-          </span>
-        )}
-        {errors.length > 0 && (
-          <span className="tcard__issue" data-tip={errors.map((i) => i.message).join('\n')} aria-hidden style={{ color: SEVERITY.error.color }}>
-            <TriangleAlert size={13} strokeWidth={2.4} />
-          </span>
-        )}
-      </div>
       {compact ? (
-        <div className="tcard__row tcard__row--meta">
-          <span className="tcard__status">
-            <status.icon size={12} strokeWidth={2.4} aria-hidden />
-            {status.label}
-            {tour.status === 'delayed' && tour.delayMin ? ` +${tour.delayMin}m` : ''}
-          </span>
-          {tour.status !== 'cancelled' && (!tour.tractorId || !tour.trailerId) ? (
-            <VehicleLine tour={tour} />
-          ) : (
-            <span className="tcard__time">{eta ? `ETA ${eta}` : timeLabel(tour)}</span>
-          )}
-        </div>
+        <>
+          <div className="tcard__row">
+            {route ? (
+              <Trunc className="tcard__route" tip={`${tour.id} · ${routeFull(tour)}${client ? `\n${client}` : ''}`}>
+                {route}
+              </Trunc>
+            ) : (
+              <span className="tcard__route tcard__route--missing">Route to fill in</span>
+            )}
+            {stopsExtra > 0 && (
+              <span className="tcard__stops" data-tip={routeFull(tour)}>
+                +{stopsExtra} stop{stopsExtra > 1 ? 's' : ''}
+              </span>
+            )}
+            {errors.length > 0 && (
+              <span className="tcard__issue" data-tip={errors.map((i) => i.message).join('\n')} aria-hidden style={{ color: SEVERITY.error.color }}>
+                <TriangleAlert size={14} strokeWidth={2.4} />
+              </span>
+            )}
+          </div>
+          <div className="tcard__row tcard__row--meta">
+            <span className="tcard__status">
+              <status.icon size={12} strokeWidth={2.4} aria-hidden />
+              {status.label}
+              {tour.status === 'delayed' && tour.delayMin ? ` +${tour.delayMin}m` : ''}
+            </span>
+            {tour.status !== 'cancelled' && (!tour.tractorId || !tour.trailerId) ? (
+              <VehicleLine tour={tour} />
+            ) : (
+              <span className="tcard__time">{eta ? `ETA ${eta}` : timeLabel(tour)}</span>
+            )}
+          </div>
+        </>
       ) : (
         <>
+          <div className="tcard__row tcard__row--top">
+            <span className={`tcard__when ${eta ? 'is-late' : ''}`}>{eta ? `ETA ${eta}` : timeLabel(tour)}</span>
+            {errors.length > 0 && (
+              <span className="tcard__issue" data-tip={errors.map((i) => i.message).join('\n')} aria-hidden style={{ color: SEVERITY.error.color }}>
+                <TriangleAlert size={14} strokeWidth={2.4} />
+              </span>
+            )}
+          </div>
+          <div className="tcard__row">{route ? (
+              <Trunc className="tcard__route" tip={`${tour.id} · ${routeFull(tour)}${client ? `\n${client}` : ''}`}>
+                {route}
+              </Trunc>
+            ) : (
+              <span className="tcard__route tcard__route--missing">Route to fill in</span>
+            )}
+            {stopsExtra > 0 && (
+              <span className="tcard__stops" data-tip={routeFull(tour)}>
+                +{stopsExtra} stop{stopsExtra > 1 ? 's' : ''}
+              </span>
+            )}</div>
           <div className="tcard__row tcard__row--meta">
+            <span className="tcard__status">
+              <status.icon size={12} strokeWidth={2.4} aria-hidden />
+              {status.label}
+              {tour.status === 'delayed' && tour.delayMin ? ` +${tour.delayMin}m` : ''}
+            </span>
             <VehicleLine tour={tour} />
           </div>
-          <div className="tcard__row tcard__row--meta">
-            <StatusBadge status={tour.status} size="sm" delayMin={tour.delayMin} />
-            {eta ? (
-              <span className="tcard__eta">ETA {eta}</span>
-            ) : tour.start ? (
-              <span className="tcard__time">{timeLabel(tour)}</span>
-            ) : (
-              <span className="tcard__time tcard__time--allday">All day</span>
-            )}
-            {full && client && <Trunc className="tcard__client">{client}</Trunc>}
-            {full && <span className="tcard__id">{tour.id}</span>}
-          </div>
+          {full && (
+            <div className="tcard__row tcard__row--meta">
+              {client && <Trunc className="tcard__client">{client}</Trunc>}
+              <span className="tcard__id">{tour.id}</span>
+            </div>
+          )}
         </>
       )}
       {full && errors.length > 0 && (

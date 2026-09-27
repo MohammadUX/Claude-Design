@@ -1,13 +1,13 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Plus } from 'lucide-react';
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from 'react';
-import { DENSITY, WEEK_VIEW } from '../config';
+import { ABSENCE, DENSITY, WEEK_VIEW } from '../config';
 import { useDnd } from '../actions';
 import { fmtDayNum, fmtMedium, fmtWeekday, isWeekend } from '../date';
-import { absenceOn, blockingDoc, daySummary, EMPTY_TOURS, toursFor } from '../selectors';
+import { absenceOn, blockingDoc, daySummary, docLabel, EMPTY_TOURS, toursFor } from '../selectors';
 import type { Driver, Tour } from '../types';
 import { usePlannerCtx } from './context';
-import { DayStateLabel, DriverCell, GROUP_ROW_HEIGHT, GroupRow, SummaryCell, UnassignedHead, type RowItem } from './rows';
+import { daySpans, DriverCell, GROUP_ROW_HEIGHT, GroupRow, ROW_GAP, SpanBar, UnassignedHead, type RowItem } from './rows';
 import { MultiTourChip, TourCard } from './TourCard';
 
 interface Props {
@@ -78,15 +78,11 @@ const WeekCell = memo(function WeekCell({ driver, date, isToday }: { driver: Dri
         absence ? 'is-absent' : '',
         doc ? 'is-blocked' : '',
         drop.check ? (drop.check.ok ? (drop.check.warning ? 'is-drop-warn' : 'is-drop-ok') : 'is-drop-bad') : '',
+        tours.length ? 'has-tours' : '',
       ].join(' ')}
+      data-tip={absence ? `${ABSENCE[absence.reason].label}${absence.note ? ` · ${absence.note}` : ''}` : doc ? `Can’t drive: ${docLabel(doc)} expired` : undefined}
       {...drop.handlers}
     >
-      {(absence || doc) && tours.length === 0 && <DayStateLabel absence={absence} doc={doc} />}
-      {(absence || doc) && tours.length > 0 && (
-        <span className="wcell__flag" data-tip={absence ? 'Driver absent this day' : 'Driver blocked: expired document'}>
-          <DayStateLabel absence={absence} doc={doc} />
-        </span>
-      )}
       {tours.length === 1 && <TourCard tour={tours[0]} />}
       {tours.length > 1 && <MultiTourChip tours={tours} onOpen={(r) => ctx.openCell(r, driver.id, date)} />}
       {tours.length === 0 && canCreate && (
@@ -104,11 +100,17 @@ const WeekCell = memo(function WeekCell({ driver, date, isToday }: { driver: Dri
 });
 
 const DriverRow = memo(function DriverRow({ driver, days, today }: { driver: Driver; days: string[]; today: string }) {
+  const ctx = usePlannerCtx();
+  const spans = daySpans(ctx.idx, driver, days);
+  const tourCount = days.reduce((n, d) => n + toursFor(ctx.idx, driver.id, d).filter((t) => t.status !== 'cancelled').length, 0);
   return (
     <>
-      <DriverCell driver={driver} />
+      <DriverCell driver={driver} tourCount={tourCount} />
       {days.map((d) => (
         <WeekCell key={d} driver={driver} date={d} isToday={d === today} />
+      ))}
+      {spans.map((sp) => (
+        <SpanBar key={sp.from} span={sp} hasTours={days.slice(sp.from, sp.to + 1).some((d) => toursFor(ctx.idx, driver.id, d).length > 0)} />
       ))}
     </>
   );
@@ -198,30 +200,27 @@ export function WeekGrid({ days, items, allDrivers, unassigned, showSummary, sho
             <div className="hcell hcell--corner">
               Drivers <span className="hcell__count">{driverCount}</span>
             </div>
-            {days.map((d) => (
+            {days.map((d, i) => (
               <button
                 key={d}
                 role="columnheader"
-                className={`hcell ${d === ctx.today ? 'is-today' : ''} ${isWeekend(d) ? 'is-weekend' : ''}`}
+                className={`hcell hcell--day ${d === ctx.today ? 'is-today' : ''} ${isWeekend(d) ? 'is-weekend' : ''}`}
                 onClick={() => ctx.openDay(d)}
-                data-tip="Open day view"
+                data-tip={`${summaries[i].busy} working · ${summaries[i].free} free · ${summaries[i].absent} absent${summaries[i].blocked ? ` · ${summaries[i].blocked} can’t drive` : ''}\nClick to see the day`}
               >
-                <span className="hcell__wd">{fmtWeekday(d)}</span>
-                <span className="hcell__num">{fmtDayNum(d)}</span>
-                {d === ctx.today && <span className="hcell__today">Today</span>}
+                <span className="hcell__top">
+                  <span className="hcell__wd">{fmtWeekday(d)}</span>
+                  <span className="hcell__num">{fmtDayNum(d)}</span>
+                  {d === ctx.today && <span className="hcell__today">Today</span>}
+                </span>
+                {showSummary && (
+                  <span className="hcell__sum">
+                    <b>{summaries[i].busy}</b> working · <b className="is-free">{summaries[i].free}</b> free
+                  </span>
+                )}
               </button>
             ))}
           </div>
-          {showSummary && (
-            <div className="grow-summary" role="row">
-              <div className="hcell hcell--corner hcell--label">Daily summary</div>
-              {days.map((d, i) => (
-                <div key={d} className={`hcell hcell--summary ${d === ctx.today ? 'is-today' : ''}`}>
-                  <SummaryCell s={summaries[i]} total={allDrivers.length} />
-                </div>
-              ))}
-            </div>
-          )}
           {showUnassigned && (
             <div className={`grow-unassigned ${expanded ? 'is-expanded' : ''}`} role="row" style={{ ['--u-max' as string]: Math.min(maxUnassigned, 4) }}>
               <UnassignedHead count={unassignedTotal} expanded={expanded} onToggle={() => setExpanded((x) => !x)} canExpand={maxUnassigned > 1} />
@@ -241,7 +240,7 @@ export function WeekGrid({ days, items, allDrivers, unassigned, showSummary, sho
                 className={`grid-row ${it.type === 'group' ? 'grid-row--group' : ''}`}
                 role="row"
                 aria-rowindex={vi.index + 1}
-                style={{ transform: `translateY(${vi.start - headH}px)`, height: vi.size }}
+                style={{ transform: `translateY(${vi.start - headH}px)`, height: vi.size - (it.type === 'group' ? 0 : ROW_GAP) }}
               >
                 {it.type === 'group' ? (
                   <GroupRow item={it} onToggle={() => onToggleGroup(it.key)} />
