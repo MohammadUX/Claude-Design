@@ -9,36 +9,36 @@
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0;font-family:-apple-system,'SF Pro Text','Figtree',system-ui,sans-serif;background:#EEEEEE;color:#0E0E0E}
 a{color:#0E0E0E}a:hover{color:#C44A0C}
 button{cursor:pointer}
 </style>
 </helmet>
-<div style="position: relative; overflow: hidden; width: 390px; height: 1640px; box-sizing: border-box; font-family: -apple-system, 'SF Pro Text', 'Figtree', system-ui, sans-serif; color: #0E0E0E; background: radial-gradient(circle at 100% 0%, rgba(255,106,26,0.16), rgba(255,106,26,0) 38%), radial-gradient(circle at 0% 60%, rgba(255,106,26,0.06), rgba(255,106,26,0) 36%), linear-gradient(180deg, #FFFFFF 0%, #F2F2F2 100%)">
+<div style="position: relative; overflow: hidden; width: 390px; height: 1640px; box-sizing: border-box; font-family: -apple-system, 'SF Pro Text', 'Figtree', system-ui, sans-serif; color: #0E0E0E; background: #F4F4F4">
 <div style="padding: 28px 16px 124px; display: flex; flex-direction: column; gap: 14px">
 
 <header style="display: flex; align-items: flex-end; justify-content: space-between; padding: 0 4px">
 <div style="display: flex; flex-direction: column; gap: 2px">
-<span style="font-size: 13px; font-weight: 600; color: #505050; letter-spacing: 0.2px; text-transform: uppercase">Goal: 76 kg</span>
+<span style="font-size: 13px; font-weight: 600; color: #505050;">Goal: 76 kg</span>
 <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.8px; line-height: 1.1">Progress</h1>
 </div>
-<button role="switch" aria-checked="{{calm}}" onClick="{{toggleCalm}}" style="height: 36px; padding: 0 6px 0 12px; border-radius: 18px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #0E0E0E; background: rgba(255,255,255,0.84); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.85)">Hide numbers<span style="{{switchTrack}}"><span style="{{switchKnob}}"></span></span></button>
+<button role="switch" aria-checked="{{calm}}" onClick="{{toggleCalm}}" style="height: 36px; padding: 0 6px 0 12px; border-radius: 18px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #0E0E0E; background: #FFFFFF; border: 1px solid #E6E6E6">Hide numbers<span style="{{switchTrack}}"><span style="{{switchKnob}}"></span></span></button>
 </header>
 
-<div role="tablist" aria-label="Range" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: rgba(255,255,255,0.45); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.8)">
+<div role="tablist" aria-label="Range" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: #EBEBEB; border: 1px solid #E6E6E6">
 <sc-for list="{{ranges}}" as="r" hint-placeholder-count="2">
 <button role="tab" aria-selected="{{r.on}}" onClick="{{r.pick}}" style="{{r.style}}">{{r.label}}</button>
 </sc-for>
 </div>
 
-<section aria-labelledby="w-h" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 28px; background: rgba(255,255,255,0.86); -webkit-backdrop-filter: blur(30px) saturate(170%); backdrop-filter: blur(30px) saturate(170%); border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 14px 36px rgba(50,50,50,0.10), inset 0 1px 0 rgba(255,255,255,0.9)">
+<section aria-labelledby="w-h" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E6E6E6">
 <div style="display: flex; justify-content: space-between; align-items: flex-start">
 <div style="display: flex; flex-direction: column; gap: 2px">
 <h2 id="w-h" style="margin: 0; font-size: 13px; font-weight: 700; color: #505050">Weight trend</h2>
 <sc-if value="{{showNums}}" hint-placeholder-val="{{true}}">
-<span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 40px; font-weight: 900; letter-spacing: -1px; line-height: 1.1">78.8 <span style="font-size: 16px; color: #505050">kg</span></span>
+<span style="font-family: -apple-system, 'SF Pro Display', 'Figtree', system-ui, sans-serif; font-size: 40px; font-weight: 700; letter-spacing: -1px; line-height: 1.1">78.8 <span style="font-size: 16px; color: #505050">kg</span></span>
 </sc-if>
 <sc-if value="{{calm}}" hint-placeholder-val="{{false}}">
 <span style="font-size: 26px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.25">Steadily trending down</span>
@@ -83,7 +83,7 @@ button{cursor:pointer}
 </div>
 </section>
 
-<section aria-labelledby="why-h" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-radius: 26px; background: rgba(255,255,255,0.84); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 12px 30px rgba(50,50,50,0.08)">
+<section aria-labelledby="why-h" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E6E6E6">
 <div style="display: flex; flex-direction: column; gap: 2px">
 <h2 id="why-h" style="margin: 0; font-size: 17px; font-weight: 800">Why the scale barely moved this week</h2>
 <span style="font-size: 12.5px; color: #505050">{{whySub}}</span>
@@ -105,7 +105,7 @@ button{cursor:pointer}
 <span style="font-size: 13px; line-height: 1.45; color: #242424">{{whyText}}</span>
 </section>
 
-<section aria-labelledby="c-h" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; border-radius: 26px; background: rgba(255,255,255,0.84); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 12px 30px rgba(50,50,50,0.08)">
+<section aria-labelledby="c-h" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E6E6E6">
 <div style="display: flex; justify-content: space-between; align-items: baseline">
 <h2 id="c-h" style="margin: 0; font-size: 17px; font-weight: 800">Energy vs daily target</h2>
 <span style="font-size: 12px; font-weight: 700; color: #505050">6 of 7 on target</span>
@@ -113,13 +113,13 @@ button{cursor:pointer}
 <svg width="326" height="150" viewBox="0 0 326 150" role="img" aria-label="Last 7 days intake against each day's target. Saturday 2,630 of 2,250, over by 380. Sunday 2,150 of 2,100. Monday 2,210 of 2,250. Tuesday 2,040 of 2,100. Wednesday 2,190 of 2,250. Thursday 2,230 of 2,250. Friday 2,080 of 2,100.">
 <defs><linearGradient id="cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A3A3C"></stop><stop offset="1" stop-color="#8E8E93"></stop></linearGradient><linearGradient id="co" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6A1A"></stop><stop offset="1" stop-color="#FFA06B"></stop></linearGradient></defs>
 <line x1="8" y1="116" x2="318" y2="116" stroke="rgba(14,14,14,0.12)"></line>
-<rect x="17" y="22.1" width="28" height="93.9" rx="8" fill="url(#co)"></rect>
-<rect x="61" y="39.2" width="28" height="76.8" rx="8" fill="url(#cb)"></rect>
-<rect x="105" y="37.1" width="28" height="78.9" rx="8" fill="url(#cb)"></rect>
-<rect x="149" y="43.1" width="28" height="72.9" rx="8" fill="url(#cb)"></rect>
-<rect x="193" y="37.8" width="28" height="78.2" rx="8" fill="url(#cb)"></rect>
-<rect x="237" y="36.4" width="28" height="79.6" rx="8" fill="url(#cb)"></rect>
-<rect x="281" y="41.7" width="28" height="74.3" rx="8" fill="url(#cb)"></rect>
+<rect x="17" y="22.1" width="28" height="93.9" rx="8" fill="#FF6A1A"></rect>
+<rect x="61" y="39.2" width="28" height="76.8" rx="8" fill="#1C1C1E"></rect>
+<rect x="105" y="37.1" width="28" height="78.9" rx="8" fill="#1C1C1E"></rect>
+<rect x="149" y="43.1" width="28" height="72.9" rx="8" fill="#1C1C1E"></rect>
+<rect x="193" y="37.8" width="28" height="78.2" rx="8" fill="#1C1C1E"></rect>
+<rect x="237" y="36.4" width="28" height="79.6" rx="8" fill="#1C1C1E"></rect>
+<rect x="281" y="41.7" width="28" height="74.3" rx="8" fill="#1C1C1E"></rect>
 <g stroke="#0E0E0E" stroke-width="2.5" stroke-linecap="round">
 <line x1="13" y1="35.6" x2="49" y2="35.6"></line><line x1="57" y1="41" x2="93" y2="41"></line><line x1="101" y1="35.6" x2="137" y2="35.6"></line><line x1="145" y1="41" x2="181" y2="41"></line><line x1="189" y1="35.6" x2="225" y2="35.6"></line><line x1="233" y1="35.6" x2="269" y2="35.6"></line><line x1="277" y1="41" x2="313" y2="41"></line>
 </g>
@@ -129,11 +129,11 @@ button{cursor:pointer}
 </svg>
 </section>
 
-<section aria-label="Weekly summary" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 26px; color: #FFFFFF; background: linear-gradient(150deg, rgba(24,24,24,0.9), rgba(37,37,37,0.88)); -webkit-backdrop-filter: blur(30px) saturate(160%); backdrop-filter: blur(30px) saturate(160%); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 18px 40px rgba(26,26,26,0.3)">
-<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: #FFB489"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>Your week</span>
+<section aria-label="Weekly summary" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 20px; color: #FFFFFF; background: #141414; border: 1px solid #333333">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #FFB489">Your week</span>
 <p style="margin: 0; font-size: 16px; line-height: 1.5">{{summary}}</p>
-<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12)">
-<span style="font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: #CACACA">Try this week</span>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; background: #242424; border: 1px solid #333333">
+<span style="font-size: 11px; font-weight: 800; color: #CACACA">Try this week</span>
 <span style="font-size: 14.5px; font-weight: 700">Pre-log Saturday dinner by 5 pm</span>
 <span style="font-size: 12.5px; color: #CACACA">Last month this halved your weekend overshoot.</span>
 <button onClick="{{toggleTry}}" style="{{tryBtn}}">{{tryLabel}}</button>
@@ -141,24 +141,24 @@ button{cursor:pointer}
 </section>
 
 <section aria-label="Highlights" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
-<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: rgba(255,255,255,0.84); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)"><span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 900">18</span><span style="font-size: 12px; color: #505050; line-height: 1.3">day streak · 1 rest pass left</span></div>
-<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: rgba(255,255,255,0.84); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)"><span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 900">4 / 4</span><span style="font-size: 12px; color: #505050; line-height: 1.3">workouts done this week</span></div>
-<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: rgba(255,255,255,0.84); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)"><span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 900">112 g</span><span style="font-size: 12px; color: #505050; line-height: 1.3">average protein a day</span></div>
+<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E6E6E6"><span style="font-family: -apple-system, 'SF Pro Display', 'Figtree', system-ui, sans-serif; font-size: 24px; font-weight: 700">18</span><span style="font-size: 12px; color: #505050; line-height: 1.3">day streak · 1 rest pass left</span></div>
+<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E6E6E6"><span style="font-family: -apple-system, 'SF Pro Display', 'Figtree', system-ui, sans-serif; font-size: 24px; font-weight: 700">4 / 4</span><span style="font-size: 12px; color: #505050; line-height: 1.3">workouts done this week</span></div>
+<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E6E6E6"><span style="font-family: -apple-system, 'SF Pro Display', 'Figtree', system-ui, sans-serif; font-size: 24px; font-weight: 700">112 g</span><span style="font-size: 12px; color: #505050; line-height: 1.3">average protein a day</span></div>
 </section>
 
-<a href="Plus.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 22px; text-decoration: none; background: rgba(255,255,255,0.84); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)">
-<span style="width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #FF8C42, #E8550F)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg></span>
+<a href="Plus.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 22px; text-decoration: none; background: #FFFFFF; border: 1px solid #E6E6E6">
+<span style="width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #FF6A1A"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg></span>
 <span style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 800; color: #0E0E0E">See your full-year trends</span><span style="font-size: 12.5px; color: #505050">Included with Pulse Plus</span></span>
 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#505050" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
 </a>
 </div>
 
-<nav aria-label="Primary" style="position: absolute; left: 16px; right: 16px; bottom: 22px; height: 70px; display: flex; align-items: center; justify-content: space-around; padding: 0 6px; border-radius: 35px; background: rgba(255,255,255,0.62); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 16px 40px rgba(50,50,50,0.18), inset 0 1px 0 rgba(255,255,255,0.95)">
+<nav aria-label="Primary" style="position: absolute; left: 0; right: 0; bottom: 0; height: 86px; display: flex; align-items: flex-start; justify-content: space-around; padding: 6px 8px 0; background: #FFFFFF; border-top: 1px solid #E6E6E6">
 <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #464646; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
 <a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #464646; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
 <a href="Train.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #464646; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
 <a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #464646; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
-<a href="Progress.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #C44A0C; background: rgba(255,106,26,0.14); font-size: 11px; font-weight: 800"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
+<a href="Progress.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #C44A0C; font-size: 11px; font-weight: 700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
 </nav>
 </div>
 </x-dc>
