@@ -2,8 +2,8 @@
 import { ChevronDown, ChevronRight, Inbox, Lock, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { memo } from 'react';
 import { ABSENCE, DOC_STATE, DOCS } from '../config';
-import { diffDays, fmtMedium } from '../date';
-import { absenceOn, blockingDoc, docLabel, docState, initials, worstDocState, type DaySummary, type PlannerIndex } from '../selectors';
+import { diffDays, fmtMedium, nowMin } from '../date';
+import { absenceOn, blockingDoc, docLabel, docState, driverNow, initials, worstDocState, type DaySummary, type PlannerIndex } from '../selectors';
 import type { Absence, Driver } from '../types';
 import type { DocKey } from '../config';
 import { usePlannerCtx } from './context';
@@ -15,7 +15,7 @@ export type RowItem =
 
 export const GROUP_ROW_HEIGHT = 44;
 /** Vertical gap between driver cards. */
-export const ROW_GAP = 8;
+export const ROW_GAP = 0;
 
 /** One plain-language document line: only the most urgent document is mentioned. */
 export function DocPill({ driver, refDate }: { driver: Driver; refDate: string }) {
@@ -39,34 +39,33 @@ export function DocPill({ driver, refDate }: { driver: Driver; refDate: string }
   );
 }
 
-export const DriverCell = memo(function DriverCell({ driver, tourCount }: { driver: Driver; tourCount?: number }) {
+export const DriverCell = memo(function DriverCell({ driver, date, note }: { driver: Driver; date: string; note?: string }) {
   const ctx = usePlannerCtx();
   const tractor = driver.defaultTractorId ? ctx.idx.tractorById.get(driver.defaultTractorId) : undefined;
   const name = `${driver.firstName} ${driver.lastName}`;
   const compact = ctx.density === 'compact';
+  const status = note ? { tone: 'done' as const, text: note } : driverNow(ctx.idx, driver, date, ctx.today, nowMin());
+  const docSt = worstDocState(driver, ctx.today);
   return (
     <div
       className="dcell"
       onMouseEnter={(e) => ctx.hoverDriver(driver, e.currentTarget.getBoundingClientRect())}
       onMouseLeave={() => ctx.hoverDriver(null)}
     >
-      <Avatar text={initials(driver)} id={driver.id} size={compact ? 32 : 40} />
+      <span className="dcell__avatar">
+        <Avatar text={initials(driver)} id={driver.id} size={compact ? 30 : 36} />
+        <span className={`dcell__dot dcell__dot--${status.tone}`} aria-hidden />
+      </span>
       <div className="dcell__body">
-        <Trunc className="dcell__name">{name}</Trunc>
-        <span className="dcell__meta">
-          <span className={tractor ? '' : 'is-none'} data-tip={tractor ? `Usual tractor · ${tractor.model}` : 'No usual tractor'}>
-            {tractor?.plate ?? 'No tractor'}
-          </span>
-          {tourCount !== undefined && (
-            <>
-              <span aria-hidden>·</span>
-              <span>{tourCount === 0 ? 'No tours' : `${tourCount} tour${tourCount > 1 ? 's' : ''}`}</span>
-            </>
-          )}
+        <span className="dcell__nameline">
+          <Trunc className="dcell__name">{name}</Trunc>
+          {docSt !== 'ok' && <DocDot driver={driver} refDate={ctx.today} />}
         </span>
-        {!compact && <DocPill driver={driver} refDate={ctx.today} />}
+        {!compact && (
+          <Trunc className="dcell__meta">{tractor ? `${tractor.model} · ${tractor.plate}` : 'No usual tractor'}</Trunc>
+        )}
+        <Trunc className={`dcell__now dcell__now--${status.tone}`}>{status.text}</Trunc>
       </div>
-      {compact && <DocDot driver={driver} refDate={ctx.today} />}
     </div>
   );
 });

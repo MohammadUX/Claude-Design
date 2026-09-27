@@ -1,14 +1,14 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { TriangleAlert } from 'lucide-react';
 import { createContext, memo, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent } from 'react';
-import { DAY_VIEW, DENSITY, SEVERITY, TOUR_STATUS, WEEK_VIEW } from '../config';
+import { DAY_VIEW, DENSITY, TOUR_STATUS, WEEK_VIEW } from '../config';
 import { useDnd } from '../actions';
 import { fromMin, nowMin, toMin } from '../date';
 import { absenceOn, blockingDoc, daySummary, EMPTY_TOURS, etaLabel, isActive, routeFull, routeLabel, timeLabel, tourIssues, toursFor } from '../selectors';
 import type { Driver, Tour } from '../types';
 import { usePlannerCtx } from './context';
 import { DayStateLabel, DriverCell, GROUP_ROW_HEIGHT, GroupRow, ROW_GAP, SummaryCell, UnassignedHead, type RowItem } from './rows';
-import { MultiTourChip, TourCard, useTourDrag, VehicleLine } from './TourCard';
+import { MultiTourChip, TourCard, useTourDrag } from './TourCard';
 import { useDropTarget } from './WeekGrid';
 
 const ALLDAY_W = 168;
@@ -74,13 +74,21 @@ const TourBar = memo(function TourBar({ tour, lane, laneCount }: { tour: Tour; l
   const eta = etaLabel(tour);
   const top = `calc(4px + (100% - 8px) / ${laneCount} * ${lane})`;
   const height = `calc((100% - 8px) / ${laneCount} - ${laneCount > 1 ? 2 : 0}px)`;
-  const tall = ctx.density === 'comfortable' && laneCount === 1 && width > 220;
+  const now = useContext(NowCtx);
+  const progress =
+    now !== null && (tour.status === 'in_transit' || tour.status === 'delayed') ? Math.max(0, Math.min(100, ((now - s) / (e + (tour.delayMin ?? 0) - s)) * 100)) : 0;
+  const tone = !tour.driverId
+    ? 'unassigned'
+    : errors.length && tour.status !== 'cancelled'
+      ? 'issue'
+      : ({ in_transit: 'live', assigned: 'plan', completed: 'done', draft: 'draft', delayed: 'late', cancelled: 'cancel' } as const)[tour.status];
 
   return (
     <>
       <div
         role="button"
         tabIndex={0}
+        data-tone={tone}
         className={[
           'tbar',
           ctx.selection.has(tour.id) ? 'is-selected' : '',
@@ -103,26 +111,19 @@ const TourBar = memo(function TourBar({ tour, lane, laneCount }: { tour: Tour; l
         data-tip={`${tour.id} · ${routeFull(tour) || 'Route to fill in'} · ${timeLabel(tour)} · ${status.label}${eta ? ` · ETA ${eta}` : ''}${errors.length ? `\n${errors.map((i) => i.message).join('\n')}` : ''}`}
         aria-label={`${tour.id}, ${routeLabel(tour)}, ${timeLabel(tour)}, ${status.label}`}
       >
+        {progress > 0 && <span className="tbar__progress" style={{ width: `${progress}%` }} aria-hidden />}
         <span className="tbar__row">
-          <span className="tbar__time">{tour.start ? `${tour.start} – ${tour.end ?? ''}` : 'All day'}</span>
-          {errors.length > 0 && <TriangleAlert size={13} strokeWidth={2.4} style={{ color: SEVERITY.error.color, flex: 'none' }} aria-hidden />}
-          <span className="tbar__status">
-            <status.icon size={12} strokeWidth={2.4} aria-hidden />
-            {status.label}
-            {eta ? ` · ETA ${eta}` : ''}
-          </span>
+          {errors.length > 0 && <TriangleAlert size={13} strokeWidth={2.4} className="tbar__warn" aria-hidden />}
+          <span className="tbar__route">{routeLabel(tour) || 'Route to fill in'}</span>
         </span>
-        {tall ? (
+        {laneCount === 1 && (
           <span className="tbar__row tbar__row--meta">
-            <span className="tbar__route">{routeLabel(tour) || 'Route to fill in'}</span>
-            <VehicleLine tour={tour} />
-          </span>
-        ) : (
-          laneCount === 1 && (
-            <span className="tbar__row tbar__row--meta">
-              <span className="tbar__route">{routeLabel(tour) || 'Route to fill in'}</span>
+            <span className="tbar__time">{timeLabel(tour)}</span>
+            <span aria-hidden>·</span>
+            <span className="tbar__status">
+              {tour.status === 'delayed' ? `+${tour.delayMin} min · ETA ${eta}` : tour.status === 'assigned' ? tour.id : status.label}
             </span>
-          )
+          </span>
         )}
       </div>
       {delayW > 0 && (
@@ -227,7 +228,7 @@ const TimelineCell = memo(function TimelineCell({ driver, date }: { driver: Driv
       onClick={create}
       {...handlers}
     >
-      {(absence || doc) && (
+      {(absence || doc) && timed.length === 0 && (
         <span className="timeline__state">
           <DayStateLabel absence={absence} doc={doc} />
         </span>
@@ -254,7 +255,7 @@ const DayRow = memo(function DayRow({ driver, date }: { driver: Driver; date: st
   const free = !absenceOn(ctx.idx, driver.id, date) && !blockingDoc(driver, date) && toursFor(ctx.idx, driver.id, date).filter(isActive).length === 0;
   return (
     <>
-      <DriverCell driver={driver} tourCount={toursFor(ctx.idx, driver.id, date).filter((t) => t.status !== 'cancelled').length} />
+      <DriverCell driver={driver} date={date} />
       <AllDayCell driverId={driver.id} date={date} tours={untimed} free={free} />
       <TimelineCell driver={driver} date={date} />
     </>
@@ -375,7 +376,7 @@ export function DayGrid({ date, items, allDrivers, unassigned, showSummary, show
             <div className="hcell hcell--corner">
               Drivers <span className="hcell__count">{driverCount}</span>
             </div>
-            <div className="hcell hcell--allday">All day</div>
+            <div className="hcell hcell--allday">No time set</div>
             <div className="hours" style={{ width: TIMELINE_W }}>
               {hours.map((h) => (
                 <span key={h} className="hours__h" style={{ width: DAY_VIEW.hourWidth }}>

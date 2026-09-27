@@ -61,7 +61,7 @@ function DropHint({ check }: { check: ReturnType<typeof useDropTarget>['check'] 
   return <span className="drophint drophint--ok">Drop to assign</span>;
 }
 
-const WeekCell = memo(function WeekCell({ driver, date, isToday }: { driver: Driver; date: string; isToday: boolean }) {
+const WeekCell = memo(function WeekCell({ driver, date, isToday, col }: { driver: Driver; date: string; isToday: boolean; col: number }) {
   const ctx = usePlannerCtx();
   const tours = toursFor(ctx.idx, driver.id, date);
   const absence = absenceOn(ctx.idx, driver.id, date);
@@ -80,6 +80,7 @@ const WeekCell = memo(function WeekCell({ driver, date, isToday }: { driver: Dri
         drop.check ? (drop.check.ok ? (drop.check.warning ? 'is-drop-warn' : 'is-drop-ok') : 'is-drop-bad') : '',
         tours.length ? 'has-tours' : '',
       ].join(' ')}
+      style={{ gridColumn: col + 2, gridRow: 1 }}
       data-tip={absence ? `${ABSENCE[absence.reason].label}${absence.note ? ` · ${absence.note}` : ''}` : doc ? `Can’t drive: ${docLabel(doc)} expired` : undefined}
       {...drop.handlers}
     >
@@ -105,9 +106,13 @@ const DriverRow = memo(function DriverRow({ driver, days, today }: { driver: Dri
   const tourCount = days.reduce((n, d) => n + toursFor(ctx.idx, driver.id, d).filter((t) => t.status !== 'cancelled').length, 0);
   return (
     <>
-      <DriverCell driver={driver} tourCount={tourCount} />
-      {days.map((d) => (
-        <WeekCell key={d} driver={driver} date={d} isToday={d === today} />
+      <DriverCell
+        driver={driver}
+        date={days.includes(today) ? today : days[0]}
+        note={days.includes(today) ? undefined : tourCount ? `${tourCount} tour${tourCount > 1 ? 's' : ''} this week` : 'No tours this week'}
+      />
+      {days.map((d, i) => (
+        <WeekCell key={d} driver={driver} date={d} isToday={d === today} col={i} />
       ))}
       {spans.map((sp) => (
         <SpanBar key={sp.from} span={sp} hasTours={days.slice(sp.from, sp.to + 1).some((d) => toursFor(ctx.idx, driver.id, d).length > 0)} />

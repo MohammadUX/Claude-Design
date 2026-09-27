@@ -19,20 +19,15 @@ import {
   CalendarPlus,
   CloudAlert,
   CalendarArrowUp,
-  CircleCheck,
-  Inbox,
-  ListFilter,
-  TreePalm,
-  TriangleAlert,
-  Truck,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { moveTours } from '../actions';
-import { ABSENCE, FILTERS, GROUP_BY, TOUR_STATUS, TOUR_STATUS_FLOW, type Density, type FilterKey, type GroupBy } from '../config';
+import { ABSENCE, FILTERS, GROUP_BY, TOUR_STATUS, type Density, type FilterKey, type GroupBy } from '../config';
 import { addDays, fmtLong, fmtMedium, fmtRange, fmtShortDay, rangeDays, startOfWeek, todayISO } from '../date';
 import {
   absenceOn,
   checkDrop,
+  daySummary,
   driverAvailability,
   driverName,
   driverPeriodStats,
@@ -98,7 +93,7 @@ const isTyping = (el: EventTarget | null) => {
 };
 
 export function Planner({
-  view: viewProp = 'week',
+  view: viewProp = 'day',
   date: dateProp,
   range,
   compact,
@@ -361,7 +356,7 @@ export function Planner({
   const bulkDate = useRef<HTMLInputElement>(null);
 
   /* ------------------------------------------------------------ Render */
-  const periodWord = view === 'day' ? (anchor === today ? 'today' : 'that day') : isCurrentWeek(days, today) ? 'this week' : 'that week';
+  const daySum = useMemo(() => daySummary(idx, data.drivers, focusDay), [idx, data.drivers, focusDay]);
   const periodLabel = view === 'day' ? fmtLong(anchor) : fmtRange(days[0], days.at(-1)!);
   const isCurrent = days.includes(today);
   const loading = status === 'loading';
@@ -377,7 +372,19 @@ export function Planner({
           <header className="phead">
             <div className="phead__title">
               <h1>{title}</h1>
-              <p className="phead__sub">Who drives what, and what still needs a driver.</p>
+              <p className="phead__sub" aria-live="polite">
+                {status === 'ready' && !noDrivers ? (
+                  <>
+                    <b>{daySum.busy}</b> of {data.drivers.length} drivers working {focusDay === today ? 'today' : fmtMedium(focusDay)}
+                    <span className="dotsep"> · </span>
+                    <button className={`phead__link ${periodUnassigned ? 'is-alert' : ''}`} onClick={() => document.querySelector('.grow-unassigned')?.scrollIntoView({ block: 'nearest' })}>
+                      <b>{periodUnassigned}</b> tour{periodUnassigned === 1 ? '' : 's'} waiting for a driver
+                    </button>
+                  </>
+                ) : (
+                  'Who drives what, and what still needs a driver.'
+                )}
+              </p>
             </div>
 
             <div className="phead__controls">
@@ -421,50 +428,6 @@ export function Planner({
           </header>
         )}
 
-        {showHeader && !noDrivers && status !== 'error' && (
-          <div className="stats" role="radiogroup" aria-label="Show drivers">
-            {(
-              [
-                { key: 'busy', label: 'Working', icon: Truck, total: true },
-                { key: 'available', label: 'Available', icon: CircleCheck },
-                { key: 'absent', label: 'Absent', icon: TreePalm },
-                { key: 'issues', label: 'Need attention', icon: TriangleAlert, alert: true },
-              ] as const
-            ).map((c) => (
-              <button
-                key={c.key}
-                role="radio"
-                aria-checked={filter === c.key}
-                className={`stat stat--${c.key} ${filter === c.key ? 'is-active' : ''}`}
-                onClick={() => setFilter(filter === c.key ? 'all' : c.key)}
-                data-tip={filter === c.key ? 'Click again to show all drivers' : `Show only these drivers`}
-              >
-                <span className="stat__icon">
-                  <c.icon size={18} aria-hidden />
-                </span>
-                <span className="stat__label">{c.label}</span>
-                <span className="stat__value">
-                  {loading ? <span className="skel skel--text" style={{ width: 48, height: 26 }} /> : counts[c.key]}
-                  {'total' in c && !loading && <small> of {data.drivers.length}</small>}
-                </span>
-                <span className="stat__hint">drivers {periodWord}</span>
-              </button>
-            ))}
-            <button
-              className={`stat stat--unassigned ${periodUnassigned ? 'has-items' : ''}`}
-              onClick={() => document.querySelector('.grow-unassigned')?.scrollIntoView({ block: 'nearest' })}
-              data-tip="Tours planned without a driver. Drag them onto a driver."
-            >
-              <span className="stat__icon">
-                <Inbox size={18} aria-hidden />
-              </span>
-              <span className="stat__label">Waiting for a driver</span>
-              <span className="stat__value">{loading ? <span className="skel skel--text" style={{ width: 48, height: 26 }} /> : periodUnassigned}</span>
-              <span className="stat__hint">tours {periodWord}</span>
-            </button>
-          </div>
-        )}
-
         {showToolbar && !noDrivers && status !== 'error' && (
           <div className="toolbar">
             <div className="search">
@@ -478,16 +441,24 @@ export function Planner({
                 <kbd>/</kbd>
               )}
             </div>
-            {filter !== 'all' && (
-              <button className="chip is-active" onClick={() => setFilter('all')} aria-label="Clear filter">
-                {filter === 'issues' ? 'Need attention' : FILTERS.find((f) => f.key === filter)?.label}
-                <X size={14} />
-              </button>
-            )}
+            <div className="chips" role="radiogroup" aria-label="Show drivers">
+              {(
+                [
+                  { key: 'all', label: 'All' },
+                  { key: 'busy', label: 'Working' },
+                  { key: 'available', label: 'Available' },
+                  { key: 'absent', label: 'Absent' },
+                  { key: 'issues', label: 'Needs attention', dot: true },
+                ] as { key: FilterKey; label: string; dot?: boolean }[]
+              ).map((f) => (
+                <button key={f.key} role="radio" aria-checked={filter === f.key} className={`chip ${filter === f.key ? 'is-active' : ''}`} onClick={() => setFilter(f.key)}>
+                  {f.dot && <span className="chip__dot" aria-hidden />}
+                  {f.label}
+                  <span className="chip__count">{loading ? '–' : f.key === 'all' ? searched.length : counts[f.key]}</span>
+                </button>
+              ))}
+            </div>
             <span className="toolbar__spacer" />
-            <button className="btn btn--ghost btn--sm" onClick={(e) => setPopup({ kind: 'filter', rect: e.currentTarget.getBoundingClientRect() })} aria-haspopup="menu">
-              <ListFilter size={15} /> Show: {filter === 'all' ? 'All drivers' : filter === 'issues' ? 'Need attention' : FILTERS.find((f) => f.key === filter)?.label}
-            </button>
             <button className="btn btn--ghost btn--sm" onClick={(e) => setPopup({ kind: 'group', rect: e.currentTarget.getBoundingClientRect() })} aria-haspopup="menu">
               <Layers size={15} /> Group: {GROUP_BY.find((g) => g.key === groupBy)!.label}
             </button>
@@ -580,7 +551,7 @@ export function Planner({
                   items={items}
                   allDrivers={data.drivers}
                   unassigned={unassigned.get(anchor) ?? []}
-                  showSummary={showSummary}
+                  showSummary={false}
                   showUnassigned={showUnassigned}
                   autoHeight={widget}
                   onToggleGroup={(k) => setCollapsed((c) => new Set(c.has(k) ? [...c].filter((x) => x !== k) : [...c, k]))}
@@ -729,29 +700,27 @@ export function Planner({
 
 /* ------------------------------------------------------------ Sub-views */
 
-const isCurrentWeek = (days: string[], today: string) => days.includes(today);
-
-/** Plain-language key so nobody has to guess what a color means. */
+/** Plain-language key so nobody has to guess what a style means. */
 function Legend() {
+  const items = [
+    ['live', 'On the road'],
+    ['plan', 'Planned'],
+    ['late', 'Delayed'],
+    ['draft', 'Draft'],
+    ['done', 'Completed'],
+    ['unassigned', 'Needs a driver'],
+    ['issue', 'Problem'],
+    ['absent', 'Absent'],
+  ] as const;
   return (
     <div className="legend" aria-label="Legend">
-      {TOUR_STATUS_FLOW.map((k) => {
-        const S = TOUR_STATUS[k];
-        return (
-          <span key={k} className="legend__item" style={{ color: S.color }}>
-            <span className="legend__swatch" style={{ background: S.bg, borderColor: S.color }} />
-            <S.icon size={13} strokeWidth={2.4} aria-hidden />
-            <span className="legend__label">{S.label}</span>
-          </span>
-        );
-      })}
-      <span className="legend__item">
-        <span className="legend__swatch legend__swatch--absent" /> <span className="legend__label">Absent</span>
-      </span>
-      <span className="legend__item">
-        <span className="legend__swatch legend__swatch--blocked" /> <span className="legend__label">Can’t drive (document expired)</span>
-      </span>
-      <span className="legend__hint">Drag a tour to move it · Click an empty day to add one</span>
+      {items.map(([tone, label]) => (
+        <span key={tone} className="legend__item">
+          <span className={`legend__swatch legend__swatch--${tone}`} aria-hidden />
+          {label}
+        </span>
+      ))}
+      <span className="legend__hint">Drag a tour to move it · Click an empty spot to add one</span>
     </div>
   );
 }

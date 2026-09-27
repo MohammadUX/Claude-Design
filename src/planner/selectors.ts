@@ -312,3 +312,38 @@ export function checkDrop(idx: PlannerIndex, tours: Tour[], driverId: string | u
   if (existing.length) return { ok: true, warning: `+${existing.length} tour${existing.length > 1 ? 's' : ''} that day` };
   return { ok: true };
 }
+
+/* ------------------------------------------------------ Driver "right now" */
+
+export type NowTone = 'road' | 'late' | 'free' | 'off' | 'blocked' | 'done';
+
+/** One plain sentence describing what the driver is doing on `date` (live when `date` is today). */
+export function driverNow(idx: PlannerIndex, driver: Driver, date: string, today: string, now: number): { tone: NowTone; text: string } {
+  const abs = absenceOn(idx, driver.id, date);
+  if (abs) {
+    const what = abs.reason === 'holiday' ? 'On holiday' : abs.reason === 'sick' ? 'Sick leave' : abs.note ?? 'Absent';
+    return { tone: 'off', text: abs.to > date ? `${what} until ${fmtDay(abs.to)}` : `${what} today` };
+  }
+  const doc = blockingDoc(driver, date);
+  if (doc) return { tone: 'blocked', text: `Can’t drive · ${docLabel(doc)} expired` };
+  const tours = toursFor(idx, driver.id, date).filter(isActive);
+  if (!tours.length) return { tone: 'free', text: date === today ? 'Available all day' : 'Available' };
+  const dest = (t: Tour) => t.stops.map((s) => s.city).filter(Boolean).at(-1) ?? '?';
+  if (date !== today) {
+    const first = tours.find((t) => t.start);
+    const n = tours.length;
+    return { tone: date < today ? 'done' : 'road', text: `${n} tour${n > 1 ? 's' : ''}${first ? ` · starts ${first.start}` : ''}` };
+  }
+  const live = tours.find((t) => t.status === 'delayed') ?? tours.find((t) => t.status === 'in_transit');
+  if (live) {
+    const eta = etaLabel(live) ?? live.end;
+    if (live.status === 'delayed') return { tone: 'late', text: `Delayed ${live.delayMin} min · arrives ${dest(live)} ${eta ?? ''}`.trim() };
+    return { tone: 'road', text: `On the road · arrives ${dest(live)}${eta ? ` ${eta}` : ''}` };
+  }
+  const next = tours.find((t) => t.start && toMin(t.start) > now && t.status !== 'completed');
+  if (next) return { tone: 'free', text: `Available · next tour ${next.start}` };
+  if (tours.every((t) => t.status === 'completed')) return { tone: 'done', text: 'Done for today' };
+  return { tone: 'road', text: `${tours.length} tour${tours.length > 1 ? 's' : ''} today` };
+}
+
+const fmtDay = (iso: string) => new Date(`${iso}T00:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' });
