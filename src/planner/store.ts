@@ -77,7 +77,7 @@ export const usePlannerStore = create<PlannerStore>((set, get) => {
         const data =
           scenario === 'empty'
             ? { ...EMPTY, depots: generateMock().depots }
-            : generateMock({ drivers: scenario === 'large' ? 500 : 100, scenario });
+            : generateMock({ drivers: 100, scenario });
         set({ status: 'ready', data });
       }, 650);
     },

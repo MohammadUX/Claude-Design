@@ -9,8 +9,11 @@ npm run dev        # http://localhost:5173
 
 ## Dev state switcher
 Add `?state=<name>` to the URL (or `?dev`, or press **Shift + D**):
-`default` · `loading` · `error` (Retry recovers) · `empty` · `no-tours` · `no-results` · `conflict` · `large` (500 drivers).
+`default` · `loading` · `error` (Retry recovers) · `empty` · `no-tours` · `no-results` · `conflict`.
 Absences, expiring/expired documents, drafts, delayed/completed/cancelled tours and double-bookings are all in the default data.
+
+## Scale
+Built for ~100 drivers (the mock uses 100). Rows are virtualized, so scrolling stays smooth.
 
 ## Structure
 ```

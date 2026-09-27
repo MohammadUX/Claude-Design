@@ -71,8 +71,7 @@ export type Scenario =
   | 'empty'
   | 'no-tours'
   | 'no-results'
-  | 'conflict'
-  | 'large';
+  | 'conflict';
 
 export const SCENARIOS: { key: Scenario; label: string; hint: string }[] = [
   { key: 'default', label: 'Default', hint: '100 drivers, realistic mix of all states' },
@@ -82,7 +81,6 @@ export const SCENARIOS: { key: Scenario; label: string; hint: string }[] = [
   { key: 'no-tours', label: 'No tours', hint: 'Drivers exist, no tours planned' },
   { key: 'no-results', label: 'No results', hint: 'Search that matches nothing' },
   { key: 'conflict', label: 'Conflicts', hint: 'Extra double-bookings today' },
-  { key: 'large', label: '500 drivers', hint: 'Performance / virtualization check' },
 ];
 
 export function generateMock(opts: { drivers?: number; scenario?: Scenario } = {}): PlannerData {
