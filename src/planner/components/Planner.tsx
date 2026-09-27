@@ -43,7 +43,7 @@ import {
 import { usePlannerStore } from '../store';
 import type { Driver, Tour } from '../types';
 import { Ctx, type PlannerCtx } from './context';
-import { BoardView } from './BoardView';
+import { BoardCard, BoardView } from './BoardView';
 import { DayGrid } from './DayGrid';
 import { type RowItem } from './rows';
 import { TourCard } from './TourCard';
@@ -621,26 +621,49 @@ export function Planner({
         )}
 
         {/* Popovers */}
-        {popup?.kind === 'unassigned' && (
-          <Popover anchor={popup.rect} onClose={() => setPopup(null)} className="cellpop cellpop--unassigned" placement="bottom-start">
-            <div className="cellpop__head">
-              <b>Waiting for a driver</b>
-              <span>{view === 'week' ? fmtRange(days[0], days.at(-1)!) : fmtMedium(anchor)}</span>
-            </div>
-            <p className="cellpop__hint">Drag a card onto a driver, or open it to pick one.</p>
-            <div className="cellpop__list">
-              {days.flatMap((d) => unassigned.get(d) ?? []).length === 0 && <p className="cellpop__hint">Every tour has a driver.</p>}
-              {days.flatMap((d) => unassigned.get(d) ?? []).map((t) => (
-                <TourCard key={t.id} tour={t} full />
-              ))}
-            </div>
-            {!readOnly && (
-              <button className="btn btn--ghost btn--sm" onClick={() => { setPopup(null); onCreate({ date: focusDay }); }}>
-                <Plus size={14} /> Add tour without driver
-              </button>
-            )}
-          </Popover>
-        )}
+        {popup?.kind === 'unassigned' && (() => {
+          const list = days.flatMap((d) => unassigned.get(d) ?? []);
+          return (
+            <Popover anchor={popup.rect} onClose={() => setPopup(null)} className="upop" placement="bottom-start">
+              <header className="upop__head">
+                <div>
+                  <h3>
+                    Waiting for a driver <span className="upop__count">{list.length}</span>
+                  </h3>
+                  <p>{view === 'week' ? fmtRange(days[0], days.at(-1)!) : fmtLong(anchor)}</p>
+                </div>
+                <button className="iconbtn iconbtn--sm" onClick={() => setPopup(null)} aria-label="Close">
+                  <X size={16} />
+                </button>
+              </header>
+              {list.length === 0 ? (
+                <p className="upop__empty">Every tour has a driver.</p>
+              ) : (
+                <>
+                  <p className="upop__hint">Drag a card onto a driver, or click it to choose one.</p>
+                  <div className="upop__list">
+                    {list.map((t) => (
+                      <BoardCard key={t.id} tour={t} date={t.date} />
+                    ))}
+                  </div>
+                </>
+              )}
+              {!readOnly && (
+                <footer className="upop__foot">
+                  <button
+                    className="btn btn--secondary btn--sm"
+                    onClick={() => {
+                      setPopup(null);
+                      onCreate({ date: focusDay });
+                    }}
+                  >
+                    <Plus size={14} /> New tour without driver
+                  </button>
+                </footer>
+              )}
+            </Popover>
+          );
+        })()}
         {popup?.kind === 'cell' && (
           <Popover anchor={popup.rect} onClose={() => setPopup(null)} className="cellpop" placement="bottom-start">
             <div className="cellpop__head">

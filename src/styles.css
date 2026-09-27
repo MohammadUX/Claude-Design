@@ -1046,3 +1046,26 @@ input[type='date']::-webkit-calendar-picker-indicator, input[type='time']::-webk
 .brow__lane--scroll > * { flex: none; }
 .cellpop--unassigned { width: 340px; }
 .cellpop__hint { font-size: 12px; color: var(--text-3); margin-top: -4px; }
+
+/* Document chips: one neutral background, state carried by icon + text shade */
+.dchip, .dchip--ok, .dchip--expiring, .dchip--expired { background: var(--surface-3) !important; color: var(--text-3); font-weight: 500; padding: 3px 9px 3px 7px; }
+.dchip--expiring { color: var(--text-2); }
+.dchip--expired { color: var(--text); font-weight: 600; }
+.dchip__icon { flex: none; }
+.dchip--ok .dchip__icon { opacity: 0.8; }
+.dchip__date { color: inherit; font-weight: 500; }
+
+/* "Waiting for a driver" popover */
+.upop { width: 340px; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+.upop__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 14px 10px 16px; }
+.upop__head h3 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.upop__head p { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.upop__count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: rgba(251, 191, 36, 0.15); color: var(--warn); font-size: 11px; font-weight: 600; display: grid; place-items: center; }
+.upop__hint { font-size: 12px; color: var(--text-3); padding: 0 16px 10px; }
+.upop__list { display: flex; flex-direction: column; gap: 8px; padding: 0 12px 12px; max-height: min(60vh, 520px); overflow-y: auto; }
+.upop__list .bcard { width: 100%; min-height: 0; }
+.upop__empty { padding: 8px 16px 16px; color: var(--text-3); font-size: 13px; }
+.upop__foot { padding: 10px 12px; border-top: 1px solid var(--border-strong); display: flex; }
+.upop__foot .btn { width: 100%; }
+.upop { width: 360px; }
+.upop__list .bcard { flex: none; }

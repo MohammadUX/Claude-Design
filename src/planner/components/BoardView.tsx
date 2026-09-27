@@ -4,7 +4,7 @@
  * Rows have variable height (cards wrap), so the virtualizer measures each row.
  */
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { ChevronRight, Inbox, Lock, Plus, TriangleAlert, Truck } from 'lucide-react';
+import { ChevronRight, CircleCheck, CircleX, Clock, Inbox, Lock, Plus, TriangleAlert, Truck } from 'lucide-react';
 import { memo, useRef } from 'react';
 import { ABSENCE, DOC_STATE, DOCS, TOUR_STATUS } from '../config';
 import { diffDays, fmtMedium, fmtRelativeDays, fmtShort, nowMin } from '../date';
@@ -34,7 +34,7 @@ import { useDropTarget } from './WeekGrid';
 
 /* ------------------------------------------------------------- Tour card */
 
-const BoardCard = memo(function BoardCard({ tour, date }: { tour: Tour; date: string }) {
+export const BoardCard = memo(function BoardCard({ tour, date }: { tour: Tour; date: string }) {
   const ctx = usePlannerCtx();
   const { draggable, dragging, onDragStart, onDragEnd } = useTourDrag(tour, date);
   const status = TOUR_STATUS[tour.status];
@@ -142,16 +142,19 @@ const BoardCard = memo(function BoardCard({ tour, date }: { tour: Tour; date: st
 
 /* ------------------------------------------------------ Driver info cell */
 
+const DOC_ICON = { ok: CircleCheck, expiring: Clock, expired: CircleX } as const;
+
+/** Same neutral chip for every document; the icon and a slight text shade carry the state. */
 function DocChips({ driver, refDate }: { driver: Driver; refDate: string }) {
   return (
     <div className="dchips" data-tip={docTooltip(driver, refDate)} tabIndex={0}>
       {DOCS.map((d) => {
         const exp = driver.docs[d.key];
         const st = docState(exp, refDate);
-        const c = DOC_STATE[st];
+        const Icon = DOC_ICON[st];
         return (
-          <span key={d.key} className={`dchip dchip--${st}`} style={{ color: c.color, background: c.bg }}>
-            <span className="dchip__dot" aria-hidden />
+          <span key={d.key} className={`dchip dchip--${st}`} aria-label={`${d.label}: ${DOC_STATE[st].label}`}>
+            <Icon size={12} strokeWidth={2.2} className="dchip__icon" style={{ color: DOC_STATE[st].color }} aria-hidden />
             {d.key === 'tacho' ? 'Tacho' : d.label}
             {st !== 'ok' && <span className="dchip__date">{st === 'expired' ? 'expired' : fmtShort(exp)}</span>}
           </span>
