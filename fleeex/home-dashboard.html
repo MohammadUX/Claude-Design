@@ -203,6 +203,26 @@ body.editing .edit-tools{display:flex;position:absolute;inset:10px 10px auto 10p
 .wc .mini{display:block;font-size:11px;padding:3px 6px;border-radius:6px;margin-bottom:3px;background:var(--surface-3);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wc .off{font-size:11px;color:var(--faint)}
 
+/* simple planner view */
+.sv{min-width:640px}
+.sv-group{display:flex;justify-content:space-between;padding:14px 20px 6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600;position:sticky;top:0;background:var(--surface);z-index:2;border-bottom:1px solid var(--line)}
+.sv-row{display:grid;grid-template-columns:210px 118px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line)}
+.sv-who{display:flex;align-items:center;gap:10px;min-width:0}
+.sv-who .who{min-width:0}
+.sv-who b{display:block;font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-who span:not(.av){display:block;font-size:12px;color:var(--muted);white-space:nowrap}
+.sv-word{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--c)}
+.sv-word i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.sv-line{font-size:14.5px;font-weight:500}
+.sv-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.sv-then{font-size:12px;color:var(--faint);margin-top:4px}
+.sv-journey{display:grid;grid-template-columns:auto minmax(60px,1fr) auto;gap:10px;align-items:center;font-size:13.5px;font-weight:500}
+.sv-track{position:relative;height:4px;border-radius:999px;background:var(--surface-3)}
+.sv-track i{position:absolute;inset:0 auto 0 0;width:var(--p);border-radius:999px;background:var(--c);opacity:.55}
+.sv-track b{position:absolute;top:50%;left:var(--p);width:12px;height:12px;border-radius:50%;background:var(--c);border:2px solid var(--surface);transform:translate(-50%,-50%)}
+.sv-act{justify-self:end}
+.sv-row .av{--c:var(--grey)}
+
 /* ---------- Deadlines ---------- */
 .dl-group{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600;padding:14px 0 6px;display:flex;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
 .dl{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);position:relative}
@@ -627,7 +647,7 @@ document.addEventListener('click',e=>{
 });
 
 /* ================= Planner ================= */
-let planView='day', planFilter='all';
+let planView='simple', planFilter='all';
 function renderPlanner(card){
   const states=DRIVERS.map(d=>driverState(d).k);
   const cnt=k=>states.filter(s=>s===k).length;
@@ -639,15 +659,42 @@ function renderPlanner(card){
       <a class="link" href="#">Open planner ${ic('chev',14)}</a>
     </div>
     <div class="card-head" style="padding-top:0">
-      <div class="plan-summary grow" role="group" aria-label="Filter drivers">${filters.map(([k,l,n,c])=>`<button class="chip" type="button" data-f="${k}" aria-pressed="${planFilter===k}">${c?`<i style="--c:${c}"></i>`:''}${l} <b class="num">${n}</b></button>`).join('')}</div>
-      <div class="seg" role="group" aria-label="Planner view"><button type="button" data-v="day" aria-pressed="${planView==='day'}">Day</button><button type="button" data-v="week" aria-pressed="${planView==='week'}">Week</button></div>
+      <div class="plan-summary grow" role="group" aria-label="Filter drivers" ${planView==='simple'?'hidden':''}>${filters.map(([k,l,n,c])=>`<button class="chip" type="button" data-f="${k}" aria-pressed="${planFilter===k}">${c?`<i style="--c:${c}"></i>`:''}${l} <b class="num">${n}</b></button>`).join('')}</div>
+      ${planView==='simple'?`<div class="grow card-sub">Who needs you first, then everyone else.</div>`:''}<div class="seg" role="group" aria-label="Planner view"><button type="button" data-v="simple" aria-pressed="${planView==='simple'}">Simple</button><button type="button" data-v="day" aria-pressed="${planView==='day'}">Timeline</button><button type="button" data-v="week" aria-pressed="${planView==='week'}">Week</button></div>
     </div>
     <div class="tl-scroll"></div>
-    <div class="legend">${['transit','loading','scheduled','delayed','completed','unassigned'].map(k=>`<span><i class="l-${k}"></i>${ST[k].label}</span>`).join('')}</div>`);
+    <div class="legend" ${planView==='simple'?'hidden':''}>${['transit','loading','scheduled','delayed','completed','unassigned'].map(k=>`<span><i class="l-${k}"></i>${ST[k].label}</span>`).join('')}</div>`);
   const sc=card.querySelector('.tl-scroll');
-  if(planView==='day') drawDay(sc); else drawWeek(sc);
+  if(planView==='simple') drawSimple(sc); else if(planView==='day') drawDay(sc); else drawWeek(sc);
   card.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{planFilter=b.dataset.f;rerender('planner')});
   card.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{planView=b.dataset.v;rerender('planner')});
+}
+/* ---- Simple view: one plain sentence per driver, grouped by what needs doing ---- */
+function drawSimple(sc){
+  const W_=s=>`<span class="sv-word" style="--c:${s[1]}"><i></i>${s[0]}</span>`;
+  const journey=(t,label)=>{const st=statusOf(t);const p=Math.max(0.04,Math.min(1,(NOW-t.s)/(t.e+(t.delay||0)/60-t.s)));
+    return `<div class="sv-journey" style="--p:${p*100}%;--c:${st==='delayed'?'var(--red)':'var(--text)'}"><span>${esc(t.from)}</span><span class="sv-track"><i></i><b></b></span><span>${esc(t.to)}</span></div><div class="sv-sub">${label}</div>`};
+  const nextOf=d=>TRIPS.filter(t=>t.d===d.id&&t.s>NOW).sort((a,b)=>a.s-b.s)[0];
+  const then=n=>n?`<div class="sv-then">Then: ${esc(n.from)} → ${esc(n.to)} at ${hm(n.s)}</div>`:'';
+  const doneCount=d=>TRIPS.filter(t=>t.d===d.id&&statusOf(t)==='completed').length;
+  const row=(who,word,body,act='')=>`<div class="sv-row">${who}<div class="sv-state">${W_(word)}</div><div class="sv-body">${body}</div><div class="sv-act">${act}</div></div>`;
+  const who=d=>`<div class="sv-who"><span class="av" style="--c:${driverState(d).c}">${d.ini}</span><div class="who"><b>${d.name}</b><span>${d.plate}${doneCount(d)?` · ${doneCount(d)} done today`:''}</span></div></div>`;
+  const attention=[],road=[],free=[],off=[];
+  TRIPS.filter(t=>!t.d).forEach(t=>attention.push(row(`<div class="sv-who"><span class="av" style="--c:var(--accent);background:var(--accent-soft);color:var(--accent-2)">?</span><div class="who"><b>${esc(t.client)}</b><span>${t.id}</span></div></div>`,['No driver','var(--accent)'],`<div class="sv-line">${esc(t.from)} → ${esc(t.to)}</div><div class="sv-sub">Today ${hm(t.s)}–${hm(t.e)} · ${esc(t.cargo)}</div>`,`<button class="btn btn-sm btn-primary" type="button" data-assign-trip="${t.id}">Choose driver</button>`)));
+  DRIVERS.forEach(d=>{const st=driverState(d);
+    const cur=TRIPS.find(t=>t.d===d.id&&t.s<=NOW&&NOW<t.e+(t.delay||0)/60);
+    if(d.blocked){attention.push(row(who(d),["Can't drive",'var(--red)'],`<div class="sv-line">Driving licence expired</div><div class="sv-sub">Expired 176 days ago. No trips can be given until it's renewed.</div>`,`<button class="btn btn-sm" type="button" data-scroll="deadlines">Renew licence</button>`));return}
+    if(d.off){off.push(row(who(d),['Day off','#6E6964'],`<div class="sv-line">Resting today</div><div class="sv-sub">Back Tuesday at 06:00</div>`));return}
+    if(cur&&statusOf(cur)==='delayed'){attention.push(row(who(d),['Late','var(--red)'],journey(cur,`<b style="color:var(--red)">${cur.delay} min late</b> · now arrives ${hm(cur.e+cur.delay/60)} instead of ${hm(cur.e)}`)+then(nextOf(d)),`<button class="btn btn-sm" type="button" data-call="${d.name}">Call ${d.name.split(' ')[0]}</button>`));return}
+    if(cur&&statusOf(cur)==='loading'){road.push(row(who(d),['Loading','var(--amber)'],`<div class="sv-line">Loading at the hub, bay 4</div><div class="sv-sub">Leaves at ${hm(cur.e)}</div>`+then(nextOf(d))));return}
+    if(cur){road.push(row(who(d),['Driving','var(--green)'],journey(cur,`Arrives at ${hm(cur.e)}`)+then(nextOf(d))));return}
+    const n=nextOf(d);
+    free.push(row(who(d),['Free','var(--muted)'],`<div class="sv-line">${n?`Free until ${hm(n.s)}`:'Free for the rest of the day'}</div><div class="sv-sub">${n?`Next: ${esc(n.from)} → ${esc(n.to)} at ${hm(n.s)}`:'Can take a new trip now'}</div>`));
+  });
+  const group=(title,list,note)=>list.length?`<div class="sv-group"><span>${title}</span><span class="num">${list.length}</span></div>${note?`<div class="sv-note">${note}</div>`:''}${list.join('')}`:'';
+  sc.innerHTML=`<div class="sv">${group('Needs you now',attention)}${group('On the road',road)}${group('Free',free)}${group('Day off',off)}</div>`;
+  sc.querySelectorAll('[data-assign-trip]').forEach(b=>b.onclick=e=>{e.stopPropagation();openTrip(b.dataset.assignTrip,b)});
+  sc.querySelectorAll('[data-call]').forEach(b=>b.onclick=()=>toast('Calling '+b.dataset.call+'…'));
 }
 function passFilter(d){
   const s=driverState(d).k;
