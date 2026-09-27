@@ -9,121 +9,224 @@
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F4F2EC;color:#17191E}
-a{color:#17191E}a:hover{color:#C24A22}
+body{margin:0;font-family:-apple-system,'SF Pro Text','Figtree',system-ui,sans-serif;background:#0E1016;color:#0B0E14}
+a{color:#0B0E14}a:hover{color:#C2371A}
+button{cursor:pointer}
 </style>
 </helmet>
-<div style="width: 390px; height: 1100px; box-sizing: border-box; background: #F4F2EC; display: flex; flex-direction: column; font-family: 'DM Sans', system-ui, sans-serif; color: #17191E">
-<div style="padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; flex-grow: 1">
+<div style="position: relative; overflow: hidden; width: 390px; height: 1400px; box-sizing: border-box; font-family: -apple-system, 'SF Pro Text', 'Figtree', system-ui, sans-serif; color: #0B0E14; background: radial-gradient(circle at 20% 40%, rgba(255,128,84,0.45), rgba(255,128,84,0) 40%), radial-gradient(circle at 90% 55%, rgba(120,146,255,0.5), rgba(120,146,255,0) 45%), radial-gradient(circle at 15% 85%, rgba(96,214,186,0.4), rgba(96,214,186,0) 40%), linear-gradient(180deg, #F4F6FB 0%, #E7ECF7 100%)">
 
-<header style="display: flex; align-items: center; gap: 12px">
-<a href="Main.dc.html" aria-label="Back to Today" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
-<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
-<span style="font-size: 13px; color: #5E6168; font-weight: 500">Logging to Dinner</span>
-<h1 style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 26px; font-weight: 700; letter-spacing: -0.5px">Scan your meal</h1>
-</div>
-</header>
-
-<div role="tablist" aria-label="Log method" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; background: #E9E6DE; padding: 4px; border-radius: 16px">
-<button role="tab" aria-selected="true" style="min-height: 40px; border: none; border-radius: 12px; background: #FFFFFF; font-family: inherit; font-weight: 700; font-size: 13px; color: #17191E">Photo</button>
-<button role="tab" aria-selected="false" style="min-height: 40px; border: none; border-radius: 12px; background: transparent; font-family: inherit; font-weight: 600; font-size: 13px; color: #4A4D55">Barcode</button>
-<button role="tab" aria-selected="false" style="min-height: 40px; border: none; border-radius: 12px; background: transparent; font-family: inherit; font-weight: 600; font-size: 13px; color: #4A4D55">Voice</button>
-<button role="tab" aria-selected="false" style="min-height: 40px; border: none; border-radius: 12px; background: transparent; font-family: inherit; font-weight: 600; font-size: 13px; color: #4A4D55">Search</button>
-</div>
-
-<div aria-label="Camera preview of the meal (placeholder)" style="position: relative; height: 300px; border-radius: 24px; background: #2A2C31; overflow: hidden; display: flex; align-items: center; justify-content: center">
-<svg width="230" height="230" viewBox="0 0 230 230" aria-hidden="true">
-<circle cx="115" cy="115" r="108" fill="#3A3D44"></circle>
-<circle cx="115" cy="115" r="88" fill="#4A4D55"></circle>
-<ellipse cx="88" cy="96" rx="40" ry="26" fill="#8C6A4F"></ellipse>
-<ellipse cx="148" cy="108" rx="34" ry="30" fill="#CDBFA4"></ellipse>
-<circle cx="100" cy="152" r="14" fill="#4E7A4A"></circle>
-<circle cx="120" cy="160" r="12" fill="#5C8A55"></circle>
-<circle cx="84" cy="168" r="11" fill="#4E7A4A"></circle>
+<div aria-label="Camera view of your plate (illustration)" style="position: relative; height: 430px; background: radial-gradient(circle at 50% 45%, #3A3530 0%, #1B1A1C 70%); overflow: hidden">
+<svg width="390" height="430" viewBox="0 0 390 430" aria-hidden="true" style="position: absolute; inset: 0">
+<defs>
+<radialGradient id="plate" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#F7F3EE"></stop><stop offset="0.8" stop-color="#E4DDD3"></stop><stop offset="1" stop-color="#BDB4A7"></stop></radialGradient>
+<radialGradient id="chk" cx="0.4" cy="0.35" r="0.8"><stop offset="0" stop-color="#E0A869"></stop><stop offset="1" stop-color="#9A5F2E"></stop></radialGradient>
+<radialGradient id="rice" cx="0.4" cy="0.35" r="0.8"><stop offset="0" stop-color="#E9D8B7"></stop><stop offset="1" stop-color="#B89A6C"></stop></radialGradient>
+</defs>
+<ellipse cx="195" cy="236" rx="170" ry="150" fill="url(#plate)"></ellipse>
+<ellipse cx="195" cy="236" rx="138" ry="120" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="2"></ellipse>
+<path d="M92 196c10-34 60-50 98-36 26 10 30 36 16 52-22 24-80 30-104 12-10-8-12-18-10-28z" fill="url(#chk)"></path>
+<path d="M110 186l70-10M104 204l84-8M118 220l60-6" stroke="#6E3F1C" stroke-width="4" stroke-linecap="round" opacity="0.55"></path>
+<ellipse cx="262" cy="232" rx="62" ry="54" fill="url(#rice)"></ellipse>
+<g fill="#3F7A3A"><circle cx="160" cy="300" r="20"></circle><circle cx="188" cy="312" r="17"></circle><circle cx="136" cy="316" r="15"></circle><circle cx="170" cy="330" r="14"></circle></g>
+<g fill="#5E9C4F"><circle cx="154" cy="294" r="9"></circle><circle cx="186" cy="306" r="8"></circle><circle cx="134" cy="312" r="7"></circle></g>
+<path d="M104 176c30-8 80 4 104 20" fill="none" stroke="rgba(255,236,160,0.55)" stroke-width="7" stroke-linecap="round"></path>
 </svg>
-<div style="position: absolute; left: 44px; top: 70px; width: 104px; height: 72px; border: 2px solid #FFFFFF; border-radius: 12px"></div>
-<span style="position: absolute; left: 44px; top: 44px; background: #FFFFFF; color: #17191E; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 8px">Chicken 96%</span>
-<div style="position: absolute; left: 196px; top: 96px; width: 92px; height: 82px; border: 2px solid #FFFFFF; border-radius: 12px"></div>
-<span style="position: absolute; left: 196px; top: 184px; background: #FFFFFF; color: #17191E; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 8px">Brown rice 91%</span>
-<div style="position: absolute; left: 88px; top: 186px; width: 88px; height: 58px; border: 2px solid #FFFFFF; border-radius: 12px"></div>
-<span style="position: absolute; left: 88px; top: 250px; background: #FFFFFF; color: #17191E; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 8px">Broccoli 94%</span>
-<div style="position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 6px; background: rgba(23,25,30,0.8); color: #FFFFFF; padding: 6px 10px; border-radius: 12px; font-size: 12px; font-weight: 600">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F08A5D" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>4 items found</div>
+
+<div style="position: absolute; top: 22px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center">
+<a href="Main.dc.html" aria-label="Close scanner" style="width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: rgba(255,255,255,0.18); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+<span style="height: 34px; padding: 0 12px; border-radius: 17px; display: flex; align-items: center; gap: 6px; color: #FFFFFF; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.18); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB38F" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>4 items · Dinner</span>
+<button aria-label="Flash off" style="width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; background: rgba(255,255,255,0.18); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L5 14h6l-1 7 8-11h-6z"></path></svg></button>
 </div>
 
-<section aria-labelledby="detected-h" style="background: #FFFFFF; border-radius: 24px; padding: 8px 20px 20px; display: flex; flex-direction: column">
-<div style="display: flex; align-items: baseline; justify-content: space-between; padding: 12px 0 4px">
-<h2 id="detected-h" style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 20px; font-weight: 700">Detected</h2>
-<span style="font-size: 13px; color: #5E6168">Tap a portion to adjust</span>
+<div style="position: absolute; left: 84px; top: 146px; width: 132px; height: 88px; border: 2px solid rgba(255,255,255,0.9); border-radius: 18px"></div>
+<span style="position: absolute; left: 84px; top: 116px; height: 26px; padding: 0 10px; border-radius: 13px; display: flex; align-items: center; font-size: 12px; font-weight: 800; color: #0B0E14; background: rgba(255,255,255,0.82); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px)">Chicken · 96%</span>
+<div style="position: absolute; left: 200px; top: 176px; width: 128px; height: 112px; border: 2px solid rgba(255,255,255,0.9); border-radius: 18px"></div>
+<span style="position: absolute; left: 226px; top: 294px; height: 26px; padding: 0 10px; border-radius: 13px; display: flex; align-items: center; font-size: 12px; font-weight: 800; color: #0B0E14; background: rgba(255,255,255,0.82); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px)">Brown rice · 88%</span>
+<div style="position: absolute; left: 118px; top: 276px; width: 92px; height: 74px; border: 2px solid rgba(255,255,255,0.9); border-radius: 18px"></div>
+<span style="position: absolute; left: 90px; top: 356px; height: 26px; padding: 0 10px; border-radius: 13px; display: flex; align-items: center; font-size: 12px; font-weight: 800; color: #0B0E14; background: rgba(255,255,255,0.82); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px)">Broccoli · 94%</span>
+<div style="position: absolute; left: 98px; top: 164px; width: 118px; height: 30px; border: 2px dashed #FFC24D; border-radius: 12px"></div>
+<span style="{{oilTagStyle}}">{{oilTag}}</span>
+</div>
+
+<section aria-label="Scan result" style="position: relative; margin-top: -48px; padding: 10px 16px 124px; display: flex; flex-direction: column; gap: 14px; border-radius: 32px 32px 0 0; background: rgba(246,248,252,0.78); -webkit-backdrop-filter: blur(34px) saturate(180%); backdrop-filter: blur(34px) saturate(180%); border-top: 1px solid rgba(255,255,255,0.9); box-shadow: 0 -12px 36px rgba(0,0,0,0.18)">
+<span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: rgba(11,14,20,0.2)"></span>
+
+<div role="tablist" aria-label="Log method" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: rgba(11,14,20,0.06)">
+<button role="tab" aria-selected="true" style="height: 34px; border: none; border-radius: 10px; background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.08); font-family: inherit; font-weight: 800; font-size: 13px; color: #0B0E14">Photo</button>
+<button role="tab" aria-selected="false" style="height: 34px; border: none; border-radius: 10px; background: transparent; font-family: inherit; font-weight: 600; font-size: 13px; color: #3F4656">Barcode</button>
+<button role="tab" aria-selected="false" style="height: 34px; border: none; border-radius: 10px; background: transparent; font-family: inherit; font-weight: 600; font-size: 13px; color: #3F4656">Voice</button>
+<button role="tab" aria-selected="false" style="height: 34px; border: none; border-radius: 10px; background: transparent; font-family: inherit; font-weight: 600; font-size: 13px; color: #3F4656">Describe</button>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 24px; background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 10px 26px rgba(36,48,88,0.08)">
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h1 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.3px">Chicken, rice &amp; broccoli</h1>
+<span style="font-size: 12.5px; color: #4A5060">Estimate range shown · tighter as you confirm</span>
+</div>
+</div>
+<div style="display: flex; align-items: baseline; gap: 8px">
+<span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 40px; font-weight: 900; letter-spacing: -1px; font-variant-numeric: tabular-nums">{{total}}</span>
+<span style="font-size: 15px; font-weight: 700; color: #4A5060">kcal</span>
+<span style="margin-left: auto; height: 28px; padding: 0 10px; border-radius: 14px; display: flex; align-items: center; font-size: 12.5px; font-weight: 800; font-variant-numeric: tabular-nums; {{rangeChip}}">± {{spread}} kcal</span>
+</div>
+<svg width="326" height="30" viewBox="0 0 326 30" role="img" aria-label="{{rangeLabel}}">
+<rect x="0" y="12" width="326" height="6" rx="3" fill="rgba(11,14,20,0.08)"></rect>
+<rect x="{{rx}}" y="10" width="{{rw}}" height="10" rx="5" fill="rgba(255,90,54,0.3)"></rect>
+<circle cx="{{px}}" cy="15" r="7" fill="#FF5A36" stroke="#FFFFFF" stroke-width="2.5"></circle>
+<text x="0" y="30" font-size="10" fill="#4A5060">300</text>
+<text x="326" y="30" font-size="10" fill="#4A5060" text-anchor="end">900 kcal</text>
+</svg>
+<div style="display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px" aria-label="{{macroLabel}}">
+<span style="width: {{pP}}%; background: #2F6BFF"></span><span style="width: {{pC}}%; background: #F5A300"></span><span style="width: {{pF}}%; background: #A855F7"></span>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums">
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #2F6BFF"></span>Protein {{gP}} g</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #F5A300"></span>Carbs {{gC}} g</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #A855F7"></span>Fat {{gF}} g</span>
+</div>
+</div>
+
+<sc-if value="{{askOil}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 22px; background: rgba(255,194,77,0.22); border: 1px solid rgba(255,194,77,0.55)">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A5A00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 2px"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 15px; font-weight: 800; color: #4A3000">Check this first: how was it cooked?</span>
+<span style="font-size: 12.5px; color: #5C4200">Cooking fat is the least certain item and can swing this meal by 120 kcal.</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{oilOpts}}" as="o" hint-placeholder-count="4">
+<button onClick="{{o.pick}}" aria-pressed="{{o.on}}" style="{{o.style}}">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<section aria-labelledby="items-h" style="display: flex; flex-direction: column; padding: 4px 16px; border-radius: 24px; background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 10px 26px rgba(36,48,88,0.08)">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0 4px">
+<h2 id="items-h" style="margin: 0; font-size: 16px; font-weight: 800">Items · least certain first</h2>
+<span style="font-size: 12px; color: #4A5060">Tap portion to change</span>
 </div>
 <sc-for list="{{items}}" as="item" hint-placeholder-count="4">
-<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EFECE4">
-<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
-<span style="font-weight: 600; font-size: 15px">{{item.name}}</span>
-<span style="font-size: 13px; color: #5E6168">{{item.macros}}</span>
+<div style="display: flex; align-items: center; gap: 10px; padding: 11px 0; border-top: 1px solid rgba(11,14,20,0.07)">
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px">
+<span style="font-weight: 700; font-size: 14.5px">{{item.name}}</span>
+<div style="display: flex; align-items: center; gap: 6px">
+<span style="width: 54px; height: 5px; border-radius: 3px; background: rgba(11,14,20,0.08); overflow: hidden"><span style="{{item.bar}}"></span></span>
+<span style="{{item.confStyle}}">{{item.conf}}</span>
 </div>
-<button onClick="{{item.cycle}}" aria-label="Change portion of {{item.name}}" style="min-height: 44px; min-width: 76px; padding: 0 12px; border-radius: 12px; border: 1px solid #DAD6CC; background: #F9F8F4; font-family: inherit; font-size: 13px; font-weight: 600; color: #17191E">{{item.portion}}</button>
-<span style="width: 44px; text-align: right; font-weight: 700; font-size: 15px">{{item.kcal}}</span>
+</div>
+<button onClick="{{item.cycle}}" aria-label="Change portion of {{item.name}}" style="height: 36px; min-width: 76px; padding: 0 10px; border-radius: 12px; border: 1px solid rgba(11,14,20,0.1); background: rgba(255,255,255,0.9); font-family: inherit; font-size: 13px; font-weight: 700; color: #0B0E14">{{item.portion}}</button>
+<span style="width: 40px; text-align: right; font-weight: 800; font-size: 14.5px; font-variant-numeric: tabular-nums">{{item.kcal}}</span>
 </div>
 </sc-for>
-<div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 0 12px">
-<span style="font-size: 15px; font-weight: 600">Meal total</span>
-<span style="font-family: 'Bricolage Grotesque', serif; font-size: 26px; font-weight: 700">{{total}} <span style="font-size: 14px; font-family: 'DM Sans', sans-serif; color: #5E6168; font-weight: 500">kcal</span></span>
-</div>
-<div style="display: flex; align-items: flex-start; gap: 10px; background: #FBEDE6; border-radius: 16px; padding: 12px 14px; margin-bottom: 16px">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C24A22" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
-<span style="font-size: 13px; line-height: 1.45; color: #5A2412">Fits today with {{left}} kcal to spare. Olive oil is estimated — confirm it if you cooked with more.</span>
-</div>
-<a href="Main.dc.html" style="min-height: 52px; border-radius: 26px; background: #17191E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; text-decoration: none">Log to Dinner</a>
 </section>
+
+<div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 18px; background: rgba(47,107,255,0.1); border: 1px solid rgba(47,107,255,0.2)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C4FD6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 8v4l3 2"></path><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6L3.5 8.5M3.5 4v4.5H8"></path></svg>
+<span style="font-size: 12.5px; line-height: 1.4; color: #102A6B"><b>Remembered from last time:</b> you corrected chicken to 150 g, so Pulse used that.</span>
 </div>
 
-<nav aria-label="Primary" style="display: flex; justify-content: space-around; padding: 8px 8px 24px; background: #FFFFFF; border-top: 1px solid #E4E1D8">
-<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
-<a href="Food.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #C24A22; font-size: 11px; font-weight: 700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
-<a href="Train.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
-<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
-<a href="Progress.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
+<div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 18px; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F7A55" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M5 12l5 5 9-10"></path></svg>
+<span style="font-size: 12.5px; line-height: 1.4; color: #0B3D2A">{{fits}}</span>
+</div>
+
+<div style="display: flex; gap: 8px">
+<button style="flex: 1; height: 52px; border-radius: 26px; border: 1px solid rgba(11,14,20,0.12); background: rgba(255,255,255,0.8); font-family: inherit; font-weight: 700; font-size: 15px; color: #0B0E14">Fix with AI</button>
+<a href="Main.dc.html" style="flex: 1.6; height: 52px; border-radius: 26px; background: #0B0E14; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; text-decoration: none; box-shadow: 0 10px 24px rgba(11,14,20,0.25)">Log to Dinner</a>
+</div>
+</section>
+
+<nav aria-label="Primary" style="position: absolute; left: 16px; right: 16px; bottom: 22px; height: 70px; display: flex; align-items: center; justify-content: space-around; padding: 0 6px; border-radius: 35px; background: rgba(255,255,255,0.62); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 16px 40px rgba(36,48,88,0.18), inset 0 1px 0 rgba(255,255,255,0.95)">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
+<a href="Food.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #C2371A; background: rgba(255,90,54,0.14); font-size: 11px; font-weight: 800"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
+<a href="Train.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
+<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
+<a href="Progress.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1400}}'>
 class Component extends DCLogic {
 constructor(props) {
 super(props);
-this.state = { mult: [1, 1, 1, 1] };
+this.state = { mult: [1, 1, 1], oil: null };
 }
 renderVals() {
+var self = this;
+var s = this.state;
+var oils = [
+{ id: 'none', label: 'No added fat', name: 'No cooking fat', portion: '—', kcal: 0, f: 0 },
+{ id: 'spray', label: 'Oil spray', name: 'Oil spray', portion: '1 spray', kcal: 20, f: 2 },
+{ id: 'tbsp', label: '1 tbsp oil', name: 'Olive oil', portion: '1 tbsp', kcal: 119, f: 14 },
+{ id: 'butter', label: 'Butter', name: 'Butter', portion: '1 tbsp', kcal: 102, f: 12 }
+];
+var picked = null;
+oils.forEach(function (o) { if (o.id === s.oil) picked = o; });
+var oil = picked || { name: 'Cooking oil (guess)', portion: '1 tbsp', kcal: 119, f: 14 };
+var oilConf = picked ? 1 : 0.58;
 var base = [
-{ name: 'Grilled chicken breast', unit: 150, u: 'g', kcal: 248, p: 46, c: 0, f: 5 },
-{ name: 'Brown rice', unit: 1, u: 'cup', kcal: 216, p: 5, c: 45, f: 2 },
-{ name: 'Broccoli', unit: 90, u: 'g', kcal: 31, p: 3, c: 6, f: 0 },
-{ name: 'Olive oil (est.)', unit: 1, u: 'tbsp', kcal: 119, p: 0, c: 0, f: 14 }
+{ name: 'Brown rice', unit: 1, u: 'cup', kcal: 216, p: 5, c: 45, f: 2, conf: 0.88 },
+{ name: 'Broccoli', unit: 90, u: 'g', kcal: 31, p: 3, c: 6, f: 0, conf: 0.94 },
+{ name: 'Grilled chicken breast', unit: 150, u: 'g', kcal: 248, p: 46, c: 0, f: 5, conf: 0.96 }
 ];
 var steps = [0.5, 1, 1.5, 2];
-var mult = this.state.mult;
-var total = 0;
-var self = this;
-var items = base.map(function (b, i) {
-var m = mult[i];
+var total = oil.kcal, spread = Math.round((1 - oilConf) * 290), P = 0, C = 0, F = oil.f;
+var rows = base.map(function (b, i) {
+var m = s.mult[i];
 var k = Math.round(b.kcal * m);
-total += k;
-var amt = b.u === 'g' ? Math.round(b.unit * m) + ' g' : (b.unit * m) + ' ' + b.u;
+total += k; spread += Math.round((1 - b.conf) * k * 1.4);
+P += b.p * m; C += b.c * m; F += b.f * m;
 return {
-name: b.name,
-portion: amt,
-kcal: k,
-macros: 'P ' + Math.round(b.p * m) + ' g · C ' + Math.round(b.c * m) + ' g · F ' + Math.round(b.f * m) + ' g',
-cycle: function () {
-var next = mult.slice();
-next[i] = steps[(steps.indexOf(m) + 1) % steps.length];
-self.setState({ mult: next });
-}
+conf: b.conf, name: b.name, kcal: k,
+portion: b.u === 'g' ? Math.round(b.unit * m) + ' g' : (b.unit * m) + ' ' + b.u,
+cycle: function () { var n = s.mult.slice(); n[i] = steps[(steps.indexOf(m) + 1) % steps.length]; self.setState({ mult: n }); }
 };
 });
-return { items: items, total: total, left: Math.max(0, 680 - total) };
+rows.push({ conf: oilConf, name: oil.name, kcal: oil.kcal, portion: oil.portion, cycle: function () {} });
+rows.sort(function (a, b) { return a.conf - b.conf; });
+var items = rows.map(function (r) {
+var low = r.conf < 0.8;
+var col = r.conf === 1 ? '#0F7A55' : low ? '#8A5A00' : '#3F4656';
+return {
+name: r.name, kcal: r.kcal, portion: r.portion, cycle: r.cycle,
+conf: r.conf === 1 ? 'You confirmed' : Math.round(r.conf * 100) + '% sure' + (low ? ' · check' : ''),
+confStyle: 'font-size: 11.5px; font-weight: 700; color: ' + col + ';',
+bar: 'display: block; height: 5px; border-radius: 3px; width: ' + Math.round(r.conf * 100) + '%; background: ' + (r.conf === 1 ? '#22C55E' : low ? '#F5A300' : '#6B7280') + ';'
+};
+});
+var x = function (v) { return Math.max(0, Math.min(326, (v - 300) / 600 * 326)); };
+var lo = total - spread, hi = total + spread;
+var kP = P * 4, kC = C * 4, kF = F * 9, kT = kP + kC + kF || 1;
+var left = 830 - total;
+var oilOpts = oils.map(function (o) {
+var on = s.oil === o.id;
+return {
+label: o.label, on: on,
+pick: function () { self.setState({ oil: o.id }); },
+style: 'height: 40px; border-radius: 12px; font-family: inherit; font-size: 13px; font-weight: 700; ' + (on ? 'border: none; background: #0B0E14; color: #FFFFFF;' : 'border: 1px solid rgba(138,90,0,0.3); background: rgba(255,255,255,0.7); color: #4A3000;')
+};
+});
+var tagBase = 'position: absolute; left: 98px; top: 198px; height: 26px; padding: 0 10px; border-radius: 13px; display: flex; align-items: center; font-size: 12px; font-weight: 800; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); ';
+return {
+items: items, total: total, spread: spread,
+rangeLabel: 'Estimate ' + total + ' kcal, likely between ' + lo + ' and ' + hi,
+rx: x(lo).toFixed(1), rw: (x(hi) - x(lo)).toFixed(1), px: x(total).toFixed(1),
+rangeChip: spread > 60 ? 'background: rgba(245,163,0,0.2); color: #6B4500;' : 'background: rgba(34,197,94,0.18); color: #0B5A3C;',
+pP: Math.round(kP / kT * 100), pC: Math.round(kC / kT * 100), pF: Math.round(kF / kT * 100),
+gP: Math.round(P), gC: Math.round(C), gF: Math.round(F),
+macroLabel: 'Calories from protein ' + Math.round(kP / kT * 100) + '%, carbs ' + Math.round(kC / kT * 100) + '%, fat ' + Math.round(kF / kT * 100) + '%',
+askOil: true, oilOpts: oilOpts,
+oilTag: picked ? picked.label + ' · confirmed' : 'Oil sheen · 58% · check',
+oilTagStyle: tagBase + (picked ? 'color: #04291B; background: rgba(52,211,153,0.9);' : 'color: #3A2600; background: rgba(255,194,77,0.92);'),
+fits: left >= 0 ? 'Fits today. Leaves ' + left + ' kcal for the evening and gets protein to ' + (82 + Math.round(P)) + ' of 140 g.' : 'Goes ' + (-left) + ' kcal over today. Pulse will trim tomorrow by half of that, not all at once.'
+};
 }
 }
 </script>

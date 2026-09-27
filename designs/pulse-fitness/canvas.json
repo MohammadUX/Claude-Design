@@ -1,1 +1,88 @@
-{"v":3,"createdOnFiles":{"v":1,"at":"2026-09-27T10:00:00Z"},"title":"Pulse AI Fitness Tracker","launch":{"view":"canvas"},"pages":[],"boards":{"Main.dc.html":{"x":0,"y":0,"w":390,"h":1100,"title":"1 · Today","is_interactive":true,"radius":28},"Food.dc.html":{"x":470,"y":0,"w":390,"h":1100,"title":"2 · AI Meal Scan","is_interactive":true,"radius":28},"Train.dc.html":{"x":940,"y":0,"w":390,"h":1100,"title":"3 · Workouts","is_interactive":true,"radius":28},"Coach.dc.html":{"x":1410,"y":0,"w":390,"h":1100,"title":"4 · AI Coach","is_interactive":true,"radius":28},"Progress.dc.html":{"x":1880,"y":0,"w":390,"h":1100,"title":"5 · Progress","is_interactive":true,"radius":28}},"order":["Main.dc.html","Food.dc.html","Train.dc.html","Coach.dc.html","Progress.dc.html"],"notes":{"heading":{"x":0,"y":-260,"text":"Pulse — AI fitness & calorie tracker","kind":"title1","maxW":2270}},"designSystems":[]}
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Coach.dc.html": {
+      "h": 1560,
+      "is_interactive": true,
+      "radius": 28,
+      "title": "4 · AI Coach",
+      "w": 390,
+      "x": 1410,
+      "y": 0
+    },
+    "Food.dc.html": {
+      "h": 1400,
+      "is_interactive": true,
+      "radius": 28,
+      "title": "2 · AI Meal Scan",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 1360,
+      "is_interactive": true,
+      "radius": 28,
+      "title": "1 · Today",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Progress.dc.html": {
+      "h": 1640,
+      "is_interactive": true,
+      "radius": 28,
+      "title": "5 · Progress",
+      "w": 390,
+      "x": 1880,
+      "y": 0
+    },
+    "Train.dc.html": {
+      "h": 1520,
+      "is_interactive": true,
+      "radius": 28,
+      "title": "3 · Workouts",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "Plus.dc.html": {
+      "h": 1180,
+      "is_interactive": true,
+      "radius": 28,
+      "title": "6 · Pulse Plus (after value)",
+      "w": 390,
+      "x": 2350,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-27T10:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "heading": {
+      "kind": "title1",
+      "maxW": 2740,
+      "text": "Pulse — AI fitness & calorie tracker",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Food.dc.html",
+    "Train.dc.html",
+    "Coach.dc.html",
+    "Progress.dc.html",
+    "Plus.dc.html"
+  ],
+  "pages": [],
+  "title": "Pulse AI Fitness Tracker"
+}

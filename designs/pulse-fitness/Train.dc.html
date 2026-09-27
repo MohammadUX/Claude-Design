@@ -9,84 +9,163 @@
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F4F2EC;color:#17191E}
-a{color:#17191E}a:hover{color:#C24A22}
+body{margin:0;font-family:-apple-system,'SF Pro Text','Figtree',system-ui,sans-serif;background:#E9EEF8;color:#0B0E14}
+a{color:#0B0E14}a:hover{color:#C2371A}
+button{cursor:pointer}
 </style>
 </helmet>
-<div style="width: 390px; height: 1100px; box-sizing: border-box; background: #F4F2EC; display: flex; flex-direction: column; font-family: 'DM Sans', system-ui, sans-serif; color: #17191E">
-<div style="padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; flex-grow: 1">
+<div style="position: relative; overflow: hidden; width: 390px; height: 1520px; box-sizing: border-box; font-family: -apple-system, 'SF Pro Text', 'Figtree', system-ui, sans-serif; color: #0B0E14; background: radial-gradient(circle at 88% 4%, rgba(96,214,186,0.55), rgba(96,214,186,0) 40%), radial-gradient(circle at 5% 22%, rgba(120,146,255,0.55), rgba(120,146,255,0) 42%), radial-gradient(circle at 95% 58%, rgba(255,128,84,0.40), rgba(255,128,84,0) 40%), radial-gradient(circle at 10% 88%, rgba(196,140,255,0.40), rgba(196,140,255,0) 42%), linear-gradient(180deg, #F4F6FB 0%, #E7ECF7 100%)">
+<div style="padding: 28px 16px 124px; display: flex; flex-direction: column; gap: 14px">
 
-<header style="display: flex; flex-direction: column; gap: 2px">
-<span style="font-size: 13px; color: #5E6168; font-weight: 500">Week 6 of Strength Builder</span>
-<h1 style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Workouts</h1>
+<header style="display: flex; align-items: flex-end; justify-content: space-between; padding: 0 4px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; font-weight: 600; color: #4A5060; letter-spacing: 0.2px; text-transform: uppercase">Strength Builder · Week 6</span>
+<h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.8px; line-height: 1.1">Train</h1>
+</div>
+<span style="height: 32px; padding: 0 12px; border-radius: 16px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #0B5A3C; background: rgba(34,197,94,0.16); border: 1px solid rgba(34,197,94,0.25)"><span style="width: 7px; height: 7px; border-radius: 4px; background: #22C55E"></span>Watch synced 6:42</span>
 </header>
 
-<ol aria-label="This week" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+<ol aria-label="This week" style="list-style: none; margin: 0; padding: 6px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; border-radius: 22px; background: rgba(255,255,255,0.5); -webkit-backdrop-filter: blur(26px) saturate(170%); backdrop-filter: blur(26px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)">
 <sc-for list="{{week}}" as="d" hint-placeholder-count="7">
-<li style="{{d.style}}"><span style="font-size: 11px; font-weight: 600">{{d.day}}</span><span style="font-size: 15px; font-weight: 700">{{d.date}}</span><span style="{{d.dot}}"></span></li>
+<li style="{{d.style}}"><span style="font-size: 11px; font-weight: 700; opacity: 0.8">{{d.day}}</span><span style="font-size: 16px; font-weight: 800">{{d.date}}</span><span style="{{d.dot}}"></span></li>
 </sc-for>
 </ol>
 
-<section aria-label="Readiness" style="background: #FFFFFF; border-radius: 24px; padding: 18px 20px; display: flex; align-items: center; gap: 16px">
-<div style="width: 64px; height: 64px; border-radius: 32px; border: 6px solid #2A55D6; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', serif; font-size: 22px; font-weight: 700; flex-shrink: 0">82</div>
+<section aria-labelledby="ready-h" style="padding: 18px; display: flex; flex-direction: column; gap: 14px; border-radius: 28px; background: rgba(255,255,255,0.58); -webkit-backdrop-filter: blur(30px) saturate(170%); backdrop-filter: blur(30px) saturate(170%); border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 14px 36px rgba(36,48,88,0.10), inset 0 1px 0 rgba(255,255,255,0.9)">
+<div style="display: flex; align-items: center; gap: 14px">
+<div style="position: relative; width: 180px; height: 104px; flex-shrink: 0">
+<svg width="180" height="104" viewBox="0 0 180 104" role="img" aria-label="Readiness 82 out of 100">
+<defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF5A36"></stop><stop offset="0.5" stop-color="#F5A300"></stop><stop offset="1" stop-color="#22C55E"></stop></linearGradient></defs>
+<path d="M20 92 A70 70 0 0 1 160 92" fill="none" stroke="rgba(11,14,20,0.08)" stroke-width="16" stroke-linecap="round"></path>
+<path d="M20 92 A70 70 0 0 1 160 92" fill="none" stroke="url(#rg)" stroke-width="16" stroke-linecap="round" stroke-dasharray="180 220"></path>
+<circle cx="149.1" cy="54.5" r="9" fill="#FFFFFF" stroke="#22C55E" stroke-width="4"></circle>
+</svg>
+<div style="position: absolute; left: 0; right: 0; bottom: 4px; display: flex; flex-direction: column; align-items: center">
+<span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 40px; font-weight: 900; line-height: 1; letter-spacing: -1px">82</span>
+<span style="font-size: 11px; font-weight: 700; color: #4A5060">READINESS</span>
+</div>
+</div>
 <div style="display: flex; flex-direction: column; gap: 4px">
-<span style="font-weight: 700; font-size: 16px">Ready to push</span>
-<span style="font-size: 13px; line-height: 1.4; color: #5E6168">7h 20m sleep, resting HR 58, soreness low. Pulse kept today's load at 100%.</span>
+<h2 id="ready-h" style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.3px">Ready to push</h2>
+<span style="font-size: 13px; line-height: 1.4; color: #4A5060">Plan kept at full load. Fuel targets raised for the session.</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 16px; background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.85)">
+<span style="font-size: 11px; font-weight: 700; color: #4A5060">HRV</span>
+<span style="font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums">64 <span style="font-size: 11px; color: #4A5060">ms</span></span>
+<svg width="96" height="28" viewBox="0 0 96 28" aria-label="HRV rising over 7 days"><polyline points="0,20.5 16,14.9 32,22.3 48,11.2 64,16.8 80,5.7 96,9.4" fill="none" stroke="#14B8A6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline><circle cx="96" cy="9.4" r="2.5" fill="#14B8A6"></circle></svg>
+<span style="font-size: 11px; font-weight: 700; color: #0F7A55">↑ above 7-day avg</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 16px; background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.85)">
+<span style="font-size: 11px; font-weight: 700; color: #4A5060">Resting HR</span>
+<span style="font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums">58 <span style="font-size: 11px; color: #4A5060">bpm</span></span>
+<svg width="96" height="28" viewBox="0 0 96 28" aria-label="Resting heart rate falling over 7 days"><polyline points="0,6 16,10 32,10 48,14 64,14 80,18 96,18" fill="none" stroke="#FF5A36" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline><circle cx="96" cy="18" r="2.5" fill="#FF5A36"></circle></svg>
+<span style="font-size: 11px; font-weight: 700; color: #0F7A55">↓ recovering well</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 16px; background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.85)">
+<span style="font-size: 11px; font-weight: 700; color: #4A5060">Sleep</span>
+<span style="font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums">7h 20m</span>
+<svg width="96" height="28" viewBox="0 0 96 28" aria-label="Sleep hours over 7 days, steady around 7 hours"><g fill="#7C6CFF"><rect x="0" y="12" width="10" height="16" rx="3"></rect><rect x="14" y="9" width="10" height="19" rx="3"></rect><rect x="28" y="17" width="10" height="11" rx="3"></rect><rect x="42" y="6" width="10" height="22" rx="3"></rect><rect x="56" y="11" width="10" height="17" rx="3"></rect><rect x="70" y="12" width="10" height="16" rx="3"></rect><rect x="84" y="8" width="10" height="20" rx="3"></rect></g></svg>
+<span style="font-size: 11px; font-weight: 700; color: #3F4656">On target</span>
+</div>
 </div>
 </section>
 
-<section aria-labelledby="plan-h" style="background: #17191E; color: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
-<div style="display: flex; align-items: center; gap: 8px">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F08A5D" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
-<span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #F4C7B3">AI plan for today</span>
+<section aria-labelledby="plan-h" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 28px; color: #FFFFFF; background: linear-gradient(150deg, rgba(20,24,36,0.9), rgba(24,44,60,0.88)); -webkit-backdrop-filter: blur(30px) saturate(160%); backdrop-filter: blur(30px) saturate(160%); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 18px 40px rgba(20,24,48,0.3)">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: #8FF0D6"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>AI plan · load 100%</span>
+<span style="font-size: 12px; color: #C7CAD6">42 min · ~310 kcal</span>
 </div>
-<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px">
-<h2 id="plan-h" style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 24px; font-weight: 700; line-height: 1.1">Upper body strength</h2>
-<span style="font-size: 13px; color: #C9CBD1; white-space: nowrap">42 min · ~310 kcal</span>
+<div style="display: flex; align-items: center; gap: 14px">
+<div style="position: relative; width: 58px; height: 58px; flex-shrink: 0">
+<svg width="58" height="58" viewBox="0 0 58 58" aria-hidden="true"><circle cx="29" cy="29" r="24" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="6"></circle><circle cx="29" cy="29" r="24" fill="none" stroke="#34D399" stroke-width="6" stroke-linecap="round" stroke-dasharray="{{ringDash}}" transform="rotate(-90 29 29)"></circle></svg>
+<span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800">{{doneCount}}/5</span>
 </div>
-<div style="height: 6px; border-radius: 3px; background: #33363D"><div style="width: {{pct}}%; height: 6px; border-radius: 3px; background: #F08A5D"></div></div>
-<span style="font-size: 13px; color: #C9CBD1">{{doneCount}} of 5 exercises done</span>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="plan-h" style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.3px">Upper body strength</h2>
+<span style="font-size: 13px; color: #C7CAD6">Bench +2.5 kg: you hit all reps last week</span>
+</div>
+</div>
 <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
 <sc-for list="{{moves}}" as="m" hint-placeholder-count="5">
-<li style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #2C2F36">
-<button onClick="{{m.toggle}}" aria-pressed="{{m.done}}" aria-label="Mark {{m.name}} done" style="{{m.box}}"><sc-if value="{{m.done}}" hint-placeholder-val="{{false}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#17191E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></sc-if></button>
-<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
-<span style="font-weight: 600; font-size: 15px">{{m.name}}</span>
-<span style="font-size: 13px; color: #A9ACB3">{{m.detail}}</span>
+<li style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.1)">
+<button onClick="{{m.toggle}}" aria-pressed="{{m.done}}" aria-label="Mark {{m.name}} done" style="{{m.box}}"><sc-if value="{{m.done}}" hint-placeholder-val="{{false}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#04291B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></sc-if></button>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px">
+<span style="{{m.nameStyle}}">{{m.name}}</span>
+<span style="font-size: 12.5px; color: #AEB3C2">{{m.detail}}</span>
 </div>
 </li>
 </sc-for>
 </ul>
-<button style="min-height: 52px; border-radius: 26px; border: none; background: #FFFFFF; color: #17191E; font-family: inherit; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"></path></svg>Start workout</button>
+<button style="height: 52px; border-radius: 26px; border: none; background: #FFFFFF; color: #0B0E14; font-family: inherit; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"></path></svg>Start workout</button>
 </section>
 
-<section aria-labelledby="recent-h" style="background: #FFFFFF; border-radius: 24px; padding: 8px 20px; display: flex; flex-direction: column">
-<h2 id="recent-h" style="margin: 0; padding: 12px 0 4px; font-family: 'Bricolage Grotesque', serif; font-size: 20px; font-weight: 700">Recent</h2>
-<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EFECE4">
-<div style="width: 44px; height: 44px; border-radius: 14px; background: #E8EDFB; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A55D6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="4.5" r="1.8"></circle><path d="M8 21l3-6 3 2v5M6 12l3-4 4 1 2 4 3 1"></path></svg></div>
-<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Morning run</span><span style="font-size: 13px; color: #5E6168">Thu · 5.2 km · 5:48 /km</span></div>
-<span style="font-weight: 700; font-size: 15px">346</span>
+<section aria-labelledby="fuel-h" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-radius: 26px; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 12px 30px rgba(36,48,88,0.08)">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 id="fuel-h" style="margin: 0; font-size: 17px; font-weight: 800">Fuel for this session</h2>
+<a href="Main.dc.html" style="font-size: 13px; font-weight: 700; color: #1C4FD6; text-decoration: none; min-height: 32px; display: flex; align-items: center">See targets</a>
 </div>
-<div style="display: flex; align-items: center; gap: 12px; padding: 12px 0">
-<div style="width: 44px; height: 44px; border-radius: 14px; background: #E8EDFB; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A55D6" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg></div>
-<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Lower body strength</span><span style="font-size: 13px; color: #5E6168">Wed · 48 min · new squat PR</span></div>
-<span style="font-weight: 700; font-size: 15px">372</span>
+<div style="display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; align-items: center">
+<span style="font-size: 12px; font-weight: 700; color: #4A5060">Before</span>
+<div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: rgba(245,163,0,0.14)"><span style="font-size: 13.5px; font-weight: 700">Banana + coffee</span><span style="margin-left: auto; font-size: 12px; color: #4A5060">30 min before</span></div>
+<span style="font-size: 12px; font-weight: 700; color: #4A5060">After</span>
+<div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: rgba(47,107,255,0.12)"><span style="font-size: 13.5px; font-weight: 700">40 g protein dinner</span><span style="margin-left: auto; font-size: 12px; color: #4A5060">within 2 h</span></div>
+</div>
+<span style="font-size: 12.5px; color: #4A5060">Today's protein target went from 120 g to 140 g because of this session.</span>
+</section>
+
+<section aria-labelledby="load-h" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; border-radius: 26px; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 12px 30px rgba(36,48,88,0.08)">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 id="load-h" style="margin: 0; font-size: 17px; font-weight: 800">Training load</h2>
+<span style="font-size: 12px; font-weight: 700; color: #0F7A55">In productive zone</span>
+</div>
+<svg width="326" height="150" viewBox="0 0 326 150" role="img" aria-label="Daily training load this week. Monday 62, Tuesday 8, Wednesday 70, Thursday 48, Friday 5, Saturday 58 planned, Sunday 22 planned. Productive zone is 40 to 75.">
+<defs><linearGradient id="lb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14B8A6"></stop><stop offset="1" stop-color="#2F6BFF"></stop></linearGradient></defs>
+<rect x="8" y="41" width="310" height="35" rx="6" fill="rgba(34,197,94,0.12)"></rect>
+<text x="316" y="37" font-size="10" font-weight="700" fill="#0F7A55" text-anchor="end">Productive 40–75</text>
+<line x1="8" y1="116" x2="318" y2="116" stroke="rgba(11,14,20,0.12)"></line>
+<rect x="21" y="54" width="28" height="62" rx="8" fill="url(#lb)"></rect>
+<rect x="64" y="108" width="28" height="8" rx="4" fill="url(#lb)"></rect>
+<rect x="107" y="46" width="28" height="70" rx="8" fill="url(#lb)"></rect>
+<rect x="150" y="68" width="28" height="48" rx="8" fill="url(#lb)"></rect>
+<rect x="193" y="111" width="28" height="5" rx="2.5" fill="url(#lb)"></rect>
+<rect x="236" y="58" width="28" height="58" rx="8" fill="rgba(255,255,255,0.6)" stroke="#2F6BFF" stroke-width="1.5" stroke-dasharray="4 3"></rect>
+<rect x="236" y="{{todayY}}" width="28" height="{{todayH}}" rx="8" fill="url(#lb)"></rect>
+<rect x="279" y="94" width="28" height="22" rx="8" fill="rgba(255,255,255,0.6)" stroke="#2F6BFF" stroke-width="1.5" stroke-dasharray="4 3"></rect>
+<g font-size="11" font-weight="700" fill="#4A5060" text-anchor="middle"><text x="35" y="134">M</text><text x="78" y="134">T</text><text x="121" y="134">W</text><text x="164" y="134">T</text><text x="207" y="134">F</text><text x="250" y="134" fill="#0B0E14">S</text><text x="293" y="134">S</text></g>
+<text x="250" y="148" font-size="9.5" fill="#4A5060" text-anchor="middle">today</text>
+<text x="293" y="148" font-size="9.5" fill="#4A5060" text-anchor="middle">walk</text>
+</svg>
+</section>
+
+<section aria-labelledby="recent-h" style="padding: 6px 16px; display: flex; flex-direction: column; border-radius: 26px; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 12px 30px rgba(36,48,88,0.08)">
+<h2 id="recent-h" style="margin: 0; padding: 10px 0 2px; font-size: 17px; font-weight: 800">Recent</h2>
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(11,14,20,0.07)">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: rgba(20,184,166,0.16); display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="4.5" r="1.8"></circle><path d="M8 21l3-6 3 2v5M6 12l3-4 4 1 2 4 3 1"></path></svg></span>
+<div style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-weight: 700; font-size: 15px">Morning run</span><span style="font-size: 12.5px; color: #4A5060">Thu · 5.2 km · 5:48 /km</span></div>
+<span style="font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums">346</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 0 12px">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: rgba(47,107,255,0.14); display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C4FD6" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg></span>
+<div style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-weight: 700; font-size: 15px">Lower body strength</span><span style="font-size: 12.5px; color: #4A5060">Wed · 48 min · squat PR 100 kg</span></div>
+<span style="font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums">372</span>
 </div>
 </section>
 </div>
 
-<nav aria-label="Primary" style="display: flex; justify-content: space-around; padding: 8px 8px 24px; background: #FFFFFF; border-top: 1px solid #E4E1D8">
-<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
-<a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
-<a href="Train.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #C24A22; font-size: 11px; font-weight: 700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
-<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
-<a href="Progress.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
+<nav aria-label="Primary" style="position: absolute; left: 16px; right: 16px; bottom: 22px; height: 70px; display: flex; align-items: center; justify-content: space-around; padding: 0 6px; border-radius: 35px; background: rgba(255,255,255,0.62); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 16px 40px rgba(36,48,88,0.18), inset 0 1px 0 rgba(255,255,255,0.95)">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
+<a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
+<a href="Train.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #C2371A; background: rgba(255,90,54,0.14); font-size: 11px; font-weight: 800"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
+<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
+<a href="Progress.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1520}}'>
 class Component extends DCLogic {
 constructor(props) {
 super(props);
@@ -106,7 +185,8 @@ var moves = list.map(function (x, i) {
 var d = done[i];
 return {
 name: x.name, detail: x.detail, done: d,
-box: 'width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; display: flex; align-items: center; justify-content: center; padding: 0; ' + (d ? 'border: none; background: #F08A5D;' : 'border: 2px solid #5A5D65; background: transparent;'),
+nameStyle: 'font-weight: 700; font-size: 15px; ' + (d ? 'color: #AEB3C2; text-decoration: line-through;' : 'color: #FFFFFF;'),
+box: 'width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; display: flex; align-items: center; justify-content: center; padding: 0; ' + (d ? 'border: none; background: #34D399;' : 'border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.06);'),
 toggle: function () { var n = done.slice(); n[i] = !n[i]; self.setState({ done: n }); }
 };
 });
@@ -116,11 +196,16 @@ var week = days.map(function (d) {
 var today = d[2] === 'today';
 return {
 day: d[0], date: d[1],
-style: 'display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0; border-radius: 14px; ' + (today ? 'background: #17191E; color: #FFFFFF;' : 'background: #FFFFFF; color: #17191E;'),
-dot: 'width: 6px; height: 6px; border-radius: 3px; background: ' + (d[2] === 'done' ? '#2A55D6' : today ? '#F08A5D' : d[2] === 'plan' ? '#B9BCC4' : 'transparent') + ';'
+style: 'display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 0; border-radius: 16px; ' + (today ? 'background: #0B0E14; color: #FFFFFF; box-shadow: 0 8px 18px rgba(11,14,20,0.25);' : 'color: #0B0E14;'),
+dot: 'width: 6px; height: 6px; border-radius: 3px; background: ' + (d[2] === 'done' ? '#2F6BFF' : today ? '#34D399' : d[2] === 'plan' ? 'rgba(11,14,20,0.25)' : 'transparent') + ';'
 };
 });
-return { moves: moves, doneCount: count, pct: count * 20, week: week };
+var h = Math.round(58 * count / 5);
+return {
+moves: moves, doneCount: count, week: week,
+ringDash: (150.8 * count / 5).toFixed(1) + ' 151',
+todayH: h, todayY: 116 - h
+};
 }
 }
 </script>

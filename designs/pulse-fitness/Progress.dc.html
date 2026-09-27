@@ -9,136 +9,218 @@
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:#F4F2EC;color:#17191E}
-a{color:#17191E}a:hover{color:#C24A22}
+body{margin:0;font-family:-apple-system,'SF Pro Text','Figtree',system-ui,sans-serif;background:#E9EEF8;color:#0B0E14}
+a{color:#0B0E14}a:hover{color:#C2371A}
+button{cursor:pointer}
 </style>
 </helmet>
-<div style="width: 390px; height: 1100px; box-sizing: border-box; background: #F4F2EC; display: flex; flex-direction: column; font-family: 'DM Sans', system-ui, sans-serif; color: #17191E">
-<div style="padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; flex-grow: 1">
+<div style="position: relative; overflow: hidden; width: 390px; height: 1640px; box-sizing: border-box; font-family: -apple-system, 'SF Pro Text', 'Figtree', system-ui, sans-serif; color: #0B0E14; background: radial-gradient(circle at 90% 3%, rgba(120,146,255,0.6), rgba(120,146,255,0) 40%), radial-gradient(circle at 5% 25%, rgba(96,214,186,0.45), rgba(96,214,186,0) 40%), radial-gradient(circle at 95% 60%, rgba(196,140,255,0.42), rgba(196,140,255,0) 42%), radial-gradient(circle at 10% 90%, rgba(255,128,84,0.42), rgba(255,128,84,0) 40%), linear-gradient(180deg, #F4F6FB 0%, #E7ECF7 100%)">
+<div style="padding: 28px 16px 124px; display: flex; flex-direction: column; gap: 14px">
 
-<header style="display: flex; align-items: flex-end; justify-content: space-between">
+<header style="display: flex; align-items: flex-end; justify-content: space-between; padding: 0 4px">
 <div style="display: flex; flex-direction: column; gap: 2px">
-<span style="font-size: 13px; color: #5E6168; font-weight: 500">Goal: 76 kg by December</span>
-<h1 style="margin: 0; font-family: 'Bricolage Grotesque', serif; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Progress</h1>
+<span style="font-size: 13px; font-weight: 600; color: #4A5060; letter-spacing: 0.2px; text-transform: uppercase">Goal: 76 kg</span>
+<h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.8px; line-height: 1.1">Progress</h1>
 </div>
-<div role="tablist" aria-label="Range" style="display: flex; gap: 4px; background: #E9E6DE; padding: 4px; border-radius: 14px">
+<button role="switch" aria-checked="{{calm}}" onClick="{{toggleCalm}}" style="height: 36px; padding: 0 6px 0 12px; border-radius: 18px; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: #0B0E14; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.85)">Hide numbers<span style="{{switchTrack}}"><span style="{{switchKnob}}"></span></span></button>
+</header>
+
+<div role="tablist" aria-label="Range" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: rgba(255,255,255,0.45); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.8)">
 <sc-for list="{{ranges}}" as="r" hint-placeholder-count="2">
 <button role="tab" aria-selected="{{r.on}}" onClick="{{r.pick}}" style="{{r.style}}">{{r.label}}</button>
 </sc-for>
 </div>
-</header>
 
-<section aria-labelledby="w-h" style="background: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
-<div style="display: flex; align-items: baseline; justify-content: space-between">
-<h2 id="w-h" style="margin: 0; font-size: 15px; font-weight: 600; color: #5E6168">Weight</h2>
-<span style="font-size: 13px; font-weight: 700; color: #2A55D6">{{delta}} kg</span>
+<section aria-labelledby="w-h" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 28px; background: rgba(255,255,255,0.58); -webkit-backdrop-filter: blur(30px) saturate(170%); backdrop-filter: blur(30px) saturate(170%); border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 14px 36px rgba(36,48,88,0.10), inset 0 1px 0 rgba(255,255,255,0.9)">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="w-h" style="margin: 0; font-size: 13px; font-weight: 700; color: #4A5060">Weight trend</h2>
+<sc-if value="{{showNums}}" hint-placeholder-val="{{true}}">
+<span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 40px; font-weight: 900; letter-spacing: -1px; line-height: 1.1">78.8 <span style="font-size: 16px; color: #4A5060">kg</span></span>
+</sc-if>
+<sc-if value="{{calm}}" hint-placeholder-val="{{false}}">
+<span style="font-size: 26px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.25">Steadily trending down</span>
+</sc-if>
 </div>
-<span style="font-family: 'Bricolage Grotesque', serif; font-size: 36px; font-weight: 700; letter-spacing: -1px">78.8 <span style="font-size: 16px; font-family: 'DM Sans', sans-serif; font-weight: 500; color: #5E6168">kg</span></span>
-<svg width="310" height="130" viewBox="0 0 310 130" role="img" aria-label="{{chartLabel}}">
-<line x1="0" y1="22" x2="310" y2="22" stroke="#EFECE4" stroke-width="1"></line>
-<line x1="0" y1="64" x2="310" y2="64" stroke="#EFECE4" stroke-width="1"></line>
-<line x1="0" y1="106" x2="310" y2="106" stroke="#EFECE4" stroke-width="1"></line>
-<text x="310" y="18" text-anchor="end" font-size="10" fill="#5E6168" font-family="DM Sans, sans-serif">{{top}}</text>
-<text x="310" y="102" text-anchor="end" font-size="10" fill="#5E6168" font-family="DM Sans, sans-serif">{{bottom}}</text>
-<polyline points="{{points}}" fill="none" stroke="#2A55D6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>
-<circle cx="{{lastX}}" cy="{{lastY}}" r="5" fill="#2A55D6" stroke="#FFFFFF" stroke-width="2"></circle>
-<text x="0" y="126" font-size="10" fill="#5E6168" font-family="DM Sans, sans-serif">{{startLabel}}</text>
-<text x="300" y="126" text-anchor="end" font-size="10" fill="#5E6168" font-family="DM Sans, sans-serif">Today</text>
+<sc-if value="{{showNums}}" hint-placeholder-val="{{true}}">
+<span style="height: 30px; padding: 0 10px; border-radius: 15px; display: flex; align-items: center; font-size: 13px; font-weight: 800; color: #0B5A3C; background: rgba(34,197,94,0.16)">{{delta}} kg</span>
+</sc-if>
+</div>
+<svg width="326" height="178" viewBox="0 0 326 178" role="img" aria-label="{{chartLabel}}">
+<defs><linearGradient id="wa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F6BFF" stop-opacity="0.28"></stop><stop offset="1" stop-color="#2F6BFF" stop-opacity="0"></stop></linearGradient></defs>
+<sc-if value="{{showGoal}}" hint-placeholder-val="{{true}}">
+<line x1="8" y1="{{goalY}}" x2="318" y2="{{goalY}}" stroke="#0F7A55" stroke-width="1.5" stroke-dasharray="2 4"></line>
+<text x="316" y="{{goalLabelY}}" font-size="10" font-weight="800" fill="#0F7A55" text-anchor="end">Goal · 14 Dec</text>
+</sc-if>
+<path d="{{area}}" fill="url(#wa)"></path>
+<path d="{{cone}}" fill="rgba(47,107,255,0.10)"></path>
+<path d="{{proj}}" fill="none" stroke="#2F6BFF" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round"></path>
+<sc-for list="{{dots}}" as="d" hint-placeholder-count="12">
+<circle cx="{{d.x}}" cy="{{d.y}}" r="2.6" fill="rgba(11,14,20,0.35)"></circle>
+</sc-for>
+<path d="{{trend}}" fill="none" stroke="#2F6BFF" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path>
+<line x1="{{nowX}}" y1="10" x2="{{nowX}}" y2="148" stroke="rgba(11,14,20,0.25)" stroke-width="1"></line>
+<circle cx="{{nowX}}" cy="{{nowY}}" r="6" fill="#2F6BFF" stroke="#FFFFFF" stroke-width="2.5"></circle>
+<sc-if value="{{showPin}}" hint-placeholder-val="{{true}}">
+<line x1="{{pinX}}" y1="{{pinY}}" x2="{{pinX}}" y2="{{pinTop}}" stroke="#F5A300" stroke-width="1.5"></line>
+<rect x="{{pinBoxX}}" y="{{pinBoxY}}" width="108" height="20" rx="10" fill="rgba(255,194,77,0.95)"></rect>
+<text x="{{pinTextX}}" y="{{pinTextY}}" font-size="10" font-weight="800" fill="#3A2600" text-anchor="middle">Leg day water +0.6</text>
+</sc-if>
+<sc-if value="{{showNums}}" hint-placeholder-val="{{true}}">
+<text x="318" y="20" font-size="10" fill="#4A5060" text-anchor="end">{{yTop}}</text>
+<text x="318" y="146" font-size="10" fill="#4A5060" text-anchor="end">{{yBot}}</text>
+</sc-if>
+<text x="8" y="168" font-size="10" fill="#4A5060">{{startLabel}}</text>
+<text x="{{nowX}}" y="168" font-size="10" font-weight="800" fill="#0B0E14" text-anchor="middle">Today</text>
+<text x="318" y="168" font-size="10" fill="#4A5060" text-anchor="end">{{endLabel}}</text>
+</svg>
+<div style="display: flex; gap: 14px; font-size: 11.5px; font-weight: 600; color: #4A5060; flex-wrap: wrap">
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 14px; height: 3px; border-radius: 2px; background: #2F6BFF"></span>7-day trend</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 6px; height: 6px; border-radius: 3px; background: rgba(11,14,20,0.35)"></span>Weigh-ins</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 14px; height: 8px; border-radius: 2px; background: rgba(47,107,255,0.14)"></span>Likely path</span>
+</div>
+</section>
+
+<section aria-labelledby="why-h" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-radius: 26px; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 12px 30px rgba(36,48,88,0.08)">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="why-h" style="margin: 0; font-size: 17px; font-weight: 800">Why the scale barely moved this week</h2>
+<span style="font-size: 12.5px; color: #4A5060">{{whySub}}</span>
+</div>
+<svg width="326" height="118" viewBox="0 0 326 118" role="img" aria-label="Contributors this week: fat loss from your deficit minus 0.40 kilograms, water after leg day plus 0.25, Saturday intake plus 0.05. Net minus 0.10.">
+<line x1="190" y1="4" x2="190" y2="112" stroke="rgba(11,14,20,0.25)" stroke-width="1"></line>
+<text x="0" y="22" font-size="12" font-weight="700" fill="#0B0E14">Fat loss</text>
+<rect x="82" y="10" width="108" height="18" rx="6" fill="#22C55E"></rect>
+<text x="0" y="56" font-size="12" font-weight="700" fill="#0B0E14">Leg-day water</text>
+<rect x="190" y="44" width="68" height="18" rx="6" fill="#F5A300"></rect>
+<text x="0" y="90" font-size="12" font-weight="700" fill="#0B0E14">Saturday intake</text>
+<rect x="190" y="78" width="14" height="18" rx="5" fill="#FF5A36"></rect>
+<sc-if value="{{showNums}}" hint-placeholder-val="{{true}}">
+<text x="90" y="23" font-size="11" font-weight="800" fill="#04291B">−0.40</text>
+<text x="262" y="57" font-size="11" font-weight="800" fill="#6B4500">+0.25</text>
+<text x="208" y="91" font-size="11" font-weight="800" fill="#9A2A10">+0.05</text>
+</sc-if>
+</svg>
+<span style="font-size: 13px; line-height: 1.45; color: #1F2430">{{whyText}}</span>
+</section>
+
+<section aria-labelledby="c-h" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; border-radius: 26px; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 12px 30px rgba(36,48,88,0.08)">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 id="c-h" style="margin: 0; font-size: 17px; font-weight: 800">Energy vs daily target</h2>
+<span style="font-size: 12px; font-weight: 700; color: #4A5060">6 of 7 on target</span>
+</div>
+<svg width="326" height="150" viewBox="0 0 326 150" role="img" aria-label="Last 7 days intake against each day's target. Saturday 2,630 of 2,250, over by 380. Sunday 2,150 of 2,100. Monday 2,210 of 2,250. Tuesday 2,040 of 2,100. Wednesday 2,190 of 2,250. Thursday 2,230 of 2,250. Friday 2,080 of 2,100.">
+<defs><linearGradient id="cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8A3D"></stop><stop offset="1" stop-color="#FFB38F"></stop></linearGradient><linearGradient id="co" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E0263F"></stop><stop offset="1" stop-color="#FF6A7D"></stop></linearGradient></defs>
+<line x1="8" y1="116" x2="318" y2="116" stroke="rgba(11,14,20,0.12)"></line>
+<rect x="17" y="22.1" width="28" height="93.9" rx="8" fill="url(#co)"></rect>
+<rect x="61" y="39.2" width="28" height="76.8" rx="8" fill="url(#cb)"></rect>
+<rect x="105" y="37.1" width="28" height="78.9" rx="8" fill="url(#cb)"></rect>
+<rect x="149" y="43.1" width="28" height="72.9" rx="8" fill="url(#cb)"></rect>
+<rect x="193" y="37.8" width="28" height="78.2" rx="8" fill="url(#cb)"></rect>
+<rect x="237" y="36.4" width="28" height="79.6" rx="8" fill="url(#cb)"></rect>
+<rect x="281" y="41.7" width="28" height="74.3" rx="8" fill="url(#cb)"></rect>
+<g stroke="#0B0E14" stroke-width="2.5" stroke-linecap="round">
+<line x1="13" y1="35.6" x2="49" y2="35.6"></line><line x1="57" y1="41" x2="93" y2="41"></line><line x1="101" y1="35.6" x2="137" y2="35.6"></line><line x1="145" y1="41" x2="181" y2="41"></line><line x1="189" y1="35.6" x2="225" y2="35.6"></line><line x1="233" y1="35.6" x2="269" y2="35.6"></line><line x1="277" y1="41" x2="313" y2="41"></line>
+</g>
+<sc-if value="{{showNums}}" hint-placeholder-val="{{true}}"><text x="31" y="15" font-size="10.5" font-weight="800" fill="#B0182F" text-anchor="middle">+380</text></sc-if>
+<g font-size="11" font-weight="700" fill="#4A5060" text-anchor="middle"><text x="31" y="134">Sat</text><text x="75" y="134">Sun</text><text x="119" y="134">Mon</text><text x="163" y="134">Tue</text><text x="207" y="134">Wed</text><text x="251" y="134">Thu</text><text x="295" y="134">Fri</text></g>
+<text x="8" y="148" font-size="10" fill="#4A5060">Black tick = that day's target (higher on training days)</text>
 </svg>
 </section>
 
-<section aria-labelledby="c-h" style="background: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
-<div style="display: flex; align-items: baseline; justify-content: space-between">
-<h2 id="c-h" style="margin: 0; font-size: 15px; font-weight: 600; color: #5E6168">Calories this week</h2>
-<span style="font-size: 13px; color: #5E6168">avg <span style="font-weight: 700; color: #17191E">2,084</span></span>
+<section aria-label="Weekly summary" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 26px; color: #FFFFFF; background: linear-gradient(150deg, rgba(20,24,36,0.9), rgba(40,30,70,0.88)); -webkit-backdrop-filter: blur(30px) saturate(160%); backdrop-filter: blur(30px) saturate(160%); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 18px 40px rgba(20,24,48,0.3)">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: #D6C8FF"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>Your week</span>
+<p style="margin: 0; font-size: 16px; line-height: 1.5">{{summary}}</p>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12)">
+<span style="font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: #C7CAD6">Try this week</span>
+<span style="font-size: 14.5px; font-weight: 700">Pre-log Saturday dinner by 5 pm</span>
+<span style="font-size: 12.5px; color: #C7CAD6">Last month this halved your weekend overshoot.</span>
+<button onClick="{{toggleTry}}" style="{{tryBtn}}">{{tryLabel}}</button>
 </div>
-<div style="position: relative; height: 140px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: end">
-<div style="position: absolute; left: 0; right: 0; bottom: 105px; border-top: 1.5px dashed #8E919A"></div>
-<span style="position: absolute; right: 0; bottom: 109px; font-size: 10px; color: #5E6168; background: #FFFFFF; padding-left: 4px">goal 2,100</span>
-<sc-for list="{{bars}}" as="b" hint-placeholder-count="7">
-<div title="{{b.title}}" style="{{b.style}}"></div>
-</sc-for>
-</div>
-<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; text-align: center; font-size: 11px; color: #5E6168; font-weight: 600">
-<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
-</div>
-<div style="display: flex; gap: 16px; font-size: 12px; color: #5E6168">
-<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #17191E"></span>At or under goal</span>
-<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #E8875F"></span>Over goal</span>
-</div>
-</section>
-
-<section aria-label="Weekly AI summary" style="background: #17191E; color: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
-<div style="display: flex; align-items: center; gap: 8px">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F08A5D" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
-<span style="font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #F4C7B3">Your week, summarised</span>
-</div>
-<p style="margin: 0; font-size: 15px; line-height: 1.5">On pace for 76 kg by 14 Dec. Saturdays are your pattern: +380 kcal, mostly from drinks. Pre-logging dinner on Friday cut the overshoot by half last month.</p>
-<a href="Coach.dc.html" style="align-self: flex-start; min-height: 44px; padding: 0 18px; border-radius: 22px; background: #FFFFFF; color: #17191E; font-weight: 700; font-size: 14px; display: flex; align-items: center; text-decoration: none">Talk it through</a>
 </section>
 
 <section aria-label="Highlights" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
-<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 700; font-family: 'Bricolage Grotesque', serif">18</span><span style="font-size: 12px; color: #5E6168">day logging streak</span></div>
-<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 700; font-family: 'Bricolage Grotesque', serif">4 / 4</span><span style="font-size: 12px; color: #5E6168">workouts this week</span></div>
-<div style="background: #FFFFFF; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 22px; font-weight: 700; font-family: 'Bricolage Grotesque', serif">112 g</span><span style="font-size: 12px; color: #5E6168">avg protein / day</span></div>
+<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)"><span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 900">18</span><span style="font-size: 12px; color: #4A5060; line-height: 1.3">day streak · 1 rest pass left</span></div>
+<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)"><span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 900">4 / 4</span><span style="font-size: 12px; color: #4A5060; line-height: 1.3">workouts done this week</span></div>
+<div style="padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; border-radius: 20px; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)"><span style="font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif; font-size: 24px; font-weight: 900">112 g</span><span style="font-size: 12px; color: #4A5060; line-height: 1.3">average protein a day</span></div>
 </section>
+
+<a href="Plus.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 22px; text-decoration: none; background: rgba(255,255,255,0.56); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border: 1px solid rgba(255,255,255,0.8)">
+<span style="width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #FF7A4D, #7C6CFF)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 800; color: #0B0E14">See your full-year trends</span><span style="font-size: 12.5px; color: #4A5060">Included with Pulse Plus</span></span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5060" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+</a>
 </div>
 
-<nav aria-label="Primary" style="display: flex; justify-content: space-around; padding: 8px 8px 24px; background: #FFFFFF; border-top: 1px solid #E4E1D8">
-<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
-<a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
-<a href="Train.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
-<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #6A6D74; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
-<a href="Progress.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; min-height: 48px; padding-top: 6px; text-decoration: none; color: #C24A22; font-size: 11px; font-weight: 700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
+<nav aria-label="Primary" style="position: absolute; left: 16px; right: 16px; bottom: 22px; height: 70px; display: flex; align-items: center; justify-content: space-around; padding: 0 6px; border-radius: 35px; background: rgba(255,255,255,0.62); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 16px 40px rgba(36,48,88,0.18), inset 0 1px 0 rgba(255,255,255,0.95)">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"></path></svg>Today</a>
+<a href="Food.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c-2 1.5-3 4-3 8h3"></path></svg>Food</a>
+<a href="Train.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M3 9.5v5M18 7v10M21 9.5v5M6 12h12"></path></svg>Train</a>
+<a href="Coach.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #3F4656; font-size: 11px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6z"></path></svg>Coach</a>
+<a href="Progress.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; width: 62px; height: 56px; border-radius: 28px; text-decoration: none; color: #C2371A; background: rgba(255,90,54,0.14); font-size: 11px; font-weight: 800"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M5 15l4-4 3 3 7-7"></path></svg>Progress</a>
 </nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1640}}'>
 class Component extends DCLogic {
 constructor(props) {
 super(props);
-this.state = { range: '3M' };
+this.state = { range: '3M', calm: false, tried: false };
 }
 renderVals() {
 var self = this;
-var all = [82.4, 81.9, 81.7, 81.2, 80.9, 80.8, 80.3, 79.9, 79.6, 79.5, 79.1, 78.8];
-var data = this.state.range === '3M' ? all : [79.6, 79.5, 79.3, 79.4, 79.1, 79.0, 78.9, 78.8];
-var hi = Math.ceil(Math.max.apply(null, data) * 2) / 2;
-var lo = Math.floor(Math.min.apply(null, data) * 2) / 2;
-var pts = data.map(function (v, i) {
-var x = 4 + i * (286 / (data.length - 1));
-var y = 22 + (hi - v) / (hi - lo) * 84;
-return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
-});
-var last = pts[pts.length - 1];
+var s = this.state;
+var noise = [0.3, -0.2, 0.4, -0.1, 0.2, -0.3, 0.5, 0, -0.2, 0.3, -0.1, 0.4, -0.3, 0.2, 0.1, -0.2, 0.3, -0.1, 0.2, -0.3, 0.1, 0.4, -0.2, 0.6, 0];
+var trendAt = function (d) { return 78.8 - d * 0.0429; };
+var pts = noise.map(function (n, i) { var d = -84 + i * 3.5; return { d: d, t: trendAt(d), w: trendAt(d) + n }; });
+var three = s.range === '3M';
+var dMin = three ? -84 : -28, dMax = three ? 78 : 28;
+var yMax = three ? 83 : 80.5, yMin = three ? 75 : 77.5;
+var X = function (d) { return 8 + (d - dMin) / (dMax - dMin) * 310; };
+var Y = function (v) { return 14 + (yMax - v) / (yMax - yMin) * 130; };
+var vis = pts.filter(function (p) { return p.d >= dMin; });
+var trend = vis.map(function (p, i) { return (i ? 'L' : 'M') + X(p.d).toFixed(1) + ' ' + Y(p.t).toFixed(1); }).join(' ');
+var area = trend + ' L' + X(0).toFixed(1) + ' 144 L' + X(vis[0].d).toFixed(1) + ' 144 Z';
+var slope = (76 - 78.8) / 78;
+var endV = 78.8 + slope * dMax;
+var spread = 0.8 * dMax / 78;
+var proj = 'M' + X(0).toFixed(1) + ' ' + Y(78.8).toFixed(1) + ' L' + X(dMax).toFixed(1) + ' ' + Y(endV).toFixed(1);
+var cone = 'M' + X(0).toFixed(1) + ' ' + Y(78.8).toFixed(1) + ' L' + X(dMax).toFixed(1) + ' ' + Y(endV + spread).toFixed(1) + ' L' + X(dMax).toFixed(1) + ' ' + Y(endV - spread).toFixed(1) + ' Z';
+var dots = vis.map(function (p) { return { x: X(p.d).toFixed(1), y: Y(p.w).toFixed(1) }; });
+var pin = pts[pts.length - 2];
+var px = X(pin.d), py = Y(pin.w);
+var first = vis[0];
+var delta = (78.8 - trendAt(first.d)).toFixed(1);
 var ranges = ['4W', '3M'].map(function (r) {
-var on = self.state.range === r;
+var on = s.range === r;
 return {
-label: r, on: on,
+label: r === '4W' ? '4 weeks' : '3 months', on: on,
 pick: function () { self.setState({ range: r }); },
-style: 'min-height: 36px; min-width: 48px; border: none; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 700; color: #17191E; background: ' + (on ? '#FFFFFF' : 'transparent') + ';'
+style: 'height: 36px; border: none; border-radius: 12px; font-family: inherit; font-size: 13px; font-weight: 800; color: #0B0E14; ' + (on ? 'background: #FFFFFF; box-shadow: 0 2px 10px rgba(36,48,88,0.12);' : 'background: transparent;')
 };
 });
-var kcal = [2050, 1980, 2210, 1890, 2060, 2480, 1920];
-var names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-var bars = kcal.map(function (k, i) {
-var over = k > 2100;
+var calm = s.calm;
 return {
-title: names[i] + ': ' + k.toLocaleString('en-US') + ' kcal',
-style: 'height: ' + Math.round(k / 2100 * 105) + 'px; border-radius: 8px 8px 4px 4px; background: ' + (over ? '#E8875F' : '#17191E') + ';'
-};
-});
-var d = Math.round((data[data.length - 1] - data[0]) * 10) / 10;
-return {
-ranges: ranges, bars: bars,
-points: pts.map(function (p) { return p.join(','); }).join(' '),
-lastX: last[0], lastY: last[1],
-top: hi.toFixed(1), bottom: lo.toFixed(1),
-delta: (d > 0 ? '+' : '') + d.toFixed(1),
-startLabel: this.state.range === '3M' ? '12 weeks ago' : '4 weeks ago',
-chartLabel: 'Weight trend from ' + data[0] + ' to ' + data[data.length - 1] + ' kg'
+ranges: ranges, calm: calm, showNums: !calm,
+toggleCalm: function () { self.setState({ calm: !calm }); },
+switchTrack: 'width: 40px; height: 24px; border-radius: 12px; position: relative; display: inline-block; ' + (calm ? 'background: #22C55E;' : 'background: rgba(11,14,20,0.18);'),
+switchKnob: 'position: absolute; top: 2px; width: 20px; height: 20px; border-radius: 10px; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.2); ' + (calm ? 'left: 18px;' : 'left: 2px;'),
+trend: trend, area: area, proj: proj, cone: cone, dots: dots,
+nowX: X(0).toFixed(1), nowY: Y(78.8).toFixed(1),
+showGoal: three, goalY: Y(76).toFixed(1), goalLabelY: (Y(76) - 5).toFixed(1),
+showPin: true, pinX: px.toFixed(1), pinY: (py - 4).toFixed(1), pinTop: (py - 22).toFixed(1),
+pinBoxX: (px - 54).toFixed(1), pinBoxY: (py - 42).toFixed(1), pinTextX: px.toFixed(1), pinTextY: (py - 28.5).toFixed(1),
+yTop: yMax.toFixed(1) + ' kg', yBot: yMin.toFixed(1) + ' kg',
+startLabel: three ? '12 wks ago' : '4 wks ago', endLabel: three ? '14 Dec' : '+4 wks',
+delta: delta,
+chartLabel: 'Weight trend from ' + trendAt(first.d).toFixed(1) + ' to 78.8 kg, projected to reach ' + endV.toFixed(1) + ' kg by the end of the chart. A spike after leg day is water.',
+whySub: calm ? 'What pushed it down and what held it up' : 'Scale: −0.1 kg. Here’s what went into that.',
+whyText: calm ? 'Your eating is doing its job. Water from Wednesday’s leg day is masking it for now and will clear in 2–3 days.' : 'Your deficit took off about 0.4 kg of fat. Leg-day water is hiding most of it and should clear in 2–3 days.',
+summary: calm ? 'You’re on track for your goal in mid-December. Saturdays are the one pattern to work on, mostly from drinks.' : 'On pace for 76 kg by 14 December. Saturdays run about 380 kcal over target, mostly from drinks. Everything else is within 50 kcal.',
+toggleTry: function () { self.setState({ tried: !s.tried }); },
+tryLabel: s.tried ? 'Reminder set for Sat 5:00 pm' : 'Remind me Saturday',
+tryBtn: 'align-self: flex-start; height: 40px; padding: 0 16px; border-radius: 20px; border: none; font-family: inherit; font-size: 13px; font-weight: 800; ' + (s.tried ? 'background: #34D399; color: #04291B;' : 'background: #FFFFFF; color: #0B0E14;')
 };
 }
 }
