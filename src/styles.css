@@ -957,3 +957,90 @@ input[type='date']::-webkit-calendar-picker-indicator, input[type='time']::-webk
 }
 .tbar.is-cut-left { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 2px dashed #4a4a52; }
 .tbar.is-cut-right { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 2px dashed #4a4a52; }
+
+/* ======================================================================
+   Day board — the existing Fleeex pattern, improved.
+   Driver on the left, that day's tour cards in a lane to the right.
+   ====================================================================== */
+.board { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+.board--auto { flex: none; }
+.board__scroll { flex: 1; min-height: 0; overflow: auto; scrollbar-color: #3a3a40 transparent; }
+.board__body { position: relative; }
+.board__item { position: absolute; top: 0; left: 0; right: 0; }
+
+.brow { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px; padding: 18px 12px; border-bottom: 1px solid var(--line); }
+.brow:hover { background: rgba(255, 255, 255, 0.012); }
+.brow--unassigned { border: 1px dashed rgba(251, 191, 36, 0.3); border-radius: 18px; background: rgba(251, 191, 36, 0.03); padding: 14px 12px; }
+
+.binfo { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.binfo__head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.binfo__who { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.binfo__nameline { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.binfo__name { font-size: 15px; font-weight: 600; color: var(--text); }
+.binfo__count { flex: none; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); font-size: 11px; font-weight: 600; display: grid; place-items: center; }
+.binfo__count--warn { background: rgba(251, 191, 36, 0.15); color: var(--warn); }
+.binfo__truck { font-size: 12px; color: var(--text-3); }
+.binfo__now { font-size: 12.5px; }
+
+.dchips { display: flex; flex-wrap: wrap; gap: 4px; border-radius: 8px; }
+.dchip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.dchip__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.dchip__date { font-weight: 500; opacity: 0.9; }
+.dchip--ok { background: rgba(74, 222, 128, 0.07) !important; }
+
+.brow__lane { position: relative; display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px; min-width: 0; border-radius: 16px; }
+.brow__empty { align-self: center; color: var(--text-3); font-size: 13px; padding: 0 4px; }
+
+.bcard {
+  width: 256px; min-height: 124px; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px;
+  border-radius: 16px; background: #1b1b1e; border: 1px solid #2a2a2f; cursor: pointer; text-align: left;
+  transition: background 0.12s, border-color 0.12s, transform 0.12s;
+}
+.bcard:hover { background: #212125; border-color: #3a3a41; }
+.bcard.is-draggable { cursor: grab; }
+.bcard.is-dragging { opacity: 0.35; }
+.bcard.is-selected { border-color: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
+.bcard.is-match { box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.7); }
+.bcard[data-tone='plan'] { background: #1b1b1e; }
+.bcard[data-tone='done'] { opacity: 0.55; }
+.bcard__vehicle { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; color: var(--text-2); min-width: 0; font-variant-numeric: tabular-nums; }
+.bcard__vehicle svg { flex: none; color: var(--text-3); }
+.bcard__vehicle.is-missing, .bcard__vehicle.is-missing svg { color: var(--warn); }
+.bcard__chev { margin-left: auto; }
+.bcard__route { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.005em; }
+.bcard__todo { color: var(--text-2); font-weight: 500; }
+.bcard__stops, .bcard__day { flex: none; font-size: 10.5px; font-weight: 600; line-height: 17px; padding: 0 7px; border-radius: 999px; border: 1px solid #3a3a41; color: var(--text-2); }
+.bcard__when { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.bcard__issue { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--late); min-width: 0; }
+.bcard__issue svg { flex: none; }
+.bcard__foot { margin-top: auto; display: flex; align-items: center; gap: 8px; min-width: 0; padding-top: 2px; }
+.bcard__status {
+  flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; color: var(--status); background: color-mix(in srgb, var(--status) 14%, transparent);
+}
+.bcard__client { font-size: 11.5px; color: var(--text-3); }
+.bcard[data-tone='cancel'] .bcard__route { text-decoration: line-through; color: var(--text-2); }
+
+.badd {
+  width: 128px; min-height: 124px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 16px; border: 1px dashed var(--border-strong); color: var(--text-3); font-size: 13px; font-weight: 500;
+}
+.badd:hover { color: var(--text); border-color: #4a4a52; background: var(--surface-2); }
+
+.bstate { flex: 1 1 320px; max-width: 560px; min-height: 124px; display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 16px; }
+.bstate svg { flex: none; }
+.bstate div { display: flex; flex-direction: column; gap: 3px; }
+.bstate b { font-size: 14px; font-weight: 600; }
+.bstate span { font-size: 12.5px; color: var(--text-2); }
+.bstate--absent { color: var(--text-2); border: 1px solid rgba(255, 255, 255, 0.06); background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.045) 0 7px, transparent 7px 14px); }
+.bstate--absent b { color: var(--text); }
+.bstate--blocked { color: var(--late); border: 1px dashed rgba(255, 122, 122, 0.4); background: rgba(255, 122, 122, 0.06); }
+
+@media (max-width: 900px) {
+  .brow { grid-template-columns: 1fr; gap: 12px; }
+  .bcard { width: 100%; }
+}
+.bcard__eta { color: var(--late); font-weight: 600; white-space: nowrap; }
+.bcard__when { flex-wrap: wrap; row-gap: 4px; }
+.brow__lane--scroll { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; scrollbar-color: #3a3a40 transparent; }
+.brow__lane--scroll > * { flex: none; }

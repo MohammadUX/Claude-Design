@@ -8,12 +8,17 @@ npm run dev        # http://localhost:5173
 ```
 
 ## Dev state switcher
-Day view is the default. Add `?state=<name>` to the URL (or `?dev`, or press **Shift + D**):
+Add `?state=<name>` to the URL (or `?dev`, or press **Shift + D**):
 `default` · `loading` · `error` (Retry recovers) · `empty` · `no-tours` · `no-results` · `conflict`.
 Absences, expiring/expired documents, drafts, delayed/completed/cancelled tours and double-bookings are all in the default data.
 
 ## Scale
 Built for ~100 drivers (the mock uses 100). Rows are virtualized, so scrolling stays smooth.
+
+## Views
+- **Day** (default) — the existing Fleeex pattern: each driver with their documents and live status on the left, that day's tour cards to the right, "+ Add tour" at the end. "Waiting for a driver" is pinned on top.
+- **Timeline** — the same day hour by hour, with a live "now" line.
+- **Week** — seven days per driver, multi-day tours as one bar.
 
 ## Structure
 ```
@@ -32,7 +37,7 @@ src/dev/         ← state switcher
 ## `<Planner />` props (widget-ready)
 | prop | type | default |
 |---|---|---|
-| `view` | `'week' \| 'day'` | `'week'` |
+| `view` | `'board' \| 'day' \| 'week'` | `'board'` |
 | `date` | ISO date anchor | today |
 | `range` | `{ start, end }` custom columns (≤14 days) | Mon–Sun |
 | `compact` | boolean | comfortable |

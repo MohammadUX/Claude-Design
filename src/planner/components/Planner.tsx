@@ -43,6 +43,7 @@ import {
 import { usePlannerStore } from '../store';
 import type { Driver, Tour } from '../types';
 import { Ctx, type PlannerCtx } from './context';
+import { BoardView } from './BoardView';
 import { DayGrid } from './DayGrid';
 import { type RowItem } from './rows';
 import { TourCard } from './TourCard';
@@ -50,7 +51,8 @@ import { TourPanel, type PanelState } from './TourPanel';
 import { Avatar, DocList, Menu, Popover, Segmented, SmartSelect, Trunc } from './ui';
 import { WeekGrid } from './WeekGrid';
 
-export type PlannerView = 'week' | 'day';
+/** 'board' = day cards per driver (default), 'day' = hour timeline, 'week' = 7-day grid. */
+export type PlannerView = 'board' | 'day' | 'week';
 
 export interface PlannerProps {
   /** Initial view. */
@@ -101,7 +103,7 @@ function shiftedDate(primary: Tour | undefined, dropDate: string) {
 }
 
 export function Planner({
-  view: viewProp = 'day',
+  view: viewProp = 'board',
   date: dateProp,
   range,
   compact,
@@ -147,14 +149,14 @@ export function Planner({
 
   /* --------------------------------------------------------------- Period */
   const days = useMemo(() => {
-    if (view === 'day') return [anchor];
+    if (view !== 'week') return [anchor];
     if (range) return rangeDays(range.start, range.end).slice(0, 14);
     const s = startOfWeek(anchor);
     return rangeDays(s, addDays(s, 6));
   }, [view, anchor, range]);
   const focusDay = days.includes(today) ? today : days[0];
 
-  const shift = useCallback((dir: -1 | 1) => setAnchor((a) => addDays(a, dir * (view === 'day' ? 1 : range ? days.length : 7))), [view, range, days.length]);
+  const shift = useCallback((dir: -1 | 1) => setAnchor((a) => addDays(a, dir * (view !== 'week' ? 1 : range ? days.length : 7))), [view, range, days.length]);
 
   /* ------------------------------------------------------ Guarded actions */
   const guard = useCallback((fn: () => void) => {
@@ -366,7 +368,7 @@ export function Planner({
 
   /* ------------------------------------------------------------ Render */
   const daySum = useMemo(() => daySummary(idx, data.drivers, focusDay), [idx, data.drivers, focusDay]);
-  const periodLabel = view === 'day' ? fmtLong(anchor) : fmtRange(days[0], days.at(-1)!);
+  const periodLabel = view !== 'week' ? fmtLong(anchor) : fmtRange(days[0], days.at(-1)!);
   const isCurrent = days.includes(today);
   const loading = status === 'loading';
   const noDrivers = status === 'ready' && data.drivers.length === 0;
@@ -398,13 +400,13 @@ export function Planner({
 
             <div className="phead__controls">
               <div className="datenav">
-                <button className="iconbtn" onClick={() => shift(-1)} aria-label={`Previous ${view}`} data-tip={`Previous ${view} (←)`}>
+                <button className="iconbtn" onClick={() => shift(-1)} aria-label={`Previous ${view === "week" ? "week" : "day"}`} data-tip={`Previous ${view === "week" ? "week" : "day"} (←)`}>
                   <ChevronLeft size={18} />
                 </button>
                 <button className={`btn btn--ghost btn--sm ${isCurrent ? 'is-current' : ''}`} onClick={() => setAnchor(todayISO())} data-tip="Go to today (T)">
                   Today
                 </button>
-                <button className="iconbtn" onClick={() => shift(1)} aria-label={`Next ${view}`} data-tip={`Next ${view} (→)`}>
+                <button className="iconbtn" onClick={() => shift(1)} aria-label={`Next ${view === "week" ? "week" : "day"}`} data-tip={`Next ${view === "week" ? "week" : "day"} (→)`}>
                   <ChevronRight size={18} />
                 </button>
                 <label className="datenav__picker" data-tip="Pick a date">
@@ -424,8 +426,9 @@ export function Planner({
                 value={view}
                 onChange={setView}
                 options={[
+                  { value: 'board', label: 'Day', tip: 'Tours per driver as cards' },
+                  { value: 'day', label: 'Timeline', tip: 'Hour by hour' },
                   { value: 'week', label: 'Week' },
-                  { value: 'day', label: 'Day' },
                 ]}
               />
               {!readOnly && (
@@ -517,7 +520,7 @@ export function Planner({
                 <div className="banner" role="status">
                   <CalendarPlus size={16} />
                   <span>
-                    <b>No tours planned {view === 'day' ? 'this day' : 'in this period'}.</b> Click any empty cell, drag from Unassigned, or create one.
+                    <b>No tours planned {view !== 'week' ? 'this day' : 'in this period'}.</b> Click any empty cell, drag from Unassigned, or create one.
                   </span>
                   {!readOnly && (
                     <button className="btn btn--primary btn--sm" onClick={() => onCreate({ date: focusDay })}>
@@ -542,6 +545,15 @@ export function Planner({
                       Clear search & filters
                     </button>
                   }
+                />
+              ) : view === 'board' ? (
+                <BoardView
+                  date={anchor}
+                  items={items}
+                  unassigned={unassigned.get(anchor) ?? []}
+                  showUnassigned={showUnassigned}
+                  autoHeight={widget}
+                  onToggleGroup={(k) => setCollapsed((c) => new Set(c.has(k) ? [...c].filter((x) => x !== k) : [...c, k]))}
                 />
               ) : view === 'week' ? (
                 <WeekGrid
@@ -630,7 +642,7 @@ export function Planner({
           <DriverQuickCard
             driverId={popup.driverId}
             rect={popup.rect}
-            days={view === 'day' ? rangeDays(startOfWeek(anchor), addDays(startOfWeek(anchor), 6)) : days}
+            days={view !== 'week' ? rangeDays(startOfWeek(anchor), addDays(startOfWeek(anchor), 6)) : days}
             onClose={() => setPopup(null)}
             onKeep={() => window.clearTimeout(hoverTimer.current)}
             onLeave={() => hoverDriver(null)}

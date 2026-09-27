@@ -367,7 +367,7 @@ export function checkDrop(idx: PlannerIndex, tours: Tour[], driverId: string | u
   for (const t of moved) for (const d of tourDays(t)) for (const e of toursFor(idx, driverId, d)) if (!moving.has(e.id) && isActive(e)) existing.set(e.id, e);
   const clash = [...existing.values()].find((e) => moved.some((t) => clashDay(t, e)));
   if (clash) return { ok: true, warning: `Overlaps ${clash.id}` };
-  if (existing.size) return { ok: true, warning: `+${existing.size} tour${existing.size > 1 ? 's' : ''} those days` };
+  if (existing.size) return { ok: true, warning: `+${existing.size} tour${existing.size > 1 ? 's' : ''} ${moved.some(isMultiDay) ? 'those days' : 'that day'}` };
   return { ok: true };
 }
 
@@ -380,7 +380,7 @@ export function driverNow(idx: PlannerIndex, driver: Driver, date: string, today
   const abs = absenceOn(idx, driver.id, date);
   if (abs) {
     const what = abs.reason === 'holiday' ? 'On holiday' : abs.reason === 'sick' ? 'Sick leave' : abs.note ?? 'Absent';
-    return { tone: 'off', text: abs.to > date ? `${what} until ${fmtDay(abs.to)}` : `${what} today` };
+    return { tone: 'off', text: abs.to > date ? `${what} until ${fmtDay(abs.to)}` : date === today ? `${what} today` : what };
   }
   const doc = blockingDoc(driver, date);
   if (doc) return { tone: 'blocked', text: `Can’t drive · ${docLabel(doc)} expired` };
