@@ -1,0 +1,1546 @@
+<title>Ledgerline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --font:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --bg:#FFFFFF; --side:#F7F7F5; --sunk:#F5F5F2; --chip:#F0F0EC;
+  --hover:#EFEFEB; --active:#E9E9E4; --row-hover:#FAFAF8;
+  --line:#E8E7E3; --line-2:#F1F0EC; --line-strong:#DDDCD6;
+  --ink:#1B1B18; --ink-2:#3D3C37; --muted:#6B6A63; --faint:#8E8D85;
+  --accent:#2946C8; --accent-hover:#1F38A6; --accent-ink:#FFFFFF; --accent-soft:#EEF1FC; --accent-line:#D3DBF7; --accent-text:#2440B8;
+  --amber-bg:#FCF0DA; --amber:#854800; --amber-line:#F0D9AE; --amber-soft:#FFFAF0; --amber-mark:#B86A00;
+  --green-bg:#E2F2E8; --green:#17613C; --green-mark:#1F7A4D;
+  --red-bg:#FBE7E4; --red:#A3231B; --red-line:#F2C9C3; --red-mark:#C0392B;
+  --blue-bg:#E9EDFC; --blue:#2440B8;
+  --gray-bg:#F1F1EE; --gray:#55544E;
+  --scrim:rgba(24,24,20,.36);
+  --shadow:0 1px 2px rgba(24,24,20,.06),0 12px 32px -12px rgba(24,24,20,.22);
+  --logo-l:92%; --logo-fl:30%; --logo-s:50%;
+  --paper:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#121316; --side:#17181C; --sunk:#1B1C21; --chip:#24252B;
+    --hover:#202127; --active:#26272E; --row-hover:#18191D;
+    --line:#2A2B31; --line-2:#212227; --line-strong:#34353C;
+    --ink:#ECECEE; --ink-2:#CACACF; --muted:#9C9CA4; --faint:#7C7C85;
+    --accent:#8EA2FF; --accent-hover:#A8B7FF; --accent-ink:#0D1233; --accent-soft:#1B2140; --accent-line:#2E3A6E; --accent-text:#A9B8FF;
+    --amber-bg:#3A2A10; --amber:#F2C27A; --amber-line:#5A4217; --amber-soft:#241C0F; --amber-mark:#E0A040;
+    --green-bg:#11301F; --green:#7ED6A4; --green-mark:#5CC592;
+    --red-bg:#3A1714; --red:#F59C94; --red-line:#5C2520; --red-mark:#EF7A6F;
+    --blue-bg:#1B2140; --blue:#A9B8FF;
+    --gray-bg:#24252B; --gray:#B9B9C0;
+    --scrim:rgba(0,0,0,.55);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 16px 40px -12px rgba(0,0,0,.6);
+    --logo-l:24%; --logo-fl:82%; --logo-s:35%;
+    --paper:#F7F7F4;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121316; --side:#17181C; --sunk:#1B1C21; --chip:#24252B;
+  --hover:#202127; --active:#26272E; --row-hover:#18191D;
+  --line:#2A2B31; --line-2:#212227; --line-strong:#34353C;
+  --ink:#ECECEE; --ink-2:#CACACF; --muted:#9C9CA4; --faint:#7C7C85;
+  --accent:#8EA2FF; --accent-hover:#A8B7FF; --accent-ink:#0D1233; --accent-soft:#1B2140; --accent-line:#2E3A6E; --accent-text:#A9B8FF;
+  --amber-bg:#3A2A10; --amber:#F2C27A; --amber-line:#5A4217; --amber-soft:#241C0F; --amber-mark:#E0A040;
+  --green-bg:#11301F; --green:#7ED6A4; --green-mark:#5CC592;
+  --red-bg:#3A1714; --red:#F59C94; --red-line:#5C2520; --red-mark:#EF7A6F;
+  --blue-bg:#1B2140; --blue:#A9B8FF;
+  --gray-bg:#24252B; --gray:#B9B9C0;
+  --scrim:rgba(0,0,0,.55);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 16px 40px -12px rgba(0,0,0,.6);
+  --logo-l:24%; --logo-fl:82%; --logo-s:35%;
+  --paper:#F7F7F4;
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13.5px/1.45 var(--font);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent-text);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.mono{font-family:var(--mono);font-size:.93em}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.sub{font-size:12px;color:var(--muted)}
+.cents{font-size:.78em;color:var(--muted)}
+.row{display:flex;align-items:center;gap:8px}
+.spacer{flex:1}
+.stack{display:flex;flex-direction:column}
+
+/* Shell */
+.app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);height:100%;--sidew:236px}
+.side{background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:1px;padding:12px 10px;overflow-y:auto;min-height:0}
+.ws{display:flex;align-items:center;gap:10px;height:42px;padding:0 8px;margin-bottom:10px;border-radius:8px}
+.ws-mark{width:28px;height:28px;border-radius:8px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:600;font-size:12.5px;flex:none}
+.ws-text{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.ws-text b{font-weight:600;white-space:nowrap}
+.ni{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:7px;color:var(--ink-2);background:none;border:0;width:100%;cursor:pointer;text-align:left;flex:none}
+.ni svg{color:var(--muted);flex:none}
+.ni:hover{background:var(--hover);color:var(--ink)}
+.ni[aria-current="page"]{background:var(--active);color:var(--ink);font-weight:500}
+.ni[aria-current="page"] svg{color:var(--ink)}
+.ni .lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ni .cnt{font-size:12px;color:var(--muted);font-weight:400}
+.sl{font-size:11.5px;color:var(--muted);padding:16px 10px 6px;font-weight:500}
+.sync{margin-top:auto;display:flex;align-items:center;gap:8px;padding:12px 10px 4px;font-size:12px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green-mark);flex:none}
+.main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.top{height:56px;flex:none;display:flex;align-items:center;gap:10px;padding:0 24px;border-bottom:1px solid var(--line);background:var(--bg)}
+.search{display:flex;align-items:center;gap:8px;flex:0 1 440px;height:36px;border:1px solid var(--line);border-radius:9px;padding:0 10px;background:var(--sunk);color:var(--muted);cursor:text;text-align:left}
+.search:hover{border-color:var(--line-strong)}
+.search span.ph{flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);border-radius:5px;padding:1px 5px;color:var(--muted);background:var(--bg)}
+.content{flex:1;overflow:auto;min-height:0}
+.page{padding:24px 28px 56px;display:flex;flex-direction:column;gap:20px;max-width:1720px}
+.btn.menu-btn{display:none}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;flex:none;background:hsl(var(--h,25) var(--logo-s) var(--logo-l));color:hsl(var(--h,25) 45% var(--logo-fl))}
+.avatar.sm{width:22px;height:22px;font-size:9.5px}
+
+@media (max-width:1180px){
+  .app{--sidew:64px}
+  .side{padding:12px 8px;align-items:center}
+  .side .lbl,.side .cnt,.side .ws-text,.side .sync span,.side .ws-chev{display:none}
+  .side .sl{padding:10px 0 4px;font-size:0;width:28px;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .side .ni{justify-content:center;padding:0;width:44px;height:40px;position:relative}
+  .side .ni .badge-dot{display:block}
+  .ws{padding:0;justify-content:center;width:44px}
+  .sync{justify-content:center;padding:12px 0 4px}
+  .page{padding:20px 22px 48px}
+  .top{padding:0 18px}
+}
+.ni .badge-dot{display:none;position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--accent);border:2px solid var(--side)}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:fixed;top:0;bottom:0;left:0;width:264px;z-index:70;transform:translateX(-102%);transition:transform .2s ease;align-items:stretch;padding:12px 10px;box-shadow:var(--shadow)}
+  .app.nav-open .side{transform:none}
+  .side .lbl,.side .cnt,.side .ws-text,.side .sync span,.side .ws-chev{display:initial}
+  .side .ws-text{display:flex}
+  .side .sl{font-size:11.5px;padding:16px 10px 6px;width:auto;border:0;margin:0}
+  .side .ni{justify-content:flex-start;padding:0 10px;width:100%;height:36px}
+  .side .ni .badge-dot{display:none}
+  .ws{padding:0 8px;justify-content:flex-start;width:auto}
+  .sync{justify-content:flex-start;padding:12px 10px 4px}
+  .btn.menu-btn{display:inline-flex}
+  .page{padding:18px 16px 48px}
+  .top{padding:0 12px}
+  .search .kbd{display:none}
+}
+.rc{padding:14px 16px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) auto;gap:16px;align-items:center}
+@media (max-width:900px){.rc{grid-template-columns:1fr}.rc > .row{justify-content:flex-start!important}}
+.nav-scrim{position:fixed;inset:0;background:var(--scrim);z-index:69}
+
+/* Controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 12px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);cursor:pointer;white-space:nowrap;text-decoration:none!important;flex:none}
+.btn:hover{background:var(--sunk)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn.danger{color:var(--red)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--hover)}
+.btn.sm{height:28px;padding:0 10px;font-size:12.5px;border-radius:7px}
+.btn.lg{height:40px;padding:0 16px}
+.icon-btn{width:34px;padding:0}
+.icon-btn.sm{width:28px}
+.ai-btn{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-text)}
+.ai-btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+.inp,.sel,.ta{height:36px;border:1px solid var(--line-strong);border-radius:8px;padding:0 10px;background:var(--bg);color:var(--ink);width:100%}
+.ta{height:auto;min-height:84px;padding:8px 10px;resize:vertical;line-height:1.45}
+.inp:focus,.sel:focus,.ta:focus{outline:2px solid var(--accent-line);outline-offset:0;border-color:var(--accent)}
+.lbl-f{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;margin:0;cursor:pointer;vertical-align:middle}
+.seg{display:inline-flex;padding:2px;background:var(--chip);border-radius:8px;gap:2px;flex:none}
+.seg button{height:28px;padding:0 10px;border:0;border-radius:6px;background:transparent;font-size:12.5px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg button:hover:not(:disabled){color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg button.auto[aria-pressed="true"]{color:var(--accent-text)}
+.seg button:disabled{cursor:not-allowed;opacity:.55}
+.switch{position:relative;width:34px;height:20px;border-radius:999px;background:var(--line-strong);border:0;cursor:pointer;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{transform:translateX(14px)}
+
+.pill{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;flex:none}
+.pill.gray{background:var(--gray-bg);color:var(--gray)}
+.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.green{background:var(--green-bg);color:var(--green)}
+.pill.red{background:var(--red-bg);color:var(--red)}
+.pill.blue{background:var(--blue-bg);color:var(--blue)}
+.ai-mark{display:inline-flex;align-items:center;gap:5px;color:var(--accent-text);font-size:12.5px;font-weight:500}
+
+/* Page header, tabs */
+.ph{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.ph h1{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.ph .desc{font-size:13.5px;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{height:40px;border:0;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;display:flex;gap:6px;align-items:center;white-space:nowrap;padding:0;font-size:13.5px}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:500;border-bottom-color:var(--ink)}
+.tab .n{font-size:11.5px;background:var(--chip);border-radius:999px;padding:1px 7px;color:var(--muted);font-weight:500}
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-inp{display:flex;align-items:center;gap:6px;height:32px;border:1px solid var(--line-strong);border-radius:8px;padding:0 10px;background:var(--bg);width:min(260px,100%)}
+.filter-inp input{border:0;outline:none;background:transparent;flex:1;min-width:0;font-size:13px}
+.sel.sm{height:32px;width:auto;font-size:13px;padding:0 8px}
+
+/* Cards, stats */
+.card{border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.card-h{display:flex;align-items:center;gap:8px;padding:14px 16px 0}
+.card-h h3{font-size:13.5px;font-weight:600}
+.card-b{padding:12px 16px 16px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;background:var(--bg);text-align:left;cursor:default}
+button.stat{cursor:pointer}
+button.stat:hover{border-color:var(--line-strong);background:var(--row-hover)}
+.stat .v{font-size:20px;font-weight:600;letter-spacing:-.01em}
+@media (max-width:1000px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.banner{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 14px;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:10px;flex-wrap:wrap}
+.banner .txt{flex:1;min-width:240px}
+.meter{height:6px;border-radius:3px;background:var(--chip);overflow:hidden;display:flex}
+.meter i{display:block;height:100%;background:var(--accent)}
+
+/* Tables */
+.tbl-wrap{border:1px solid var(--line);border-radius:12px;overflow-x:auto;background:var(--bg)}
+table.t{width:100%;border-collapse:collapse;min-width:680px;font-size:13.5px}
+.t th{font-size:12px;color:var(--muted);font-weight:500;text-align:left;padding:0 12px;height:38px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--bg)}
+.t td{padding:8px 12px;height:54px;border-bottom:1px solid var(--line-2);white-space:nowrap;vertical-align:middle}
+.t tbody tr:last-child td{border-bottom:0}
+.t tr.click{cursor:pointer}
+.t tr.click:hover td{background:var(--row-hover)}
+.t tr.sel td{background:var(--accent-soft)}
+.t .r{text-align:right}
+.t .wrap{white-space:normal}
+.t td.chk,.t th.chk{width:40px;padding-right:0}
+@media (max-width:1280px){.hide-lg{display:none}}
+@media (max-width:1100px){.hide-md{display:none}}
+@media (max-width:880px){.hide-sm{display:none}}
+.vcell{display:flex;align-items:center;gap:10px;min-width:0}
+.vcell .nm{font-weight:500}
+.logo{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:11px;font-weight:600;flex:none;background:hsl(var(--h) var(--logo-s) var(--logo-l));color:hsl(var(--h) 45% var(--logo-fl))}
+.logo.lg{width:40px;height:40px;border-radius:10px;font-size:14px}
+.logo.sm{width:24px;height:24px;border-radius:6px;font-size:10px}
+.empty{padding:48px 16px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:8px}
+.empty b{color:var(--ink);font-weight:600;font-size:14px}
+.bulk{position:sticky;bottom:16px;align-self:center;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 14px;background:var(--ink);color:var(--bg);border-radius:12px;box-shadow:var(--shadow);z-index:5;flex-wrap:wrap}
+.bulk .btn{background:transparent;color:var(--bg);border-color:rgba(255,255,255,.25)}
+.bulk .btn:hover{background:rgba(255,255,255,.12)}
+.bulk .btn.pri{background:var(--bg);color:var(--ink);border-color:var(--bg)}
+
+/* Confidence bars */
+.cf{display:inline-flex;align-items:flex-end;gap:2px;height:12px;flex:none}
+.cf i{display:block;width:3px;border-radius:1px;background:var(--line-strong)}
+.cf i:nth-child(1){height:5px}.cf i:nth-child(2){height:8px}.cf i:nth-child(3){height:12px}
+.cf.h i{background:var(--accent)}
+.cf.m i:nth-child(-n+2){background:var(--accent)}
+.cf.l i:nth-child(1){background:var(--amber-mark)}
+
+/* Drawer, modal */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:80;animation:fade .15s ease-out}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(680px,100%);background:var(--bg);z-index:81;border-left:1px solid var(--line);display:flex;flex-direction:column;box-shadow:var(--shadow);animation:slide .2s ease-out}
+.drawer.narrow{width:min(460px,100%)}
+@media (min-width:1600px){.drawer{width:760px}.drawer.narrow{width:480px}}
+.dh{padding:16px 20px 0;display:flex;flex-direction:column;gap:12px;flex:none}
+.db{flex:1;overflow:auto;padding:18px 20px 24px;display:flex;flex-direction:column;gap:18px}
+.df{flex:none;border-top:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--bg)}
+.modal-wrap{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px}
+.modal{width:min(640px,100%);max-height:calc(100% - 32px);overflow:auto;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;animation:pop .16s ease-out;border:1px solid var(--line)}
+.modal.sm{width:min(460px,100%)}
+.mh{padding:20px 22px 12px;display:flex;gap:12px;align-items:flex-start}
+.mb{padding:4px 22px 18px;display:flex;flex-direction:column;gap:14px}
+.mf{padding:12px 22px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;background:var(--sunk);flex-wrap:wrap;border-radius:0 0 14px 14px}
+.m-icon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;flex:none}
+@keyframes fade{from{opacity:0}}
+@keyframes slide{from{transform:translateX(24px);opacity:.6}}
+@keyframes pop{from{transform:translateY(6px) scale(.98);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Bill detail */
+.flag-card{border:1px solid var(--amber-line);background:var(--amber-soft);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.flag-card.red{border-color:var(--red-line);background:var(--red-bg)}
+.flag-card p{line-height:1.5;color:var(--ink-2);max-width:70ch}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+@media (min-width:1600px){.fgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.fv{display:flex;align-items:center;gap:8px;min-height:36px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--bg)}
+.fv > span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fv.warn{border-color:var(--amber-line);background:var(--amber-soft)}
+.gl{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);white-space:nowrap}
+.gl.sug{border-style:dashed;border-color:var(--accent-line);color:var(--muted);font-style:italic}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 20px}
+@media (max-width:600px){.checks,.fgrid{grid-template-columns:1fr}}
+.chk-row{display:flex;align-items:flex-start;gap:8px;color:var(--ink-2)}
+.chk-row svg{flex:none;margin-top:1px}
+.ok{color:var(--green-mark)}.bad{color:var(--red-mark)}.warnc{color:var(--amber-mark)}
+.sec-t{font-size:12.5px;font-weight:600}
+.lines{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.lines .ln{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line-2)}
+.lines .ln:last-child{border-bottom:0}
+.lines .ln.sug{background:var(--accent-soft)}
+.lines .foot{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sunk);font-size:12.5px;flex-wrap:wrap}
+.paper{background:var(--paper);color:#2A2A26;border:1px solid var(--line);border-radius:6px;padding:32px;display:flex;flex-direction:column;gap:20px;font-size:11.5px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.paper .muted{color:#86857E}
+.paper .hl{outline:2px solid #D08A1A;outline-offset:2px;background:#FCF0DA;border-radius:2px}
+.paper .pl{display:grid;grid-template-columns:1fr 48px 96px;gap:8px;padding:8px 0;border-bottom:1px solid #ECEBE6}
+.timeline{display:flex;flex-direction:column}
+.tl{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;padding:8px 0;position:relative}
+.tl::before{content:"";position:absolute;left:8px;top:22px;bottom:-8px;width:1px;background:var(--line)}
+.tl:last-child::before{display:none}
+.tl .bul{width:9px;height:9px;border-radius:50%;background:var(--line-strong);margin:5px 0 0 4px;position:relative;z-index:1}
+.tl .bul.ai{background:var(--accent)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0}
+.kv span:first-child{color:var(--muted)}
+.cmp{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cmp .cr{display:grid;grid-template-columns:100px minmax(0,1fr) minmax(0,1fr);gap:14px;padding:9px 14px;border-bottom:1px solid var(--line-2);font-size:13px;align-items:center}
+.cmp .cr:last-child{border-bottom:0}
+.diff{color:var(--red);font-weight:500}
+.bullet{display:flex;gap:10px;line-height:1.5;color:var(--ink-2)}
+.bullet::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--red-mark);margin-top:7px}
+
+/* Home grid */
+.hgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+.hgrid .span2{grid-column:span 2}
+@media (max-width:1400px){.hgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hgrid .span2{grid-column:span 2}}
+@media (max-width:900px){.hgrid{grid-template-columns:1fr}.hgrid .span2{grid-column:auto}}
+.task{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line-2);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;cursor:pointer;text-align:left}
+.task:hover{background:var(--row-hover)}
+.task .ti{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex:none;background:var(--chip);color:var(--ink-2)}
+.list-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line-2)}
+
+/* Two column layouts */
+.split{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media (min-width:1600px){.split{grid-template-columns:minmax(0,1fr) 380px}}
+@media (max-width:1100px){.split{grid-template-columns:1fr}}
+.aside-stack{display:flex;flex-direction:column;gap:14px}
+
+/* Approvals */
+.ap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
+@media (max-width:760px){.ap-grid{grid-template-columns:1fr}}
+.ap{border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.bars6{display:flex;align-items:flex-end;gap:8px;height:44px;border-bottom:1px solid var(--line)}
+.bars6 i{flex:1;background:var(--line-strong);border-radius:3px 3px 0 0;display:block}
+.bars6 i.cur{background:var(--accent)}
+
+/* Ask panel, palette, toasts, popover */
+.ask{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--bg);border-left:1px solid var(--line);z-index:85;display:flex;flex-direction:column;box-shadow:var(--shadow);animation:slide .2s ease-out}
+.ask-body{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.bubble{align-self:flex-end;max-width:85%;background:var(--chip);border-radius:12px 12px 4px 12px;padding:9px 12px;line-height:1.45}
+.answer{display:flex;flex-direction:column;gap:10px;line-height:1.55}
+.cite{display:inline-flex;align-items:center;height:20px;padding:0 7px;margin-left:4px;border-radius:5px;background:var(--accent-soft);color:var(--accent-text);font-size:11.5px;font-weight:500;border:0;cursor:pointer;vertical-align:1px}
+.chip{display:inline-flex;align-items:center;height:30px;padding:0 11px;border:1px solid var(--accent-line);border-radius:999px;font-size:12.5px;color:var(--accent-text);background:var(--bg);cursor:pointer}
+.chip:hover{background:var(--accent-soft)}
+.plan{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.plan .pr{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line-2);font-size:13px}
+.palette{position:fixed;left:50%;top:12vh;transform:translateX(-50%);width:min(620px,calc(100% - 32px));background:var(--bg);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);z-index:95;overflow:hidden;animation:pop .14s ease-out}
+.palette input{width:100%;height:52px;border:0;border-bottom:1px solid var(--line);padding:0 16px;outline:none;background:transparent;font-size:15px}
+.pal-list{max-height:min(420px,60vh);overflow:auto;padding:6px}
+.pal-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;width:100%;border:0;background:none;text-align:left}
+.pal-item[aria-selected="true"]{background:var(--accent-soft)}
+.pal-grp{font-size:11.5px;color:var(--muted);padding:8px 10px 4px;font-weight:500}
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:100;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:calc(100% - 32px)}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--bg);padding:10px 12px 10px 14px;border-radius:10px;box-shadow:var(--shadow);font-size:13px;animation:pop .16s ease-out}
+.toast button{background:none;border:0;color:var(--bg);font-weight:600;cursor:pointer;text-decoration:underline;padding:0}
+.pop{position:absolute;top:44px;right:0;width:min(360px,calc(100vw - 32px));background:var(--bg);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);z-index:60;overflow:hidden}
+.drop{border:1.5px dashed var(--line-strong);border-radius:12px;padding:28px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:var(--sunk);cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;align-items:center;gap:10px}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--accent-line);border-top-color:var(--accent);animation:rot .8s linear infinite;flex:none}
+@keyframes rot{to{transform:rotate(360deg)}}
+.chart text{font-family:var(--font)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:2px;display:inline-block}
+.hbar{display:grid;grid-template-columns:170px minmax(0,1fr) 110px;gap:12px;align-items:center;padding:8px 0}
+.hbar .track{height:10px;background:var(--chip);border-radius:3px;overflow:hidden;display:flex}
+@media (max-width:600px){.hbar{grid-template-columns:110px minmax(0,1fr) 84px}}
+.set-nav{display:flex;flex-direction:column;gap:2px}
+.settings{display:grid;grid-template-columns:200px minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:900px){.settings{grid-template-columns:1fr}.set-nav{flex-direction:row;overflow-x:auto}}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;max-width:760px}
+@media (max-width:700px){.form-grid{grid-template-columns:1fr}}
+.set-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line-2)}
+.set-row:last-child{border-bottom:0}
+.demo-tag{font-size:11px;font-weight:500;color:var(--muted);border:1px dashed var(--line-strong);border-radius:5px;padding:1px 6px}
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+(function(){
+const {useState,useEffect,useMemo,useRef,useCallback} = React;
+const html = htm.bind(React.createElement);
+
+/* ---------- Constants & helpers ---------- */
+const TODAY = '2026-10-27';
+const RUN_DATE = '2026-10-28';
+const NEXT_RUN = '2026-11-04';
+const ME = 'Dana Nguyen';
+const STORE_KEY = 'ledgerline-demo-v2';
+
+const D = s => new Date(s + 'T00:00:00Z');
+const iso = d => d.toISOString().slice(0,10);
+const addDays = (s,n) => { const d = D(s); d.setUTCDate(d.getUTCDate()+n); return iso(d); };
+const diffDays = (a,b) => Math.round((D(b)-D(a))/86400000);
+const fmtD = s => s ? D(s).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}) : '—';
+const fmtDL = s => D(s).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',timeZone:'UTC'});
+const fmtDY = s => D(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+const money = (n,dec=2) => (n<0?'−':'') + '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+const kfmt = n => { const a=Math.abs(n); const s = a>=1e6 ? '$'+(a/1e6).toFixed(a>=1e7?1:2).replace(/\.?0+$/,'')+'M' : a>=1e3 ? '$'+Math.round(a/1e3)+'k' : '$'+Math.round(a); return (n<0?'−':'')+s; };
+const clone = o => JSON.parse(JSON.stringify(o));
+const uid = p => p + Math.random().toString(36).slice(2,8);
+const cx = (...a) => a.filter(Boolean).join(' ');
+const clockLabel = m => { const h=Math.floor(m/60), mm=m%60; return ((h+11)%12+1)+':'+String(mm).padStart(2,'0')+(h<12?' AM':' PM'); };
+
+function Money({n, big}){
+  const neg = n<0; const a = Math.abs(n);
+  const int = Math.floor(a+1e-9).toLocaleString('en-US');
+  const c = String(Math.round((a - Math.floor(a+1e-9))*100)).padStart(2,'0');
+  return html`<span className="num">${neg?'−':''}$${int}<span className="cents">.${c}</span></span>`;
+}
+
+/* ---------- Icons ---------- */
+const circ = (x,y,r) => `M${x-r} ${y}a${r} ${r} 0 1 0 ${2*r} 0a${r} ${r} 0 1 0 ${-2*r} 0`;
+const I = {
+  home:['M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'],
+  bills:['M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z','M14 3v5h5M9 13h6M9 17h6'],
+  approvals:[circ(12,12,9),'m8 12 3 3 5-6'],
+  payments:['M4 8h15l-4-4M20 16H5l4 4'],
+  vendors:['M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 9h4a1 1 0 0 1 1 1v11M3 21h18M8 8h3M8 12h3M8 16h3'],
+  po:['M7 4h10a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z','M9 4h6v3H9zM9 12h6M9 16h4'],
+  recon:['M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9M18 3v4h-4M6 21v-4h4'],
+  spend:['M5 20V11M11 20V5M17 20v-7M3 20h18'],
+  forecast:['m3 17 6-6 4 4 8-8M15 7h6v6'],
+  autopilot:['M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12',circ(16,6,2),circ(10,12,2),circ(18,18,2)],
+  activity:[circ(12,12,9),'M12 7v5l3 2'],
+  settings:[circ(12,12,3),'M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1'],
+  search:[circ(11,11,7),'m20 20-3.5-3.5'],
+  bell:['M6 16v-5a6 6 0 1 1 12 0v5l2 2H4zM10 21h4'],
+  plus:['M12 5v14M5 12h14'],
+  upload:['M12 16V4M7 9l5-5 5 5M4 20h16'],
+  x:['M6 6l12 12M18 6 6 18'],
+  check:['m5 12 5 5 9-10'],
+  chevR:['m9 6 6 6-6 6'], chevL:['m15 6-6 6 6 6'], chevD:['m6 9 6 6 6-6'], chevU:['m6 15 6-6 6 6'], updown:['m7 10 5-5 5 5M7 14l5 5 5-5'],
+  shield:['M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z'],
+  alert:['M12 3 2 20h20zM12 10v4M12 17v.01'],
+  copy:['M9 9h11v11H9z','M15 9V4H4v11h5'],
+  lock:['M6 11h12v10H6z','M8 11V8a4 4 0 0 1 8 0v3'],
+  undo:['M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3'],
+  menu:['M4 6h16M4 12h16M4 18h16'],
+  flag:['M5 21V4h11l-2 4 2 4H5'],
+  file:['M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z','M14 3v5h5'],
+  phone:['M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1'],
+  send:['M12 19V5M5 12l7-7 7 7'],
+  calendar:['M4 6h16v14H4zM4 10h16M8 3v4M16 3v4'],
+  mail:['M4 6h16v12H4z','m4 7 8 6 8-6'],
+  bank:['M3 10 12 4l9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18'],
+  link:['M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'],
+  dots:['M5 12h.01M12 12h.01M19 12h.01'],
+  users:[circ(9,8,3.5),'M3 20a6 6 0 0 1 12 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3 6'],
+  plug:['M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4'],
+  msg:['M4 5h16v11H9l-5 4z'],
+  refresh:['M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5'],
+  cash:['M3 7h18v10H3z',circ(12,12,2.5),'M6 10v4M18 10v4'],
+  sliders:['M4 6h16M4 12h16M4 18h16'],
+};
+function Icon({n, s=16, w=1.7, cls, style}){
+  const paths = I[n] || [];
+  return html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth=${n==='dots'?3:w} strokeLinecap="round" strokeLinejoin="round" className=${cls} style=${style} aria-hidden="true">${paths.map((d,i)=>html`<path key=${i} d=${d}/>`)}</svg>`;
+}
+function Spark({s=12}){ return html`<svg width=${s} height=${s} viewBox="0 0 16 16" aria-hidden="true" style=${{flex:'none'}}><path fill="currentColor" d="M8 1.5 9.6 6.4 14.5 8 9.6 9.6 8 14.5 6.4 9.6 1.5 8 6.4 6.4Z"/></svg>`; }
+function CF({l}){ return html`<span className=${'cf '+l} title=${l==='h'?'High confidence':l==='m'?'Medium confidence':'Low confidence'}><i></i><i></i><i></i></span>`; }
+
+/* ---------- Seed data ---------- */
+const GL = {'5120':'Parts & materials','5210':'Freight inbound','5230':'Customs & duties','6110':'Contract labor','6310':'Office supplies','6320':'Kitchen supplies','6420':'Cloud hosting','6430':'Software subscriptions','6520':'Utilities','6610':'Legal fees','6710':'Travel','6810':'Facilities & equipment','6900':'Sales tax expense'};
+const glName = c => c + ' ' + (GL[c]||'');
+
+function seed(){
+  const vendors = [
+    {id:'nw',name:'Northwind Freight',ini:'NF',h:150,cat:'Freight & logistics',terms:'Net 30 from delivery',bank:{name:'Chase',last4:'7719',verified:'2026-03-12'},email:'ar@northwindfreight.com',phone:'+1 (510) 555-0187',level:'copilot',gl:'5210',owner:'Marcus Chen'},
+    {id:'ac',name:'Atlas Cloud Services',ini:'AC',h:212,cat:'Software',terms:'Net 15',bank:{name:'Wells Fargo',last4:'2291',verified:'2025-11-02'},email:'invoices@atlascloud.com',phone:'+1 (206) 555-0143',level:'autopilot',gl:'6420',owner:'Jamie Park'},
+    {id:'bs',name:'Brightline Staffing',ini:'BS',h:24,cat:'Contract labor',terms:'Net 30',bank:{name:'JPMorgan Chase',last4:'4410',routing:'021000021',verified:'2026-03-04'},pendingBank:{name:'Evolve Bank & Trust',last4:'9982',routing:'084106768',from:'billing@brightline-staffing.co',seen:'7:48 AM'},email:'billing@brightlinestaffing.com',phone:'+1 (415) 555-0142',level:'copilot',gl:'6110',owner:'Luis Ortega'},
+    {id:'hl',name:'Harbor Legal LLP',ini:'HL',h:268,cat:'Legal & professional',terms:'Net 30',bank:{name:'Bank of America',last4:'5530',verified:'2025-08-19'},email:'billing@harborlegal.com',phone:'+1 (415) 555-0199',level:'suggest',gl:'6610',owner:'Dana Nguyen'},
+    {id:'mo',name:'Meridian Office Supply',ini:'MO',h:48,cat:'Office',terms:'Net 30',bank:{name:'U.S. Bank',last4:'1180',verified:'2025-06-02'},email:'orders@meridianoffice.com',phone:'+1 (408) 555-0110',level:'copilot',gl:'6310',owner:'Priya Shah'},
+    {id:'sc',name:'Solder & Co. Components',ini:'SC',h:190,cat:'Parts & materials',terms:'2/10 Net 30',bank:{name:'Citibank',last4:'6621',verified:'2025-09-14'},email:'ar@solderco.com',phone:'+1 (650) 555-0172',level:'copilot',gl:'5120',owner:'Marcus Chen'},
+    {id:'vt',name:'Vantage Travel',ini:'VT',h:95,cat:'Travel',terms:'Net 15',bank:{name:'Chase',last4:'3007',verified:'2025-12-01'},email:'statements@vantagetravel.com',phone:'+1 (312) 555-0126',level:'copilot',gl:'6710',owner:'Priya Shah'},
+    {id:'pm',name:'Pacific Machining Works',ini:'PM',h:230,cat:'Parts & materials',terms:'2/10 Net 30',bank:{name:'Wells Fargo',last4:'8840',verified:'2025-04-22'},email:'ar@pacificmachining.com',phone:'+1 (408) 555-0164',level:'copilot',gl:'5120',owner:'Marcus Chen'},
+    {id:'am',name:'Apex Motion Controls',ini:'AM',h:340,cat:'Parts & materials',terms:'2/10 Net 30',bank:{name:'Bank of America',last4:'1264',verified:'2025-07-30'},email:'billing@apexmotion.com',phone:'+1 (714) 555-0131',level:'copilot',gl:'5120',owner:'Marcus Chen'},
+    {id:'rw',name:'Rheinwerk GmbH',ini:'RW',h:255,cat:'Parts & materials',terms:'Net 30',bank:{name:'Deutsche Bank',last4:'4471',verified:'2025-10-09'},email:'buchhaltung@rheinwerk.de',phone:'+49 211 555 0190',level:'copilot',gl:'5120',owner:'Marcus Chen',cur:'EUR'},
+    {id:'ce',name:'Crescent Electric Supply',ini:'CE',h:18,cat:'Facilities',terms:'Net 30',bank:{name:'Chase',last4:'5098',verified:'2025-05-18'},email:'ar@crescentelectric.com',phone:'+1 (510) 555-0158',level:'copilot',gl:'6810',owner:'Luis Ortega'},
+    {id:'gg',name:'Golden Gate Couriers',ini:'GG',h:42,cat:'Freight & logistics',terms:'Net 15',bank:{name:'Wells Fargo',last4:'7302',verified:'2025-02-11'},email:'billing@ggcouriers.com',phone:'+1 (415) 555-0105',level:'copilot',gl:'5210',owner:'Luis Ortega'},
+    {id:'bt',name:'Bay Area Tool Rental',ini:'BT',h:110,cat:'Facilities',terms:'Net 15',bank:{name:'U.S. Bank',last4:'2045',verified:'2025-08-27'},email:'rentals@bayareatool.com',phone:'+1 (510) 555-0177',level:'copilot',gl:'6810',owner:'Luis Ortega'},
+    {id:'pu',name:'Pinecrest Utilities',ini:'PU',h:205,cat:'Utilities',terms:'Due on receipt',bank:{name:'Bank of America',last4:'0931',verified:'2024-12-03'},email:'billing@pinecrestutilities.com',phone:'+1 (800) 555-0118',level:'autopilot',gl:'6520',owner:'Luis Ortega'},
+    {id:'fd',name:'Figment Design',ini:'FD',h:330,cat:'Software',terms:'Net 30',bank:{name:'Silicon Valley Bank',last4:'4418',verified:'2025-03-15'},email:'billing@figment.design',phone:'+1 (628) 555-0140',level:'autopilot',gl:'6430',owner:'Jamie Park'},
+    {id:'ns',name:'Northstar CRM',ini:'NC',h:120,cat:'Software',terms:'Net 30',bank:{name:'Chase',last4:'6650',verified:'2025-01-20'},email:'ar@northstarcrm.com',phone:'+1 (512) 555-0133',level:'autopilot',gl:'6430',owner:'Sales Ops'},
+  ];
+  const L = (d,a,gl,c='h',sug=false) => ({d,a,gl,c,sug});
+  const bills = [
+    {id:'b1',v:'nw',num:'INV-20931',amt:18420,issued:'2026-09-29',due:'2026-10-29',status:'review',src:'Email',rcv:'6:12 AM',po:'PO-3381',
+      flags:[{type:'date',suggest:'2026-10-28',text:'The invoice says Net 30 from delivery, not from the invoice date. PO-3381 shows the containers arrived in Fremont on Sep 28, so the bill is due Oct 28.'}],
+      lines:[L('Ocean freight, Shenzhen to Oakland, 2 × 40ft HC',14200,'5210','h'),L('Customs brokerage and ISF filing',1850,'5230','m',true),L('Drayage, Port of Oakland to Fremont',2370,'5210','h')]},
+    {id:'b2',v:'bs',num:'BS-3317',amt:7850,issued:'2026-09-30',due:'2026-10-30',status:'hold',src:'Email',rcv:'7:48 AM',flags:[{type:'bank'}],lines:[L('Contract technicians, Sep 16–30',7850,'6110')]},
+    {id:'b3',v:'ac',num:'AC-88213',amt:12940.18,issued:'2026-09-30',due:'2026-10-15',status:'hold',src:'Email',rcv:'6:30 AM',flags:[{type:'dup',dupOf:'b20'}],lines:[L('Compute and storage, September',12940.18,'6420')]},
+    {id:'b4',v:'hl',num:'HL-2026-114',amt:4500,issued:'2026-10-06',due:'2026-11-05',status:'review',src:'Upload',rcv:'Yesterday',flags:[{type:'anomaly',text:'$4,500.00 is 38% above Harbor Legal’s 3-month average of $3,260.00. The invoice lists 12 hours for supplier contract review, twice the usual.'}],lines:[L('Contract review, supplier MSA',4500,'6610')]},
+    {id:'b5',v:'mo',num:'004512',amt:1284.60,issued:'2026-10-03',due:'2026-11-02',status:'review',src:'Email',rcv:'Yesterday',flags:[{type:'po',poSuggest:'PO-3390'}],lines:[L('Breakroom supplies',842.10,'6320'),L('Printer toner, 6 cartridges',442.50,'6310')]},
+    {id:'b6',v:'sc',num:'SC-5530',amt:3118.75,issued:'2026-10-21',due:'2026-11-20',status:'review',src:'Portal',rcv:'8:15 AM',po:'PO-3392',flags:[{type:'tax'}],lines:[L('Solder paste and flux, 40 kits',3118.75,'5120','m')]},
+    {id:'b7',v:'vt',num:'VT-99102',amt:2406.30,issued:'2026-10-14',due:'2026-10-29',status:'review',src:'Email',rcv:'Yesterday',flags:[{type:'split'}],lines:[L('Team travel, Automate 2026 trade show, Detroit',2406.30,'6710')]},
+    {id:'b8',v:'ce',num:'CE-7710',amt:4500,issued:'2026-10-15',due:'2026-11-14',status:'ready',src:'Email',rcv:'5:58 AM',po:'PO-3395',flags:[],lines:[L('Panel upgrade, assembly line 3',4500,'6810')]},
+    {id:'b9',v:'gg',num:'GG-3321',amt:1962.40,issued:'2026-10-16',due:'2026-10-31',status:'ready',src:'Email',rcv:'6:04 AM',po:'PO-3399',flags:[],lines:[L('Local courier runs, October 1–15',1962.40,'5210')]},
+    {id:'b10',v:'bt',num:'BT-5512',amt:1140,issued:'2026-10-15',due:'2026-10-30',status:'ready',src:'Email',rcv:'6:20 AM',flags:[],lines:[L('Forklift rental, 2 weeks',1140,'6810')]},
+    {id:'b11',v:'pu',num:'7781-0926',amt:912.44,issued:'2026-10-20',due:'2026-10-29',status:'ready',src:'Email',rcv:'5:41 AM',flags:[],lines:[L('Electricity, September',912.44,'6520')]},
+    {id:'b12',v:'pm',num:'PMW-4410',amt:41500,issued:'2026-10-22',due:'2026-11-21',status:'approval',approver:ME,submittedBy:'Priya Shah',src:'Email',rcv:'Oct 22',po:'PO-3374',flags:[],lines:[L('CNC machined arm housings, lot 2 of 2',41500,'5120')]},
+    {id:'b13',v:'am',num:'AMC-2290',amt:19580,issued:'2026-10-23',due:'2026-11-22',status:'approval',approver:ME,submittedBy:'Priya Shah',src:'Email',rcv:'Oct 23',po:'PO-3377',flags:[],lines:[L('Servo drives, 40 units',19580,'5120')]},
+    {id:'b14',v:'rw',num:'RW-26-0412',amt:3686.50,fx:{cur:'EUR',amt:3400,rate:1.0843},issued:'2026-10-05',due:'2026-11-04',status:'approval',approver:'Marcus Chen',submittedBy:'Priya Shah',src:'Email',rcv:'Oct 06',po:'PO-3368',flags:[],lines:[L('Harmonic gear sets, 20 units',3686.50,'5120')]},
+    {id:'b15',v:'ns',num:'NS-10293',amt:6300,issued:'2026-10-02',due:'2026-11-01',status:'approved',approvedBy:'Autopilot',src:'Email',rcv:'Oct 02',flags:[],lines:[L('CRM seats, Q4',6300,'6430')]},
+    {id:'b16',v:'fd',num:'FD-5531',amt:4933.33,issued:'2026-10-04',due:'2026-11-03',status:'approved',approvedBy:'Autopilot',src:'Email',rcv:'Oct 04',flags:[],lines:[L('Design seats, November',4933.33,'6430')]},
+    {id:'b24',v:'sc',num:'SC-5498',amt:2240,issued:'2026-10-20',due:'2026-11-19',status:'approved',approvedBy:'Marcus Chen',src:'Portal',rcv:'Oct 20',flags:[],lines:[L('Connectors and wire harnesses',2240,'5120')]},
+    {id:'b25',v:'ce',num:'CE-7702',amt:4500,issued:'2026-10-03',due:'2026-11-02',status:'approved',approvedBy:'Luis Ortega',src:'Email',rcv:'Oct 03',po:'PO-3395',flags:[],lines:[L('Lighting retrofit, warehouse',4500,'6810')]},
+    {id:'b17',v:'ac',num:'AC-88140',amt:21033,issued:'2026-10-14',due:'2026-10-29',status:'scheduled',payOn:'2026-10-29',method:'ACH',src:'Email',rcv:'Oct 14',flags:[],lines:[L('Compute and storage, October 1–14',21033,'6420')]},
+    {id:'b18',v:'nw',num:'INV-20877',amt:17560,issued:'2026-09-30',due:'2026-10-30',status:'scheduled',payOn:'2026-10-30',method:'ACH',src:'Email',rcv:'Sep 30',flags:[],lines:[L('Ocean freight, Shenzhen to Oakland',17560,'5210')]},
+    {id:'b19',v:'nw',num:'INV-20790',amt:17240,issued:'2026-08-29',due:'2026-09-28',status:'paid',paidOn:'2026-09-28',method:'ACH',src:'Email',flags:[],lines:[L('Ocean freight, Shenzhen to Oakland',17240,'5210')]},
+    {id:'b20',v:'ac',num:'AC-88213',amt:12940.18,issued:'2026-08-31',due:'2026-09-15',status:'paid',paidOn:'2026-09-15',method:'ACH',src:'Email',flags:[],lines:[L('Compute and storage, September',12940.18,'6420')]},
+    {id:'b21',v:'bs',num:'BS-3288',amt:7850,issued:'2026-09-01',due:'2026-10-01',status:'paid',paidOn:'2026-10-01',method:'ACH',src:'Email',flags:[],lines:[L('Contract technicians, Sep 1–15',7850,'6110')]},
+    {id:'b22',v:'hl',num:'HL-2026-101',amt:3260,issued:'2026-09-06',due:'2026-10-06',status:'paid',paidOn:'2026-10-06',method:'ACH',src:'Upload',flags:[],lines:[L('Employment agreements review',3260,'6610')]},
+    {id:'b23',v:'fd',num:'FD-5498',amt:4933.33,issued:'2026-09-04',due:'2026-10-04',status:'paid',paidOn:'2026-10-03',method:'Card',src:'Email',flags:[],lines:[L('Design seats, October',4933.33,'6430')]},
+    {id:'b26',v:'hl',num:'HL-2026-088',amt:3240,issued:'2026-08-05',due:'2026-09-04',status:'paid',paidOn:'2026-09-04',method:'ACH',src:'Upload',flags:[],lines:[L('Trademark filing support',3240,'6610')]},
+    {id:'b27',v:'hl',num:'HL-2026-072',amt:3280,issued:'2026-07-06',due:'2026-08-05',status:'paid',paidOn:'2026-08-05',method:'ACH',src:'Upload',flags:[],lines:[L('Board minutes and filings',3280,'6610')]},
+  ];
+  const pos = [
+    {id:'PO-3381',v:'nw',amt:18420,created:'2026-09-02',owner:'Marcus Chen',status:'received',received:'2026-09-28',lines:[['Ocean freight, 2 × 40ft HC',14200],['Customs brokerage and ISF',1850],['Drayage to Fremont',2370]]},
+    {id:'PO-3374',v:'pm',amt:83000,created:'2026-08-20',owner:'Marcus Chen',status:'partial',received:'2026-10-20',lines:[['CNC machined arm housings, lot 1',41500],['CNC machined arm housings, lot 2',41500]]},
+    {id:'PO-3377',v:'am',amt:19580,created:'2026-09-15',owner:'Marcus Chen',status:'received',received:'2026-10-21',lines:[['Servo drives, 40 units',19580]]},
+    {id:'PO-3368',v:'rw',amt:3686.50,created:'2026-09-01',owner:'Marcus Chen',status:'received',received:'2026-10-02',lines:[['Harmonic gear sets, 20 units',3686.50]]},
+    {id:'PO-3390',v:'mo',amt:1400,created:'2026-10-01',owner:'Priya Shah',status:'open',lines:[['Office and breakroom supplies, Q4 blanket',1400]]},
+    {id:'PO-3392',v:'sc',amt:3118.75,created:'2026-10-12',owner:'Marcus Chen',status:'received',received:'2026-10-20',lines:[['Solder paste and flux, 40 kits',3118.75]]},
+    {id:'PO-3395',v:'ce',amt:12000,created:'2026-09-20',owner:'Luis Ortega',status:'partial',received:'2026-10-14',lines:[['Lighting retrofit, warehouse',4500],['Panel upgrade, assembly line 3',4500],['Contingency',3000]]},
+    {id:'PO-3399',v:'gg',amt:5000,created:'2026-10-01',owner:'Luis Ortega',status:'open',lines:[['Local courier services, Q4 blanket',5000]]},
+    {id:'PO-3355',v:'nw',amt:17560,created:'2026-08-12',owner:'Marcus Chen',status:'closed',received:'2026-09-02',lines:[['Ocean freight, 2 × 40ft HC',17560]]},
+  ];
+  const txns = [
+    {id:'t1',date:'2026-10-01',desc:'ACH DEBIT BRIGHTLINE STAFFING',amt:-7850,status:'suggested',match:'b21',conf:98},
+    {id:'t2',date:'2026-10-06',desc:'ACH DEBIT HARBOR LEGAL LLP',amt:-3260,status:'suggested',match:'b22',conf:99},
+    {id:'t5',date:'2026-10-22',desc:'CARD AMZN MKTP US*2K4',amt:-218.40,status:'unmatched',hint:'No bill found. Looks like office supplies, so Autopilot suggests 6310 Office supplies.',gl:'6310'},
+    {id:'t7',date:'2026-10-24',desc:'CARD UBER *TRIP',amt:-46.20,status:'unmatched',hint:'No bill or receipt. Card belongs to Marcus Chen.',gl:'6710',receipt:true},
+    {id:'t6',date:'2026-10-20',desc:'ACH CREDIT HELIX ROBOTICS INC',amt:48210.55,status:'unmatched',hint:'Customer payment. Not an AP item, so it goes to Receivables.',deposit:true},
+    {id:'t3',date:'2026-10-03',desc:'CARD FIGMENT DESIGN',amt:-4933.33,status:'matched',match:'b23',conf:100,by:'Autopilot'},
+    {id:'t4',date:'2026-09-28',desc:'ACH DEBIT NORTHWIND FRT',amt:-17240,status:'matched',match:'b19',conf:100,by:'Autopilot'},
+    {id:'t8',date:'2026-09-15',desc:'ACH DEBIT ATLAS CLOUD SVCS',amt:-12940.18,status:'matched',match:'b20',conf:100,by:'Autopilot'},
+    {id:'t9',date:'2026-10-05',desc:'ACH DEBIT HARBOR LEGAL LLP',amt:-3240,status:'matched',match:'b26',conf:100,by:'Priya Shah'},
+  ];
+  const rules = [
+    {id:'r1',name:'Any bill over $25,000',sub:'Set by your controller',level:'suggest',locked:true},
+    {id:'r2',name:'New vendors',sub:'First 5 bills from any vendor',level:'suggest',locked:true},
+    {id:'r3',name:'Recurring software',sub:'14 vendors',level:'autopilot',capBill:2000,capDay:20000,acc:'99.6%',n:318},
+    {id:'r4',name:'Utilities',sub:'4 vendors',level:'autopilot',capBill:5000,capDay:10000,acc:'100%',n:48},
+    {id:'r5',name:'Freight and logistics',sub:'7 vendors',level:'copilot',capBill:5000,capDay:20000,acc:'98.9%',n:96},
+    {id:'r6',name:'Contract labor',sub:'5 vendors',level:'copilot',capBill:5000,capDay:20000,acc:'97.8%',n:45},
+    {id:'r7',name:'Legal and professional',sub:'6 vendors',level:'suggest',capBill:2000,capDay:5000,acc:'94.1%',n:17},
+  ];
+  const activity = [
+    {id:'a1',day:'Today',t:'9:14 AM',actor:'ai',kind:'Smart Coding',text:'Coded 3 lines on Northwind Freight INV-20931',out:'Waiting for review',billId:'b1',sources:['INV-20931.pdf, page 1','6 past Northwind bills, Apr to Sep','Chart of accounts from NetSuite'],detail:'Ocean freight and drayage went to 5210 Freight inbound (98% and 97%). Customs brokerage was suggested as 5230 Customs & duties (91%) and still needs a person to accept it.'},
+    {id:'a2',day:'Today',t:'9:12 AM',actor:'ai',kind:'Invoice Autopilot',text:'Read INV-20931 from email. 6 of 7 fields confident, due date asked.',out:'Waiting for review',billId:'b1',sources:['Email from ar@northwindfreight.com','INV-20931.pdf','PO-3381 goods receipt']},
+    {id:'a3',day:'Today',t:'9:05 AM',actor:'ai',kind:'Guardrails',text:'Held Brightline Staffing BS-3317 because the bank details changed',out:'Waiting on Dana Nguyen',billId:'b2',sources:['Vendor record, verified Mar 4','Email from billing@brightline-staffing.co','Domain registration lookup']},
+    {id:'a4',day:'Today',t:'8:58 AM',actor:'ai',kind:'Guardrails',text:'Stopped Atlas Cloud AC-88213: same invoice as the bill paid Sep 15',out:'Needs a decision',billId:'b3',sources:['AC-88213 paid Sep 15','Invoice number, amount and date match']},
+    {id:'a5',day:'Today',t:'8:40 AM',actor:'Priya Shah',kind:'Correction',text:'Changed GL on Meridian 004512 line 1 from 6310 to 6320 Kitchen supplies',out:'Autopilot learned this rule',billId:'b5'},
+    {id:'a6',day:'Today',t:'8:02 AM',actor:'ai',kind:'Auto-approval',text:'Approved 9 software bills, $6,420.00 in total, under the Recurring software rule',out:'1 sent for audit sample',sources:['Rule: Recurring software, Autopilot','Limits: $2,000 per bill, $20,000 per day']},
+    {id:'a7',day:'Today',t:'7:30 AM',actor:'ai',kind:'Reconciliation',text:'Matched 57 bank transactions to bills and receipts',out:'5 need a person',sources:['Chase Operating ··2502 feed','Card feed']},
+    {id:'a8',day:'Yesterday',t:'6:10 PM',actor:'Dana Nguyen',kind:'Payment run',text:'Released the Oct 27 payment run: 11 bills, $64,220.00',out:'Co-signed by Omar Reyes'},
+  ];
+  return {vendors,bills,pos,txns,rules,activity,run:{exclude:{}},clock:9*60+20,
+    settings:{company:'Kestrel Robotics Inc.',legal:'Kestrel Robotics Inc.',ein:'84-3920117',address:'48900 Milmont Dr, Fremont, CA 94538',fy:'January',currency:'USD',floor:600000,
+      notif:{digest:true,fraud:true,approvals:true,slack:true,weekly:false},
+      integ:{netsuite:true,slack:true,gmail:true,chase:true,quickbooks:false}},
+    hidden:{}, renewalsHeld:false, auditWaiting:4, promoted:false};
+}
+
+/* ---------- Derived helpers ---------- */
+const vendorOf = (db,b) => db.vendors.find(v=>v.id===b.v) || {name:'Unknown',ini:'?',h:0};
+const billsFor = (db,vid) => db.bills.filter(b=>b.v===vid && b.status!=='void');
+const isOpen = b => !['paid','void'].includes(b.status);
+const isOverdue = b => isOpen(b) && !['scheduled'].includes(b.status) && b.due < TODAY;
+const TAB_DEF = [
+  ['review','Needs review',b=>b.status==='review'||b.status==='hold'],
+  ['ready','Ready to submit',b=>b.status==='ready'],
+  ['approval','In approval',b=>b.status==='approval'],
+  ['approved','To pay',b=>b.status==='approved'],
+  ['scheduled','Scheduled',b=>b.status==='scheduled'],
+  ['paid','Paid',b=>b.status==='paid'],
+  ['all','All',b=>b.status!=='void'],
+];
+function statusPill(b){
+  switch(b.status){
+    case 'review': return html`<span className="pill amber">Needs review</span>`;
+    case 'hold': return html`<span className="pill red">On hold</span>`;
+    case 'ready': return html`<span className="pill blue">Ready</span>`;
+    case 'approval': return html`<span className="pill gray">With ${b.approver===ME?'you':b.approver.split(' ')[0]}</span>`;
+    case 'approved': return html`<span className="pill green">To pay</span>`;
+    case 'scheduled': return html`<span className="pill blue">Pays ${fmtD(b.payOn)}</span>`;
+    case 'paid': return html`<span className="pill green">Paid ${fmtD(b.paidOn)}</span>`;
+    case 'void': return html`<span className="pill gray">Void</span>`;
+  }
+}
+const FLAG = {
+  bank:{label:'Bank details changed',tone:'red',icon:'shield'},
+  dup:{label:'Same as a paid bill',tone:'red',icon:'copy'},
+  date:{label:'Due date to confirm',tone:'amber'},
+  anomaly:{label:'38% above usual',tone:'amber'},
+  po:{label:'No matching PO',tone:'amber'},
+  tax:{label:'Sales tax: CA or exempt?',tone:'amber'},
+  split:{label:'Split across departments?',tone:'amber'},
+  rejected:{label:'Returned by approver',tone:'amber'},
+};
+function flagPill(f){ const c=FLAG[f.type]; return html`<span className=${'pill '+c.tone}>${c.icon?html`<${Icon} n=${c.icon} s=${12} w=${2}/>`:null}${f.type==='rejected'?'Returned: '+(f.reason||'see note'):c.label}</span>`; }
+function vendorAvg(db,vid){ const p = db.bills.filter(b=>b.v===vid && b.status==='paid'); return p.length ? p.reduce((s,b)=>s+b.amt,0)/p.length : 0; }
+function riskOf(db,b){
+  const avg = vendorAvg(db,b.v); const v = vendorOf(db,b);
+  if (b.flags.some(f=>f.type==='bank'||f.type==='dup')) return 'high';
+  if (avg && b.amt > avg*1.25) return 'medium';
+  if (!v.bank || !v.bank.verified) return 'medium';
+  return 'low';
+}
+function approverFor(b){ return b.amt >= 25000 ? ME : 'Marcus Chen'; }
+function planFor(db,b){
+  const v = vendorOf(db,b);
+  const early = /^2\/10/.test(v.terms||'');
+  const eur = !!b.fx;
+  const method = eur ? 'SEPA · EUR' : b.amt >= 25000 ? 'Wire' : 'ACH';
+  const fee = method==='Wire' ? 15 : 0;
+  const fxCost = eur ? Math.round(b.amt*0.0035*100)/100 : 0;
+  let reason, include = true, discount = 0;
+  if (early && diffDays(b.issued, RUN_DATE) <= 10){ discount = Math.round(b.amt*0.02*100)/100; reason = `Early: 2% discount, ${money(discount)}, ends ${fmtD(addDays(b.issued,10))}`; }
+  else if (b.due <= RUN_DATE) reason = b.due < RUN_DATE ? 'Overdue' : 'Due tomorrow';
+  else if (b.due < NEXT_RUN) reason = `Due ${fmtD(b.due)}, before the next run on ${fmtD(NEXT_RUN)}`;
+  else { reason = `Not due until ${fmtD(b.due)}. Next run on ${fmtD(NEXT_RUN)} is soon enough.`; include = false; }
+  if (eur) reason = `€${b.fx.amt.toLocaleString('en-US',{minimumFractionDigits:2})} at ${b.fx.rate} · ` + reason;
+  const arrives = method==='Wire' ? RUN_DATE : eur ? addDays(RUN_DATE,2) : addDays(RUN_DATE,1);
+  if (db.run.exclude[b.id] !== undefined) include = !db.run.exclude[b.id];
+  return {method,fee,fxCost,discount,reason,include,arrives};
+}
+
+/* ---------- Forecast ---------- */
+const START_BAL = 1284900;
+function forecast(db, days, runInclude){
+  const end = addDays(TODAY, days);
+  const ev = {}; const add = (d,a,label,kind) => { if (d<TODAY || d>end) return; (ev[d]=ev[d]||[]).push({a,label,kind}); };
+  for (let d = '2026-10-30'; d <= end; d = addDays(d,14)) add(d,-236000,'Payroll','payroll');
+  ['2026-11-01','2026-12-01','2027-01-01'].forEach(d=>add(d,-48500,'Rent, Fremont facility','rent'));
+  for (let d='2026-11-02'; d<=end; d=addDays(d,7)) add(d,64000,'Customer receipts (weekly average)','in');
+  add('2026-11-20',180000,'Helix Robotics, milestone 3','in');
+  add('2026-12-18',210000,'Orbit Automation, milestone 1','in');
+  db.bills.forEach(b=>{
+    const vn = vendorOf(db,b).name;
+    if (b.status==='scheduled') add(b.payOn,-b.amt,vn,'bill');
+    else if (b.status==='approved'){ const inc = runInclude ? runInclude(b) : true; add(inc?RUN_DATE:b.due,-b.amt,vn,'bill'); }
+    else if (['approval','ready','review'].includes(b.status)) add(b.due < TODAY ? addDays(TODAY,1) : b.due,-b.amt,vn,'expected');
+  });
+  const pts = []; let bal = START_BAL; const events = [];
+  for (let i=0;i<=days;i++){ const d = addDays(TODAY,i); if (i>0) bal -= 2800; (ev[d]||[]).forEach(e=>{ bal += e.a; events.push({d,...e}); }); pts.push({d,v:bal}); }
+  let low = pts[0]; pts.forEach(p=>{ if (p.v < low.v) low = p; });
+  return {pts,low,events,endBal:pts[pts.length-1].v};
+}
+function niceTicks(min,max,count=4){
+  const span = max-min; const step0 = span/count; const mag = Math.pow(10,Math.floor(Math.log10(step0))); const norm = step0/mag;
+  const step = (norm<1.5?1:norm<3?2:norm<7?5:10)*mag; const lo = Math.floor(min/step)*step; const hi = Math.ceil(max/step)*step;
+  const t=[]; for (let v=lo; v<=hi+1e-6; v+=step) t.push(v); return t;
+}
+function LineChart({pts, floor, h=220, label}){
+  const W=760, H=h, L=58, R=16, T=14, B=28;
+  const vals = pts.map(p=>p.v).concat([floor]);
+  const ticks = niceTicks(Math.min(...vals)*0.96, Math.max(...vals)*1.02);
+  const y0 = ticks[0], y1 = ticks[ticks.length-1];
+  const X = i => L + (W-L-R) * (i/(pts.length-1));
+  const Y = v => T + (H-T-B) * (1 - (v-y0)/(y1-y0));
+  const line = pts.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1)).join(' ');
+  const area = line + ` L${X(pts.length-1).toFixed(1)} ${H-B} L${L} ${H-B} Z`;
+  let low = 0; pts.forEach((p,i)=>{ if (p.v < pts[low].v) low = i; });
+  const below = pts.find(p=>p.v<floor);
+  const nx = Math.min(5, pts.length-1); const xt = []; for (let k=0;k<=nx;k++) xt.push(Math.round(k*(pts.length-1)/nx));
+  const lowX = X(low), lowAnchor = lowX > W-120 ? 'end' : lowX < L+60 ? 'start' : 'middle';
+  return html`<svg className="chart" viewBox=${`0 0 ${W} ${H}`} width="100%" role="img" aria-label=${label}>
+    ${ticks.map(t=>html`<g key=${t}><line x1=${L} x2=${W-R} y1=${Y(t)} y2=${Y(t)} stroke="var(--line-2)"/><text x=${L-8} y=${Y(t)+4} textAnchor="end" fontSize="11" fill="var(--muted)">${kfmt(t)}</text></g>`)}
+    <path d=${area} fill="var(--accent-soft)"/>
+    <line x1=${L} x2=${W-R} y1=${Y(floor)} y2=${Y(floor)} stroke="var(--red-mark)" strokeDasharray="5 4"/>
+    <text x=${W-R} y=${Y(floor)-6} textAnchor="end" fontSize="11" fill="var(--red)">Floor ${kfmt(floor)}</text>
+    <path d=${line} fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinejoin="round"/>
+    <circle cx=${X(low)} cy=${Y(pts[low].v)} r="4" fill="var(--bg)" stroke=${below?'var(--red-mark)':'var(--accent)'} strokeWidth="2"/>
+    <text x=${lowX} y=${Y(pts[low].v)+18} textAnchor=${lowAnchor} fontSize="11.5" fontWeight="600" fill="var(--ink)">${kfmt(pts[low].v)} low · ${fmtD(pts[low].d)}</text>
+    <line x1=${L} x2=${W-R} y1=${H-B} y2=${H-B} stroke="var(--line-strong)"/>
+    ${xt.map(i=>html`<text key=${i} x=${X(i)} y=${H-8} textAnchor=${i===0?'start':i===pts.length-1?'end':'middle'} fontSize="11" fill="var(--muted)">${fmtD(pts[i].d)}</text>`)}
+  </svg>`;
+}
+
+/* ---------- Spend data ---------- */
+const SPEND = {
+  cats:[['Parts & materials',612400,688900],['Freight & logistics',142300,158700],['Software',125700,148300],['Contract labor',88200,94100],['Facilities',51600,49800],['Travel',22400,31200],['Legal & professional',18900,21300],['Office',9800,10400],['Utilities',8200,8900]],
+  software:[['Atlas Cloud Services','ac','Engineering',48200,63100],['Figment Design','fd','Design',9600,14800],['Northstar CRM','ns','Sales',18000,18900],['CodeVault',null,'Engineering',12400,13100,'CV',262],['Loomwise',null,'Design',2940,2940,'LW',38,true],['Tabula Forms',null,'Operations',1920,1920,'TF',16,true],['Stackpad',null,'Operations',1560,1560,'SP',180,true],['29 other vendors',null,'Various',31080,31980,'+29',60]],
+};
+
+/* ---------- App ---------- */
+const NAV = [
+  ['home','Home','home'],['bills','Bills','bills'],['approvals','Approvals','approvals'],['payments','Payments','payments'],['vendors','Vendors','vendors'],['pos','Purchase orders','po'],['recon','Reconciliation','recon'],
+  ['-','Insights'],['spend','Spend','spend'],['forecast','Cash forecast','forecast'],
+  ['-','Controls'],['autopilot','Autopilot','autopilot'],['activity','Activity log','activity'],['settings','Settings','settings'],
+];
+const PAGE_TITLE = Object.fromEntries(NAV.filter(n=>n[0]!=='-').map(n=>[n[0],n[1]]));
+
+function loadDb(){ try { const s = localStorage.getItem(STORE_KEY); if (s) return JSON.parse(s); } catch(e){} return seed(); }
+
+function App(){
+  const [db,setDb] = useState(loadDb);
+  const [page,setPage] = useState(()=>{ const h=(location.hash||'').slice(1); return PAGE_TITLE[h]?h:'home'; });
+  const [tabs,setTabs] = useState({bills:'review',approvals:'mine',payments:'run',pos:'open',recon:'attention',settings:'company',vendorsCat:'all'});
+  const [drawer,setDrawer] = useState(null);
+  const [modal,setModal] = useState(null);
+  const [ask,setAsk] = useState(null);
+  const [palette,setPalette] = useState(false);
+  const [navOpen,setNavOpen] = useState(false);
+  const [toasts,setToasts] = useState([]);
+  const [notifOpen,setNotifOpen] = useState(false);
+
+  useEffect(()=>{ try { localStorage.setItem(STORE_KEY, JSON.stringify(db)); } catch(e){} },[db]);
+  useEffect(()=>{ const k = e => {
+      if ((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); setPalette(p=>!p); }
+      else if (e.key==='Escape'){ if (palette) setPalette(false); else if (modal) setModal(null); else if (drawer) setDrawer(null); else if (ask) setAsk(null); else if (notifOpen) setNotifOpen(false); else if (navOpen) setNavOpen(false); }
+    }; window.addEventListener('keydown',k); return ()=>window.removeEventListener('keydown',k); },[palette,modal,drawer,ask,notifOpen,navOpen]);
+
+  const toast = useCallback((msg, undoId) => { const id = uid('t'); setToasts(t=>[...t,{id,msg,undoId}]); setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)), 5200); },[]);
+  const mutate = useCallback(fn => setDb(d => { const n = clone(d); fn(n); return n; }),[]);
+  const log = (n, entry) => { n.clock += 1 + Math.floor(Math.random()*2); const e = {id:uid('a'),day:'Today',t:clockLabel(n.clock),...entry}; n.activity.unshift(e); return e.id; };
+
+  const nav = (p, opts={}) => { setPage(p); setNavOpen(false); setDrawer(null); if (opts.tab) setTabs(t=>({...t,[opts.tabKey||p]:opts.tab})); try { history.replaceState(null,'','#'+p); } catch(e){} const c = document.querySelector('.content'); if (c) c.scrollTop = 0; };
+  const setTab = (k,v) => setTabs(t=>({...t,[k]:v}));
+
+  /* Actions */
+  const act = {
+    setStatus(ids, to, extra={}, verb){
+      ids = [].concat(ids); let entryId;
+      mutate(n => { ids.forEach(id=>{ const b = n.bills.find(x=>x.id===id); if (!b) return; const from = b.status; b.status = to; Object.assign(b, typeof extra==='function'? extra(b,n) : extra);
+        entryId = log(n,{actor:ME,kind:'Bill',text:`${verb||('Moved to '+to)}: ${vendorOf(n,b).name} ${b.num}`,billId:b.id,undo:{billId:b.id,from,to}}); }); });
+      return entryId;
+    },
+    submit(ids){
+      ids = [].concat(ids); const pending = [];
+      mutate(n=>{ ids.forEach(id=>{ const b=n.bills.find(x=>x.id===id); if (!b || b.flags.length) return; const from=b.status; b.lines.forEach(l=>l.sug=false); b.status='approval'; b.approver=approverFor(b); b.submittedBy=ME;
+        log(n,{actor:ME,kind:'Submission',text:`Submitted ${vendorOf(n,b).name} ${b.num} for approval`,out:`Routed to ${b.approver===ME?'you':b.approver}`,billId:b.id,undo:{billId:b.id,from,to:'approval'}});
+        if (b.approver!==ME) pending.push({id:b.id,who:b.approver,name:vendorOf(n,b).name+' '+b.num}); }); });
+      toast(ids.length>1 ? `Submitted ${ids.length} bills for approval` : 'Submitted for approval');
+      pending.forEach((p,i)=>setTimeout(()=>{ mutate(n=>{ const b=n.bills.find(x=>x.id===p.id); if (b && b.status==='approval'){ b.status='approved'; b.approvedBy=p.who; log(n,{actor:p.who,kind:'Approval',text:`Approved ${p.name}`,out:'Added to the next payment run',billId:b.id}); } }); toast(`${p.who} approved ${p.name}`); }, 3800 + i*900));
+    },
+    approve(ids){ ids=[].concat(ids); mutate(n=>{ ids.forEach(id=>{ const b=n.bills.find(x=>x.id===id); if(!b) return; const from=b.status; b.status='approved'; b.approvedBy=ME; log(n,{actor:ME,kind:'Approval',text:`Approved ${vendorOf(n,b).name} ${b.num}, ${money(b.amt)}`,out:'Added to the next payment run',billId:b.id,undo:{billId:b.id,from,to:'approved'}}); }); }); toast(ids.length>1?`Approved ${ids.length} bills`:'Approved. Added to the next payment run.'); },
+    reject(id, reason){ mutate(n=>{ const b=n.bills.find(x=>x.id===id); const from=b.status; b.status='review'; b.flags.push({type:'rejected',reason}); log(n,{actor:ME,kind:'Approval',text:`Returned ${vendorOf(n,b).name} ${b.num} to AP`,out:reason,billId:b.id,undo:{billId:b.id,from,to:'review'}}); }); toast('Returned to AP with your note'); },
+    resolve(id, type, how, patch){ mutate(n=>{ const b=n.bills.find(x=>x.id===id); b.flags = b.flags.filter(f=>f.type!==type); if (patch) patch(b,n); if (!b.flags.length && (b.status==='review'||b.status==='hold')) b.status='ready';
+      log(n,{actor:ME,kind:'Review',text:`${how} on ${vendorOf(n,b).name} ${b.num}`,out:b.status==='ready'?'Ready to submit':'Still needs review',billId:b.id}); }); },
+    acceptLine(id, idx){ mutate(n=>{ const b=n.bills.find(x=>x.id===id); b.lines[idx].sug=false; b.lines[idx].c='h'; log(n,{actor:ME,kind:'Smart Coding',text:`Accepted ${glName(b.lines[idx].gl)} on ${b.num}`,out:'Autopilot will reuse this',billId:b.id}); }); },
+    setLineGl(id, idx, gl){ mutate(n=>{ const b=n.bills.find(x=>x.id===id); const old=b.lines[idx].gl; b.lines[idx].gl=gl; b.lines[idx].sug=false; b.lines[idx].c='h'; log(n,{actor:ME,kind:'Correction',text:`Changed GL on ${b.num} from ${old} to ${glName(gl)}`,out:'Autopilot learned this rule',billId:b.id}); }); toast('Account updated. Autopilot will learn from this.'); },
+    voidBill(id){ let e; mutate(n=>{ const b=n.bills.find(x=>x.id===id); const from=b.status; b.status='void'; b.flags=[]; e=log(n,{actor:ME,kind:'Guardrails',text:`Voided ${vendorOf(n,b).name} ${b.num} as a duplicate`,out:`Saved ${money(b.amt)}`,billId:b.id,undo:{billId:b.id,from,to:'void'}}); }); setDrawer(null); toast('Voided as a duplicate', e); },
+    verifyBank(id, cosigner){ mutate(n=>{ const b=n.bills.find(x=>x.id===id); const v=vendorOf(n,b); v.bank={name:v.pendingBank.name,last4:v.pendingBank.last4,routing:v.pendingBank.routing,verified:TODAY}; delete v.pendingBank; b.flags=b.flags.filter(f=>f.type!=='bank'); if(!b.flags.length) b.status='ready';
+      log(n,{actor:ME,kind:'Guardrails',text:`Verified new bank details for ${v.name} by phone`,out:`Co-approved by ${cosigner}`,billId:b.id}); }); setModal(null); toast('Bank details verified. Bill is ready to submit.'); },
+    reportFraud(id){ mutate(n=>{ const b=n.bills.find(x=>x.id===id); const v=vendorOf(n,b); b.status='void'; b.flags=[]; delete v.pendingBank; log(n,{actor:ME,kind:'Guardrails',text:`Reported ${b.num} as payment-redirection fraud`,out:'Vendor notified on the number on file',billId:b.id}); }); setModal(null); setDrawer(null); toast('Reported as fraud. The bill is void and the vendor record is unchanged.'); },
+    releaseRun(list, cosigner){ const total = list.reduce((s,x)=>s+x.b.amt,0); mutate(n=>{ list.forEach(({b,p})=>{ const nb=n.bills.find(x=>x.id===b.id); nb.status='scheduled'; nb.payOn=RUN_DATE; nb.method=p.method; }); n.run.exclude={};
+      log(n,{actor:ME,kind:'Payment run',text:`Released the Oct 28 payment run: ${list.length} bills, ${money(total)}`,out:cosigner?`Co-signed by ${cosigner}`:'Single approver'}); }); setModal(null); toast(`Released ${list.length} payments. They leave Operating ··2502 on Oct 28.`); setTab('payments','scheduled'); },
+    cancelPayment(id){ const e = act.setStatus(id,'approved',{payOn:null},'Cancelled payment'); toast('Payment cancelled. The bill is back in To pay.'); },
+    settle(ids){ ids=[].concat(ids); mutate(n=>{ ids.forEach(id=>{ const b=n.bills.find(x=>x.id===id); b.status='paid'; b.paidOn=b.payOn||TODAY; log(n,{actor:'ai',kind:'Reconciliation',text:`Matched the bank debit for ${vendorOf(n,b).name} ${b.num}`,out:'Paid and reconciled',billId:b.id}); n.txns.unshift({id:uid('t'),date:b.paidOn,desc:'ACH DEBIT '+vendorOf(n,b).name.toUpperCase(),amt:-b.amt,status:'matched',match:b.id,conf:100,by:'Autopilot'}); }); }); toast(ids.length>1?`${ids.length} payments settled and reconciled`:'Payment settled and reconciled'); },
+    toggleRun(id, include){ mutate(n=>{ n.run.exclude[id] = !include; }); },
+    setLevel(ruleId, level){ mutate(n=>{ const r=n.rules.find(x=>x.id===ruleId); const old=r.level; r.level=level; log(n,{actor:ME,kind:'Autopilot',text:`Changed ${r.name} from ${old} to ${level}`,out:level==='autopilot'?`Limits: ${money(r.capBill||0,0)} per bill`:'No auto-approvals'}); }); toast('Autopilot level updated'); },
+    setCap(ruleId, key, val){ mutate(n=>{ const r=n.rules.find(x=>x.id===ruleId); r[key]=Math.max(0,Number(val)||0); }); },
+    setVendorLevel(vid, level){ mutate(n=>{ const v=n.vendors.find(x=>x.id===vid); v.level=level; log(n,{actor:ME,kind:'Autopilot',text:`Set ${v.name} to ${level}`}); }); toast('Vendor Autopilot level updated'); },
+    promote(){ mutate(n=>{ n.promoted=true; const v=n.vendors.find(x=>x.id==='nw'); v.level='autopilot'; n.rules.splice(4,0,{id:'r8',name:'Northwind Freight',sub:'Promoted today',level:'autopilot',capBill:20000,capDay:40000,acc:'100%',n:41}); log(n,{actor:ME,kind:'Autopilot',text:'Moved Northwind Freight to Autopilot',out:'Limit $20,000 per bill'}); }); toast('Northwind Freight now runs on Autopilot'); },
+    recon(tid, what, extra){ mutate(n=>{ const t=n.txns.find(x=>x.id===tid); if (what==='accept'){ t.status='matched'; t.by=ME; log(n,{actor:ME,kind:'Reconciliation',text:`Matched ${t.desc} to ${n.bills.find(b=>b.id===t.match).num}`}); }
+      else if (what==='reject'){ t.status='unmatched'; t.hint='You rejected the suggested match. Pick a bill or book it as an expense.'; t.match=null; }
+      else if (what==='expense'){ t.status='matched'; t.by=ME; t.booked=glName(extra); log(n,{actor:ME,kind:'Reconciliation',text:`Booked ${t.desc} to ${glName(extra)}`}); }
+      else if (what==='deposit'){ t.status='matched'; t.by=ME; t.booked='Receivables'; log(n,{actor:ME,kind:'Reconciliation',text:`Sent ${t.desc} to Receivables`}); }
+      else if (what==='receipt'){ t.requested=true; log(n,{actor:ME,kind:'Reconciliation',text:'Asked Marcus Chen for a receipt: '+t.desc}); }
+      else if (what==='link'){ t.status='matched'; t.match=extra; t.by=ME; t.conf=100; log(n,{actor:ME,kind:'Reconciliation',text:`Matched ${t.desc} to ${n.bills.find(b=>b.id===extra).num}`}); } });
+      toast(what==='receipt'?'Receipt request sent to Marcus Chen':what==='reject'?'Suggestion rejected':'Transaction reconciled'); },
+    holdRenewals(){ mutate(n=>{ n.renewalsHeld=true; log(n,{actor:ME,kind:'Ask Ledger',text:'Held 3 unused renewals: Loomwise, Tabula Forms, Stackpad',out:'Saves $2,140 a month'}); }); toast('Held 3 renewals. Owners were notified.'); },
+    undo(entryId){ let ok=false; mutate(n=>{ const e=n.activity.find(x=>x.id===entryId); if (!e||!e.undo||e.undone) return; const b=n.bills.find(x=>x.id===e.undo.billId); if (!b || b.status!==e.undo.to) return; b.status=e.undo.from; e.undone=true; ok=true; log(n,{actor:ME,kind:'Undo',text:`Undid: ${e.text}`,billId:b.id}); }); toast('Undone'); },
+    addBill(b){ mutate(n=>{ n.bills.unshift(b); log(n,{actor:'ai',kind:'Invoice Autopilot',text:`Read ${b.num} from ${vendorOf(n,b).name}. All fields confident.`,out:'Ready to submit',billId:b.id}); }); },
+    setSetting(path, val){ mutate(n=>{ const ks=path.split('.'); let o=n.settings; ks.slice(0,-1).forEach(k=>o=o[k]); o[ks[ks.length-1]]=val; }); },
+    reset(){ const s = seed(); setDb(s); setDrawer(null); setModal(null); toast('Demo data reset'); },
+    auditDone(){ mutate(n=>{ n.auditWaiting = Math.max(0,n.auditWaiting-1); log(n,{actor:ME,kind:'Audit sample',text:'Checked 1 auto-approved software bill',out:'No issues'}); }); toast('Sample checked. No issues found.'); },
+  };
+
+  const openBill = id => setDrawer({type:'bill',id});
+  const ctx = {db,act,nav,tabs,setTab,openBill,setDrawer,setModal,toast,setAsk};
+
+  const counts = {
+    bills: db.bills.filter(b=>b.status==='review'||b.status==='hold').length,
+    approvals: db.bills.filter(b=>b.status==='approval'&&b.approver===ME).length,
+    recon: db.txns.filter(t=>t.status!=='matched').length,
+  };
+
+  const Page = {home:HomePage,bills:BillsPage,approvals:ApprovalsPage,payments:PaymentsPage,vendors:VendorsPage,pos:POPage,recon:ReconPage,spend:SpendPage,forecast:ForecastPage,autopilot:AutopilotPage,activity:ActivityPage,settings:SettingsPage}[page];
+
+  return html`<div className=${cx('app', navOpen&&'nav-open')}>
+    ${navOpen && html`<div className="nav-scrim" onClick=${()=>setNavOpen(false)}></div>`}
+    <nav className="side" aria-label="Main">
+      <div className="ws"><div className="ws-mark">K</div><div className="ws-text"><b>Kestrel Robotics</b><span className="sub">Ledgerline</span></div><span className="ws-chev spacer"></span><${Icon} n="updown" s=${14} cls="ws-chev muted"/></div>
+      ${NAV.map((n,i)=> n[0]==='-' ? html`<div key=${'s'+i} className="sl">${n[1]}</div>` :
+        html`<button key=${n[0]} className="ni" aria-current=${page===n[0]?'page':undefined} onClick=${()=>nav(n[0])} title=${n[1]}>
+          <${Icon} n=${n[2]}/><span className="lbl">${n[1]}</span>${counts[n[0]]?html`<span className="cnt num">${counts[n[0]]}</span><span className="badge-dot"></span>`:null}
+        </button>`)}
+      <div className="sync"><span className="dot"></span><span>NetSuite synced 2 min ago</span></div>
+    </nav>
+    <div className="main">
+      <header className="top">
+        <button className="btn icon-btn ghost menu-btn" aria-label="Open menu" onClick=${()=>setNavOpen(true)}><${Icon} n="menu"/></button>
+        <button className="search" onClick=${()=>setPalette(true)} aria-label="Search or jump to"><${Icon} n="search" s=${15}/><span className="ph">Search bills, vendors or pages</span><span className="kbd">⌘K</span></button>
+        <div className="spacer"></div>
+        <button className="btn ai-btn" onClick=${()=>setAsk(a=>a?null:{seed:null})}><${Spark} s=${13}/>Ask Ledger</button>
+        <div style=${{position:'relative'}}>
+          <button className="btn icon-btn ghost" aria-label="Notifications" aria-expanded=${notifOpen} onClick=${()=>setNotifOpen(o=>!o)}><${Icon} n="bell"/></button>
+          ${notifOpen && html`<${Notifications} ctx=${ctx} close=${()=>setNotifOpen(false)}/>`}
+        </div>
+        <div className="avatar" style=${{'--h':25}} title="Dana Nguyen, Controller">DN</div>
+      </header>
+      <div className="content"><${Page} ctx=${ctx}/></div>
+    </div>
+    ${drawer && html`<div className="scrim" onClick=${()=>setDrawer(null)}></div>`}
+    ${drawer && drawer.type==='bill' && html`<${BillDrawer} ctx=${ctx} id=${drawer.id} close=${()=>setDrawer(null)}/>`}
+    ${drawer && drawer.type==='vendor' && html`<${VendorDrawer} ctx=${ctx} id=${drawer.id} close=${()=>setDrawer(null)}/>`}
+    ${drawer && drawer.type==='po' && html`<${PODrawer} ctx=${ctx} id=${drawer.id} close=${()=>setDrawer(null)}/>`}
+    ${drawer && drawer.type==='activity' && html`<${ActivityDrawer} ctx=${ctx} id=${drawer.id} close=${()=>setDrawer(null)}/>`}
+    ${modal && html`<${ModalHost} ctx=${ctx} modal=${modal} close=${()=>setModal(null)}/>`}
+    ${ask && html`<${AskPanel} key=${ask.seed||'ask'} ctx=${ctx} seedQ=${ask.seed} close=${()=>setAsk(null)}/>`}
+    ${palette && html`<${Palette} ctx=${ctx} close=${()=>setPalette(false)}/>`}
+    <div className="toasts" role="status" aria-live="polite">${toasts.map(t=>html`<div key=${t.id} className="toast"><span>${t.msg}</span>${t.undoId?html`<button onClick=${()=>{act.undo(t.undoId); setToasts(x=>x.filter(y=>y.id!==t.id));}}>Undo</button>`:null}</div>`)}</div>
+  </div>`;
+}
+
+/* ---------- Shared bits ---------- */
+function VLogo({v, size}){ return html`<div className=${cx('logo',size)} style=${{'--h':v.h}} aria-hidden="true">${v.ini}</div>`; }
+function Tabs({items, value, onChange, label}){
+  return html`<div className="tabs" role="tablist" aria-label=${label}>${items.map(([k,l,n])=>html`<button key=${k} role="tab" className="tab" aria-selected=${value===k} onClick=${()=>onChange(k)}>${l}${n!==undefined&&n!==null?html`<span className="n num">${n}</span>`:null}</button>`)}</div>`;
+}
+function Seg({items, value, onChange, label, disabled}){
+  return html`<div className="seg" role="group" aria-label=${label}>${items.map(([k,l])=>html`<button key=${k} type="button" className=${k==='autopilot'?'auto':''} aria-pressed=${value===k} disabled=${disabled} onClick=${()=>onChange(k)}>${l}</button>`)}</div>`;
+}
+function Empty({title, text, action}){ return html`<div className="empty"><${Icon} n="check" s=${22} cls="ok"/><b>${title}</b><span>${text}</span>${action}</div>`; }
+function Drawer({close, children, head, foot, narrow, label}){
+  return html`<aside className=${cx('drawer',narrow&&'narrow')} role="dialog" aria-label=${label} aria-modal="true">
+    <div className="dh">${head}</div>
+    <div className="db">${children}</div>
+    ${foot && html`<div className="df">${foot}</div>`}
+  </aside>`;
+}
+function CloseBtn({close}){ return html`<button className="btn icon-btn ghost" aria-label="Close" onClick=${close}><${Icon} n="x"/></button>`; }
+function Switch({on, onChange, label}){ return html`<button className="switch" role="switch" aria-checked=${!!on} aria-label=${label} onClick=${()=>onChange(!on)}></button>`; }
+
+/* ---------- Home ---------- */
+function HomePage({ctx}){
+  const {db,nav,openBill,act} = ctx;
+  const review = db.bills.filter(b=>b.status==='review'||b.status==='hold');
+  const mine = db.bills.filter(b=>b.status==='approval'&&b.approver===ME);
+  const toPay = db.bills.filter(b=>b.status==='approved');
+  const ready = db.bills.filter(b=>b.status==='ready');
+  const recon = db.txns.filter(t=>t.status!=='matched');
+  const fc = forecast(db,30);
+  const upcoming = db.bills.filter(b=>['scheduled','approved','approval'].includes(b.status)).map(b=>({b,d:b.status==='scheduled'?b.payOn:b.due})).filter(x=>x.d<=addDays(TODAY,14)).sort((a,b)=>a.d<b.d?-1:1);
+  const tasks = [
+    review.length && {icon:'bills',t:`${review.length} bills need review`,s:`${review.filter(b=>b.status==='hold').length} held by guardrails, ${review.filter(b=>b.status==='review').length} with a question`,go:()=>nav('bills',{tab:'review'}),tone:'amber'},
+    mine.length && {icon:'approvals',t:`${mine.length} approvals waiting for you`,s:money(mine.reduce((s,b)=>s+b.amt,0))+' in total',go:()=>nav('approvals',{tab:'mine'})},
+    ready.length && {icon:'send',t:`${ready.length} bills ready to submit`,s:'Coded by Autopilot, no questions',go:()=>nav('bills',{tab:'ready'})},
+    toPay.length && {icon:'payments',t:`Payment run for ${fmtD(RUN_DATE)} is ready`,s:`${toPay.length} approved bills to review and release`,go:()=>nav('payments',{tab:'run'})},
+    recon.length && {icon:'recon',t:`${recon.length} bank transactions need a person`,s:'Autopilot matched the rest',go:()=>nav('recon',{tab:'attention'})},
+    db.auditWaiting && {icon:'shield',t:`${db.auditWaiting} audit samples to check`,s:'Auto-approved bills picked at random',go:()=>nav('autopilot')},
+  ].filter(Boolean);
+  const spark = fc.pts.filter((_,i)=>i%2===0);
+  const smin = Math.min(...spark.map(p=>p.v)), smax = Math.max(...spark.map(p=>p.v));
+  const sp = spark.map((p,i)=>`${(i/(spark.length-1)*300).toFixed(1)},${(56-(p.v-smin)/(smax-smin||1)*48).toFixed(1)}`).join(' ');
+  return html`<div className="page">
+    <div className="ph"><div><h1>Good morning, Dana</h1><div className="desc">${fmtDL(TODAY)}</div></div><div className="spacer"></div>
+      <button className="btn" onClick=${()=>ctx.setModal({type:'upload'})}><${Icon} n="upload" s=${15}/>Upload bill</button>
+      <button className="btn pri" onClick=${()=>nav('payments',{tab:'run'})}>Review payment run</button></div>
+    <div className="banner"><${Spark} s=${15}/><div className="txt"><b style=${{fontWeight:600}}>Autopilot read 41 invoices overnight.</b> <span className="muted">${ready.length} are ready to submit and ${review.length} need you. It also matched 57 bank transactions.</span></div><button className="btn sm" onClick=${()=>nav('activity')}>See what it did</button></div>
+    <div className="hgrid">
+      <section className="card span2" aria-labelledby="h-todo">
+        <div className="card-h"><h3 id="h-todo">To do</h3><span className="sub">${tasks.length} items</span></div>
+        <div style=${{marginTop:12}}>${tasks.length? tasks.map((t,i)=>html`<button key=${i} className="task" onClick=${t.go}><span className="ti" style=${t.tone==='amber'?{background:'var(--amber-bg)',color:'var(--amber)'}:null}><${Icon} n=${t.icon}/></span><span className="stack" style=${{flex:1,minWidth:0}}><span style=${{fontWeight:500}}>${t.t}</span><span className="sub">${t.s}</span></span><${Icon} n="chevR" cls="muted"/></button>`) : html`<${Empty} title="You're all caught up" text="New work will show up here."/>`}</div>
+      </section>
+      <section className="card" aria-labelledby="h-cash">
+        <div className="card-h"><h3 id="h-cash">Cash</h3><span className="spacer"></span><button className="btn sm ghost" onClick=${()=>nav('forecast')}>Forecast<${Icon} n="chevR" s=${14}/></button></div>
+        <div className="card-b stack" style=${{gap:10}}>
+          <span className="sub">Operating ··2502</span>
+          <span className="num" style=${{fontSize:26,fontWeight:600,letterSpacing:'-.02em'}}><${Money} n=${START_BAL}/></span>
+          <svg viewBox="0 0 300 60" width="100%" height="60" preserveAspectRatio="none" role="img" aria-label="30-day balance forecast"><polyline points=${sp} fill="none" stroke="var(--accent)" strokeWidth="2" vectorEffect="non-scaling-stroke"/></svg>
+          <div className="kv" style=${{borderTop:'1px solid var(--line-2)',paddingTop:10}}><span>30-day low</span><span className="num" style=${{fontWeight:500}}>${kfmt(fc.low.v)} on ${fmtD(fc.low.d)}</span></div>
+          <div className="kv"><span>Your floor</span><span className="num">${kfmt(db.settings.floor)}</span></div>
+        </div>
+      </section>
+      <section className="card span2" aria-labelledby="h-up">
+        <div className="card-h"><h3 id="h-up">Money going out in the next 14 days</h3><span className="spacer"></span><button className="btn sm ghost" onClick=${()=>nav('payments',{tab:'scheduled'})}>Payments<${Icon} n="chevR" s=${14}/></button></div>
+        <div style=${{marginTop:12}}>${upcoming.slice(0,7).map(({b,d})=>{ const v=vendorOf(db,b); return html`<div key=${b.id} className="list-row" style=${{cursor:'pointer'}} onClick=${()=>openBill(b.id)}><span className="sub num" style=${{width:52}}>${fmtD(d)}</span><${VLogo} v=${v} size="sm"/><span style=${{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${v.name}</span><span className="hide-sm">${statusPill(b)}</span><span className="num" style=${{width:110,textAlign:'right',fontWeight:500}}><${Money} n=${b.amt}/></span></div>`; })}
+        ${!upcoming.length && html`<${Empty} title="Nothing going out" text="No payments in the next 14 days."/>`}</div>
+      </section>
+      <section className="card" aria-labelledby="h-auto">
+        <div className="card-h"><h3 id="h-auto">Autopilot this month</h3><span className="spacer"></span><button className="btn sm ghost" onClick=${()=>nav('autopilot')}>Settings<${Icon} n="chevR" s=${14}/></button></div>
+        <div className="card-b stack" style=${{gap:4}}>
+          <div className="kv"><span>Bills with no edits</span><span className="num" style=${{fontWeight:500}}>38%</span></div>
+          <div className="kv"><span>Fields corrected by people</span><span className="num">0.4%</span></div>
+          <div className="kv"><span>Duplicates stopped</span><span className="num">3 · ${money(21480.18,0)}</span></div>
+          <div className="kv"><span>Discounts captured</span><span className="num" style=${{color:'var(--green)'}}>${money(4212.40)}</span></div>
+        </div>
+      </section>
+    </div>
+  </div>`;
+}
+
+/* ---------- Bills ---------- */
+function BillsPage({ctx}){
+  const {db,tabs,setTab,openBill,act,setModal} = ctx;
+  const tab = tabs.bills; const [q,setQ] = useState(''); const [vf,setVf] = useState(''); const [sel,setSel] = useState({});
+  useEffect(()=>setSel({}),[tab]);
+  const def = TAB_DEF.find(t=>t[0]===tab);
+  const ql = q.trim().toLowerCase();
+  const rows = db.bills.filter(def[2]).filter(b=>!vf||b.v===vf).filter(b=>{ if(!ql) return true; const v=vendorOf(db,b); return (v.name+' '+b.num+' '+b.amt.toFixed(2)).toLowerCase().includes(ql); })
+    .sort((a,b)=> tab==='paid' ? (a.paidOn<b.paidOn?1:-1) : (a.due<b.due?-1:1));
+  const selIds = Object.keys(sel).filter(k=>sel[k] && rows.some(r=>r.id===k));
+  const selRows = rows.filter(r=>selIds.includes(r.id));
+  const count = k => db.bills.filter(TAB_DEF.find(t=>t[0]===k)[2]).length;
+  const sum = f => db.bills.filter(f).reduce((s,b)=>s+b.amt,0);
+  const allSel = rows.length && selIds.length===rows.length;
+  const canSelect = ['ready','approval','approved','scheduled'].includes(tab);
+  const sumSel = selRows.reduce((s,b)=>s+b.amt,0);
+  const bulk = () => {
+    if (tab==='ready') return html`<button className="btn sm pri" onClick=${()=>{act.submit(selIds); setSel({});}}>Submit ${selIds.length} for approval</button>`;
+    if (tab==='approval'){ const mine = selRows.filter(b=>b.approver===ME).map(b=>b.id); return html`<button className="btn sm pri" disabled=${!mine.length} onClick=${()=>{act.approve(mine); setSel({});}}>Approve ${mine.length} of yours</button>`; }
+    if (tab==='approved') return html`<button className="btn sm pri" onClick=${()=>ctx.nav('payments',{tab:'run'})}>Open payment run</button>`;
+    if (tab==='scheduled') return html`<button className="btn sm pri" onClick=${()=>{act.settle(selIds); setSel({});}}>Mark ${selIds.length} as settled</button>`;
+  };
+  const lastCol = tab==='review' ? 'Why it needs you' : 'Status';
+  return html`<div className="page">
+    <div className="ph"><div><h1>Bills</h1><div className="desc">Forward invoices to <span className="mono" style=${{color:'var(--ink)'}}>bills@kestrel.ledgerline.com</span></div></div><div className="spacer"></div>
+      <button className="btn" onClick=${()=>setModal({type:'upload'})}><${Icon} n="upload" s=${15}/>Upload</button>
+      <button className="btn pri" onClick=${()=>setModal({type:'upload'})}><${Icon} n="plus" s=${15}/>New bill</button></div>
+    <div className="stats">
+      <button className="stat" onClick=${()=>setTab('bills','review')}><span className="sub">Needs review · ${count('review')}</span><span className="v"><${Money} n=${sum(TAB_DEF[0][2])}/></span></button>
+      <button className="stat" onClick=${()=>setTab('bills','approval')}><span className="sub">In approval · ${count('approval')}</span><span className="v"><${Money} n=${sum(TAB_DEF[2][2])}/></span></button>
+      <button className="stat" onClick=${()=>setTab('bills','scheduled')}><span className="sub">Scheduled · ${count('scheduled')}</span><span className="v"><${Money} n=${sum(TAB_DEF[4][2])}/></span></button>
+      <button className="stat" onClick=${()=>{setTab('bills','all'); setQ('');}}><span className="sub" style=${{color:'var(--red)'}}>Overdue · ${db.bills.filter(isOverdue).length}</span><span className="v"><${Money} n=${sum(isOverdue)}/></span></button>
+    </div>
+    ${tab==='review' && count('ready')>0 && html`<div className="banner"><${Spark} s=${15}/><div className="txt"><b style=${{fontWeight:600}}>${count('ready')} bills are coded and ready.</b> <span className="muted">Autopilot had no questions about them.</span></div><button className="btn sm pri" onClick=${()=>act.submit(db.bills.filter(b=>b.status==='ready').map(b=>b.id))}>Submit ${count('ready')} ready</button></div>`}
+    <div className="stack">
+      <${Tabs} label="Bill status" value=${tab} onChange=${k=>setTab('bills',k)} items=${TAB_DEF.map(t=>[t[0],t[1],t[0]==='all'||t[0]==='paid'?undefined:count(t[0])])}/>
+      <div className="toolbar" style=${{padding:'12px 0'}}>
+        <label className="filter-inp"><${Icon} n="search" s=${14} cls="muted"/><input id="bill-search" aria-label="Filter bills" placeholder="Vendor, invoice or amount" value=${q} onInput=${e=>setQ(e.target.value)}/></label>
+        <select className="sel sm" aria-label="Vendor" value=${vf} onChange=${e=>setVf(e.target.value)}><option value="">All vendors</option>${db.vendors.map(v=>html`<option key=${v.id} value=${v.id}>${v.name}</option>`)}</select>
+        <div className="spacer"></div><span className="sub">${rows.length} ${rows.length===1?'bill':'bills'} · <${Money} n=${rows.reduce((s,b)=>s+b.amt,0)}/></span>
+      </div>
+      ${rows.length ? html`<div className="tbl-wrap"><table className="t">
+        <thead><tr>
+          ${canSelect && html`<th className="chk"><input type="checkbox" aria-label="Select all" checked=${!!allSel} onChange=${e=>{ const o={}; if (e.target.checked) rows.forEach(r=>o[r.id]=true); setSel(o); }}/></th>`}
+          <th>Vendor</th><th className="hide-sm">Invoice</th><th>${tab==='scheduled'?'Pays on':tab==='paid'?'Paid on':'Due'}</th><th className="r">Amount</th><th className="hide-md">GL account</th><th>${lastCol}</th>
+        </tr></thead>
+        <tbody>${rows.map(b=>{ const v=vendorOf(db,b); const sug=b.lines.some(l=>l.sug); const od=isOverdue(b);
+          return html`<tr key=${b.id} className=${cx('click',sel[b.id]&&'sel')} onClick=${()=>openBill(b.id)}>
+            ${canSelect && html`<td className="chk" onClick=${e=>e.stopPropagation()}><input type="checkbox" aria-label=${'Select '+b.num} checked=${!!sel[b.id]} onChange=${e=>setSel(s=>({...s,[b.id]:e.target.checked}))}/></td>`}
+            <td><div className="vcell"><${VLogo} v=${v}/><div className="stack" style=${{minWidth:0}}><span className="nm">${v.name}</span><span className="sub">${b.src}${b.rcv?' · '+b.rcv:''}</span></div></div></td>
+            <td className="hide-sm mono">${b.num}</td>
+            <td className="num" style=${od?{color:'var(--red)'}:null}>${fmtD(tab==='scheduled'?b.payOn:tab==='paid'?b.paidOn:b.due)}${od?html`<div className="sub" style=${{color:'var(--red)'}}>Overdue</div>`:null}</td>
+            <td className="r num" style=${{fontWeight:500}}><${Money} n=${b.amt}/>${b.fx?html`<div className="sub">€${b.fx.amt.toLocaleString('en-US',{minimumFractionDigits:2})}</div>`:null}</td>
+            <td className="hide-md"><span className="row" style=${{gap:6}}>${b.status!=='paid'?html`<span className="ai-mark" title="Coded by Autopilot"><${Spark} s=${11}/></span>`:null}<span>${glName(b.lines[0].gl)}</span>${b.lines.length>1?html`<span className="sub">+${b.lines.length-1}</span>`:null}</span></td>
+            <td>${tab==='review' ? html`<div className="row" style=${{flexWrap:'wrap',gap:6}}>${b.flags.map((f,i)=>html`<span key=${i}>${flagPill(f)}</span>`)}${!b.flags.length&&sug?html`<span className="pill blue">1 suggestion to accept</span>`:null}</div>` : statusPill(b)}</td>
+          </tr>`; })}</tbody></table></div>`
+        : html`<div className="tbl-wrap"><${Empty} title=${tab==='review'?'Nothing needs review':'No bills here'} text=${ql||vf?'Try a different filter.':tab==='review'?'Autopilot will flag anything it isn’t sure about.':'Bills move here as they progress.'}/></div>`}
+      ${selIds.length>0 && html`<div className="bulk" style=${{marginTop:16}}><span className="num">${selIds.length} selected · <${Money} n=${sumSel}/></span>${bulk()}<button className="btn sm" onClick=${()=>setSel({})}>Clear</button></div>`}
+    </div>
+  </div>`;
+}
+
+function BillDrawer({ctx, id, close}){
+  const {db,act,setModal,nav} = ctx; const b = db.bills.find(x=>x.id===id); const [tab,setTab] = useState('details');
+  const [rejecting,setRejecting] = useState(false); const [reason,setReason] = useState('');
+  if (!b) return null;
+  const v = vendorOf(db,b); const flags = b.flags; const po = b.po && db.pos.find(p=>p.id===b.po);
+  const acts = db.activity.filter(a=>a.billId===b.id);
+  const total = b.lines.reduce((s,l)=>s+l.a,0); const adds = Math.abs(total-b.amt)<0.005;
+  const dupPaid = db.bills.find(x=>x.id!==b.id && x.v===b.v && x.num===b.num && x.status==='paid');
+  const budgetUsed = 296400;
+  const fields = [
+    ['Invoice number', html`<span className="mono">${b.num}</span>`, 'h'],
+    ['Invoice date', fmtDY(b.issued), 'h'],
+    ['Due date', fmtDY(b.due), flags.some(f=>f.type==='date')?'l':'h'],
+    ['Payment terms', v.terms, 'h'],
+    ['Purchase order', po ? `${po.id} · ${po.status==='received'?'received':'open'}` : 'None', po?'m':(flags.some(f=>f.type==='po')?'l':'m')],
+    ['Pay to', v.pendingBank && flags.some(f=>f.type==='bank') ? `${v.pendingBank.name} ··${v.pendingBank.last4} (new)` : `${v.bank.name} ··${v.bank.last4}`, flags.some(f=>f.type==='bank')?'l':'h'],
+  ];
+  const footer = () => {
+    if (['review','hold','ready'].includes(b.status)) return html`<button className="btn ghost" onClick=${()=>ctx.toast('Thanks. Autopilot will review this reading.')}><${Icon} n="flag" s=${14}/>Report a reading error</button><span className="spacer"></span>${flags.length?html`<span className="sub">${flags.length} ${flags.length===1?'question':'questions'} left</span>`:null}<button className="btn pri" disabled=${flags.length>0} onClick=${()=>{act.submit(b.id); close();}}>Submit for approval</button>`;
+    if (b.status==='approval' && b.approver===ME) return rejecting
+      ? html`<input className="inp" id="reject-reason" style=${{flex:'1 1 240px'}} placeholder="What should AP fix?" value=${reason} onInput=${e=>setReason(e.target.value)}/><button className="btn" onClick=${()=>setRejecting(false)}>Cancel</button><button className="btn pri" disabled=${!reason.trim()} onClick=${()=>{act.reject(b.id,reason.trim()); close();}}>Return to AP</button>`
+      : html`<span className="sub">Routed to you: bills of $25,000 or more</span><span className="spacer"></span><button className="btn" onClick=${()=>setRejecting(true)}>Reject</button><button className="btn pri" onClick=${()=>{act.approve(b.id); close();}}>Approve</button>`;
+    if (b.status==='approval') return html`<span className="sub">Waiting on ${b.approver}</span><span className="spacer"></span><button className="btn" onClick=${()=>ctx.toast('Reminder sent to '+b.approver)}>Send reminder</button>`;
+    if (b.status==='approved') return html`<span className="sub">Approved by ${b.approvedBy||'—'}</span><span className="spacer"></span><button className="btn pri" onClick=${()=>{close(); nav('payments',{tab:'run'});}}>Open payment run</button>`;
+    if (b.status==='scheduled') return html`<span className="sub">${b.method} from Operating ··2502 on ${fmtD(b.payOn)}</span><span className="spacer"></span><button className="btn" onClick=${()=>{act.cancelPayment(b.id);}}>Cancel payment</button><button className="btn" onClick=${()=>act.settle(b.id)}>Mark as settled <span className="demo-tag">Demo</span></button>`;
+    if (b.status==='paid') return html`<span className="sub">Paid ${fmtDY(b.paidOn)} by ${b.method||'ACH'} · reconciled</span>`;
+    return html`<span className="sub">This bill is void.</span>`;
+  };
+  const flagCard = f => {
+    if (f.type==='date') return html`<div className="flag-card" key="date"><div className="row"><${CF} l="l"/><b style=${{fontWeight:600}}>Confirm the due date</b><span className="sub">Low confidence</span></div><p>${f.text}</p><div className="row" style=${{flexWrap:'wrap'}}><button className="btn sm pri" onClick=${()=>act.resolve(b.id,'date',`Confirmed due date ${fmtD(f.suggest)}`,nb=>{nb.due=f.suggest;})}>Use ${fmtD(f.suggest)}</button><button className="btn sm" onClick=${()=>act.resolve(b.id,'date','Kept invoice-date due date')}>Keep ${fmtD(b.due)}</button><button className="btn sm ghost" onClick=${()=>ctx.setDrawer({type:'po',id:b.po})}>Open ${b.po}</button></div></div>`;
+    if (f.type==='bank') return html`<div className="flag-card red" key="bank"><div className="row"><${Icon} n="shield" cls="bad"/><b style=${{fontWeight:600}}>Bank details changed</b></div><p>This invoice asks for payment to ${v.pendingBank?v.pendingBank.name+' ··'+v.pendingBank.last4:'a new account'} instead of the ${v.bank.name} account you verified. Autopilot held it before it could be scheduled.</p><div className="row"><button className="btn sm pri" onClick=${()=>setModal({type:'fraud',id:b.id})}>Review the change</button></div></div>`;
+    if (f.type==='dup') return html`<div className="flag-card red" key="dup"><div className="row"><${Icon} n="copy" cls="bad"/><b style=${{fontWeight:600}}>Same as a bill you already paid</b></div><p>Vendor, invoice number and amount match ${dupPaid?`${dupPaid.num}, paid ${fmtDY(dupPaid.paidOn)}`:'a paid bill'}. Atlas sends a reminder copy when a payment is late, and this one arrived after the original was paid.</p><div className="row" style=${{flexWrap:'wrap'}}><button className="btn sm pri" onClick=${()=>act.voidBill(b.id)}>Void as duplicate</button><button className="btn sm" onClick=${()=>act.resolve(b.id,'dup','Marked as not a duplicate')}>It's not a duplicate</button>${dupPaid?html`<button className="btn sm ghost" onClick=${()=>ctx.setDrawer({type:'bill',id:dupPaid.id})}>Open paid bill</button>`:null}</div></div>`;
+    if (f.type==='anomaly') return html`<div className="flag-card" key="anom"><div className="row"><${Icon} n="alert" cls="warnc"/><b style=${{fontWeight:600}}>Higher than usual</b></div><p>${f.text}</p><div className="row" style=${{flexWrap:'wrap'}}><button className="btn sm pri" onClick=${()=>act.resolve(b.id,'anomaly','Confirmed the higher amount')}>Amount is right</button><button className="btn sm" onClick=${()=>{ctx.toast('Draft sent to Harbor Legal asking for an itemized breakdown'); }}>Ask vendor for detail</button></div></div>`;
+    if (f.type==='po') { const cand = db.pos.find(p=>p.id===f.poSuggest); return html`<div className="flag-card" key="po"><div className="row"><${Icon} n="po" cls="warnc"/><b style=${{fontWeight:600}}>No purchase order on the invoice</b></div><p>${cand?`${cand.id} is an open blanket PO for ${v.name} with ${money(cand.amt-0)} available. This bill fits within it.`:'No open PO found for this vendor.'}</p><div className="row" style=${{flexWrap:'wrap'}}>${cand?html`<button className="btn sm pri" onClick=${()=>act.resolve(b.id,'po',`Matched to ${cand.id}`,nb=>{nb.po=cand.id;})}>Match to ${cand.id}</button>`:null}<button className="btn sm" onClick=${()=>act.resolve(b.id,'po','Approved without a PO')}>Continue without a PO</button></div></div>`; }
+    if (f.type==='tax') return html`<div className="flag-card" key="tax"><div className="row"><${CF} l="m"/><b style=${{fontWeight:600}}>Sales tax isn't on the invoice</b></div><p>Solder & Co. didn't charge sales tax. If these parts go into the robots you sell, the purchase is exempt for resale. Otherwise you owe California use tax at Fremont's 10.25% rate.</p><div className="row" style=${{flexWrap:'wrap'}}><button className="btn sm pri" onClick=${()=>act.resolve(b.id,'tax','Marked exempt: used in manufactured product')}>Exempt: goes into our product</button><button className="btn sm" onClick=${()=>act.resolve(b.id,'tax','Accrued CA use tax',nb=>{ const t=Math.round(nb.amt*0.1025*100)/100; nb.lines.push({d:'CA use tax accrual, 10.25%',a:t,gl:'6900',c:'h',sug:false,accrual:true}); })}>Accrue use tax</button></div></div>`;
+    if (f.type==='split') return html`<div className="flag-card" key="split"><div className="row"><${CF} l="m"/><b style=${{fontWeight:600}}>Split across departments?</b></div><p>The trip receipts list 3 travelers: one each from Engineering, Operations and Sales. Last time, travel for this show was split evenly.</p><div className="row" style=${{flexWrap:'wrap'}}><button className="btn sm pri" onClick=${()=>act.resolve(b.id,'split','Split travel across 3 departments',nb=>{ const a=nb.amt; const p=Math.round(a/3*100)/100; nb.lines=[{d:'Travel, Engineering',a:p,gl:'6710',c:'h'},{d:'Travel, Operations',a:p,gl:'6710',c:'h'},{d:'Travel, Sales',a:Math.round((a-2*p)*100)/100,gl:'6710',c:'h'}]; })}>Split evenly across 3</button><button className="btn sm" onClick=${()=>act.resolve(b.id,'split','Kept travel in Operations')}>Keep in Operations</button></div></div>`;
+    if (f.type==='rejected') return html`<div className="flag-card" key="rej"><div className="row"><${Icon} n="msg" cls="warnc"/><b style=${{fontWeight:600}}>Returned by the approver</b></div><p>"${f.reason}"</p><div className="row"><button className="btn sm pri" onClick=${()=>act.resolve(b.id,'rejected','Addressed approver note')}>Mark as fixed</button></div></div>`;
+  };
+  const head = html`<div className="row" style=${{alignItems:'flex-start',gap:12}}>
+      <${VLogo} v=${v} size="lg"/>
+      <div className="stack" style=${{flex:1,minWidth:0,gap:3}}>
+        <div className="row" style=${{flexWrap:'wrap'}}><button className="btn ghost" style=${{height:'auto',padding:0,fontSize:17,fontWeight:600}} onClick=${()=>ctx.setDrawer({type:'vendor',id:v.id})}>${v.name}</button>${statusPill(b)}</div>
+        <span className="sub"><span className="mono">${b.num}</span> · ${b.src==='Email'?'Read from email':b.src==='Portal'?'From vendor portal':'Uploaded'}${b.rcv?' at '+b.rcv:''}</span>
+      </div>
+      <div className="stack" style=${{alignItems:'flex-end'}}><span className="sub">Amount</span><span style=${{fontSize:24,fontWeight:600,letterSpacing:'-.01em'}}><${Money} n=${b.amt}/></span></div>
+      <${CloseBtn} close=${close}/>
+    </div>
+    <${Tabs} label="Bill sections" value=${tab} onChange=${setTab} items=${[['details','Details'],['invoice','Invoice'],['activity','Activity',acts.length]]}/>`;
+  return html`<${Drawer} close=${close} head=${head} foot=${footer()} label=${'Bill '+b.num}>
+    ${tab==='details' && html`
+      ${b.status!=='paid' && html`<div className="ai-mark"><${Spark}/>Read by Autopilot · ${6-flags.filter(f=>['date','bank','po'].includes(f.type)).length} of 6 fields confident</div>`}
+      ${flags.map(flagCard)}
+      <div className="fgrid">${fields.map(([k,val,c])=>html`<div key=${k}><span className="lbl-f">${k}</span><div className=${cx('fv',c==='l'&&'warn')}><span>${val}</span><${CF} l=${c}/></div></div>`)}</div>
+      <div className="stack" style=${{gap:8}}>
+        <span className="sec-t">Line items</span>
+        <div className="lines">
+          ${b.lines.map((l,i)=>html`<div key=${i} className=${cx('ln',l.sug&&'sug')}>
+            <div className="stack" style=${{minWidth:0}}><span>${l.d}</span>
+              <div className="row" style=${{marginTop:4,flexWrap:'wrap'}}>
+                ${l.sug ? html`<span className="gl sug">${glName(l.gl)}</span><button className="btn sm pri" onClick=${()=>act.acceptLine(b.id,i)}>Accept</button><span className="sub">Last 6 Northwind brokerage lines used 5230</span>`
+                : html`<select className="sel sm" aria-label=${'GL account for line '+(i+1)} value=${l.gl} disabled=${['paid','scheduled','void'].includes(b.status)} onChange=${e=>act.setLineGl(b.id,i,e.target.value)}>${Object.keys(GL).map(c=>html`<option key=${c} value=${c}>${glName(c)}</option>`)}</select>`}
+              </div></div>
+            <${CF} l=${l.c}/>
+            <span className="num" style=${{fontWeight:500,minWidth:96,textAlign:'right'}}><${Money} n=${l.a}/></span>
+          </div>`)}
+          <div className="foot">${adds||b.lines.some(l=>l.accrual)?html`<span className="row ok" style=${{gap:6}}><${Icon} n="check" s=${15} w=${2.2}/>Lines add up to the invoice total</span>`:html`<span className="row bad" style=${{gap:6}}><${Icon} n="alert" s=${15}/>Lines are ${money(Math.abs(total-b.amt))} off the invoice total</span>`}<span className="spacer"></span>${b.lines.some(l=>l.sug)?html`<button className="btn sm" onClick=${()=>b.lines.forEach((l,i)=>l.sug&&act.acceptLine(b.id,i))}>Accept all suggestions</button>`:null}</div>
+        </div>
+      </div>
+      <div className="stack" style=${{gap:10}}>
+        <span className="sec-t">Checks</span>
+        <div className="checks">
+          ${[[!flags.some(f=>f.type==='dup'),'No duplicate in the last 180 days','Matches a paid bill'],
+             [!flags.some(f=>f.type==='bank'),'Paying the verified bank account','Bank details changed'],
+             [!!po,po?`3-way match with ${po.id}`:'No purchase order','No purchase order'],
+             [true,v.cat==='Freight & logistics'?`Operations Q4 budget: ${Math.round(budgetUsed/410000*100)}% used`:`${v.cat} budget has room`,'']].map(([ok,t,bad],i)=>html`<div key=${i} className="chk-row"><${Icon} n=${ok?'check':'alert'} s=${16} w=${2.2} cls=${ok?'ok':'warnc'}/><span>${ok?t:bad}</span></div>`)}
+        </div>
+      </div>`}
+    ${tab==='invoice' && html`<div className="paper">
+        <div className="row" style=${{alignItems:'flex-start'}}><div className="stack" style=${{gap:3}}><b style=${{fontSize:14,letterSpacing:'.02em'}}>${v.name.toUpperCase()}</b><span>${v.email}</span><span>${v.phone}</span></div><span className="spacer"></span><div className="stack" style=${{alignItems:'flex-end',gap:3}}><b style=${{fontSize:17,letterSpacing:'.08em',color:'#55544E'}}>INVOICE</b><span className="mono">${b.num}</span></div></div>
+        <div className="row" style=${{alignItems:'flex-start',flexWrap:'wrap',gap:20}}><div className="stack" style=${{gap:3}}><span className="muted">BILL TO</span><b>Kestrel Robotics Inc.</b><span>48900 Milmont Dr, Fremont, CA 94538</span></div><span className="spacer"></span>
+          <div style=${{display:'grid',gridTemplateColumns:'auto auto',gap:'4px 14px'}}><span className="muted">Date</span><span>${fmtDY(b.issued)}</span>${b.po?html`<span className="muted">PO</span><span>${b.po}</span>`:null}<span className="muted">Terms</span><span className=${b.id==='b1'&&flags.some(f=>f.type==='date')?'hl':''}>${v.terms}</span></div></div>
+        <div><div className="pl muted" style=${{borderBottom:'1px solid #2A2A26',fontSize:10.5}}><span>DESCRIPTION</span><span style=${{textAlign:'right'}}>QTY</span><span style=${{textAlign:'right'}}>AMOUNT</span></div>
+          ${b.lines.filter(l=>!l.accrual).map((l,i)=>html`<div key=${i} className="pl"><span>${l.d}</span><span className="num" style=${{textAlign:'right'}}>1</span><span className="num" style=${{textAlign:'right'}}>${l.a.toLocaleString('en-US',{minimumFractionDigits:2})}</span></div>`)}
+          <div className="row" style=${{justifyContent:'flex-end',gap:28,paddingTop:12,fontWeight:600,fontSize:12.5}}><span>Total due (${b.fx?'EUR':'USD'})</span><span className="num">${(b.fx?b.fx.amt:b.amt).toLocaleString('en-US',{minimumFractionDigits:2})}</span></div></div>
+        <div className="stack" style=${{gap:3,borderTop:'1px solid #ECEBE6',paddingTop:12}}><span className="muted">REMIT TO</span><span className=${flags.some(f=>f.type==='bank')?'hl':''}>${flags.some(f=>f.type==='bank')&&v.pendingBank?`${v.pendingBank.name} · Account ending ${v.pendingBank.last4} · Routing ${v.pendingBank.routing}`:`${v.bank.name} · Account ending ${v.bank.last4}`}</span></div>
+      </div><span className="sub">Sample rendering of ${b.num}.pdf. Highlights show where Autopilot read fields it flagged.</span>`}
+    ${tab==='activity' && html`<div className="timeline">${acts.length?acts.map(a=>html`<div key=${a.id} className="tl"><span className=${cx('bul',a.actor==='ai'&&'ai')}></span><div className="stack"><span>${a.text}</span><span className="sub">${a.actor==='ai'?'Autopilot':a.actor}${a.out?' · '+a.out:''}</span></div><span className="sub num">${a.day==='Today'?a.t:a.day}</span></div>`):html`<${Empty} title="No activity yet" text="Actions on this bill will show here."/>`}</div>`}
+  <//>`;
+}
+
+/* ---------- Approvals ---------- */
+function ApprovalsPage({ctx}){
+  const {db,tabs,setTab,act,openBill} = ctx; const tab = tabs.approvals;
+  const mine = db.bills.filter(b=>b.status==='approval'&&b.approver===ME);
+  const others = db.bills.filter(b=>b.status==='approval'&&b.approver!==ME);
+  const decided = db.activity.filter(a=>a.kind==='Approval');
+  const lowRisk = mine.filter(b=>riskOf(db,b)==='low');
+  return html`<div className="page">
+    <div className="ph"><div><h1>Approvals</h1><div className="desc">Each bill comes with a brief so you can decide without digging.</div></div><div className="spacer"></div>
+      ${tab==='mine' && lowRisk.length>1 && html`<button className="btn" onClick=${()=>act.approve(lowRisk.map(b=>b.id))}>Approve ${lowRisk.length} low-risk</button>`}</div>
+    <${Tabs} label="Approvals" value=${tab} onChange=${k=>setTab('approvals',k)} items=${[['mine','Waiting for you',mine.length],['others','Waiting on others',others.length],['decided','Decided']]}/>
+    ${tab==='mine' && (mine.length ? html`<div className="ap-grid">${mine.map(b=>html`<${ApprovalCard} key=${b.id} ctx=${ctx} b=${b}/>`)}</div>` : html`<div className="card"><${Empty} title="No approvals waiting" text="Bills of $25,000 or more are routed to you."/></div>`)}
+    ${tab==='others' && html`<div className="tbl-wrap">${others.length?html`<table className="t"><thead><tr><th>Vendor</th><th>Approver</th><th className="hide-sm">Submitted by</th><th className="r">Amount</th><th></th></tr></thead><tbody>${others.map(b=>{ const v=vendorOf(db,b); return html`<tr key=${b.id} className="click" onClick=${()=>openBill(b.id)}><td><div className="vcell"><${VLogo} v=${v}/><div className="stack"><span className="nm">${v.name}</span><span className="sub mono">${b.num}</span></div></div></td><td><div className="row"><div className="avatar sm" style=${{'--h':200}}>${b.approver.split(' ').map(x=>x[0]).join('')}</div>${b.approver}</div></td><td className="hide-sm">${b.submittedBy||'Priya Shah'}</td><td className="r num"><${Money} n=${b.amt}/></td><td className="r" onClick=${e=>e.stopPropagation()}><button className="btn sm" onClick=${()=>ctx.toast('Reminder sent to '+b.approver)}>Remind</button></td></tr>`; })}</tbody></table>`:html`<${Empty} title="Nothing waiting on others" text="Bills you submit will show here until they're approved."/>`}</div>`}
+    ${tab==='decided' && html`<div className="tbl-wrap">${decided.length?html`<table className="t"><thead><tr><th>Decision</th><th>By</th><th className="hide-sm">Result</th><th className="r">When</th></tr></thead><tbody>${decided.map(a=>html`<tr key=${a.id} className=${a.billId?'click':''} onClick=${()=>a.billId&&openBill(a.billId)}><td className="wrap">${a.text}</td><td>${a.actor}</td><td className="hide-sm sub">${a.out||''}</td><td className="r sub">${a.t}</td></tr>`)}</tbody></table>`:html`<${Empty} title="No decisions yet today" text="Approvals and returns will be listed here."/>`}</div>`}
+  </div>`;
+}
+function ApprovalCard({ctx, b}){
+  const {db,act,openBill} = ctx; const v = vendorOf(db,b); const risk = riskOf(db,b);
+  const hist = db.bills.filter(x=>x.v===b.v && x.status==='paid').slice(-5).map(x=>x.amt);
+  const series = hist.length ? [...hist, b.amt] : [b.amt*0.96,b.amt*0.98,b.amt*0.97,b.amt];
+  const max = Math.max(...series)*1.1;
+  const avg = hist.length ? hist.reduce((s,x)=>s+x,0)/hist.length : 0;
+  const delta = avg ? Math.round((b.amt/avg-1)*100) : null;
+  const po = b.po && db.pos.find(p=>p.id===b.po);
+  const [confirm,setConfirm] = useState(false); const [reason,setReason] = useState('');
+  return html`<article className="ap">
+    <div className="row"><${VLogo} v=${v}/><div className="stack" style=${{flex:1,minWidth:0}}><span style=${{fontWeight:600}}>${v.name}</span><span className="sub"><span className="mono">${b.num}</span> · due ${fmtD(b.due)}</span></div><span className=${'pill '+(risk==='low'?'green':risk==='medium'?'amber':'red')}>${risk[0].toUpperCase()+risk.slice(1)} risk</span></div>
+    <div className="row" style=${{alignItems:'baseline'}}><span style=${{fontSize:26,fontWeight:600,letterSpacing:'-.02em'}}><${Money} n=${b.amt}/></span><span className="sub">from ${b.submittedBy||'Priya Shah'}</span></div>
+    <div className="stack" style=${{gap:8,padding:12,border:'1px solid var(--line)',borderRadius:10}}>
+      <span className="ai-mark"><${Spark}/>Brief</span>
+      <p style=${{lineHeight:1.55}}>${b.lines[0].d}${po?`, against ${po.id}. Goods were received ${fmtD(po.received)}.`:'.'} ${delta!==null?(delta>=0?`${delta}% above`:`${-delta}% below`)+` ${v.name.split(' ')[0]}'s recent average.`:'First large bill from this vendor.'} ${/^2\/10/.test(v.terms)?`Paying by ${fmtD(addDays(b.issued,10))} earns a 2% discount (${money(b.amt*0.02)}).`:''}</p>
+      <div className="bars6" role="img" aria-label="Recent bills from this vendor compared with this one">${series.map((x,i)=>html`<i key=${i} className=${i===series.length-1?'cur':''} style=${{height:(x/max*100)+'%'}}></i>`)}</div>
+    </div>
+    <div className="stack" style=${{gap:6}}>
+      <div className="chk-row"><${Icon} n="check" s=${15} w=${2.2} cls="ok"/>${po?`Matches ${po.id} and the goods receipt`:'No PO needed for this category'}</div>
+      <div className="chk-row"><${Icon} n="check" s=${15} w=${2.2} cls="ok"/>Paying verified ${v.bank.name} ··${v.bank.last4}</div>
+    </div>
+    ${confirm ? html`<div className="stack" style=${{gap:8}}><label className="lbl-f" htmlFor=${'rr-'+b.id} style=${{margin:0}}>Note for AP</label><input id=${'rr-'+b.id} className="inp" value=${reason} onInput=${e=>setReason(e.target.value)} placeholder="What should be fixed?"/><div className="row"><span className="spacer"></span><button className="btn sm" onClick=${()=>setConfirm(false)}>Cancel</button><button className="btn sm pri" disabled=${!reason.trim()} onClick=${()=>act.reject(b.id,reason.trim())}>Return to AP</button></div></div>`
+      : html`<div className="row" style=${{marginTop:'auto'}}><button className="btn sm ghost" onClick=${()=>openBill(b.id)}>Open bill</button><span className="spacer"></span><button className="btn" onClick=${()=>setConfirm(true)}>Reject</button><button className="btn pri" onClick=${()=>act.approve(b.id)}>Approve</button></div>`}
+  </article>`;
+}
+
+/* ---------- Payments ---------- */
+function PaymentsPage({ctx}){
+  const {db,tabs,setTab,act,openBill,setModal} = ctx; const tab = tabs.payments;
+  const approved = db.bills.filter(b=>b.status==='approved');
+  const plan = approved.map(b=>({b,p:planFor(db,b)}));
+  const inc = plan.filter(x=>x.p.include);
+  const total = inc.reduce((s,x)=>s+x.b.amt,0);
+  const disc = inc.reduce((s,x)=>s+x.p.discount,0), fees = inc.reduce((s,x)=>s+x.p.fee+x.p.fxCost,0);
+  const fc = forecast(db,30,b=>{ const x=plan.find(y=>y.b.id===b.id); return x?x.p.include:true; });
+  const held = db.bills.filter(b=>b.status==='hold');
+  const sched = db.bills.filter(b=>b.status==='scheduled').sort((a,b)=>a.payOn<b.payOn?-1:1);
+  const paid = db.bills.filter(b=>b.status==='paid').sort((a,b)=>a.paidOn<b.paidOn?1:-1);
+  return html`<div className="page">
+    <div className="ph"><div><h1>Payments</h1><div className="desc">Pay Planner drafts each run. A person always releases it.</div></div></div>
+    <${Tabs} label="Payments" value=${tab} onChange=${k=>setTab('payments',k)} items=${[['run','Next run',approved.length],['scheduled','Scheduled',sched.length],['paid','Paid']]}/>
+    ${tab==='run' && html`<div className="split">
+      <div className="stack" style=${{gap:14,minWidth:0}}>
+        <div className="row" style=${{flexWrap:'wrap'}}><h2 style=${{fontSize:16,fontWeight:600}}>Run for ${D(RUN_DATE).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'})}</h2><span className="pill gray">Draft</span><span className="spacer"></span><span className="ai-mark"><${Spark}/>Planned by Pay Planner</span></div>
+        ${plan.length ? html`<div className="tbl-wrap"><table className="t">
+          <thead><tr><th className="chk"></th><th>Vendor</th><th className="hide-sm">Due</th><th className="hide-md">Method</th><th className="r">Amount</th><th>Why this timing</th></tr></thead>
+          <tbody>${plan.map(({b,p})=>{ const v=vendorOf(db,b); return html`<tr key=${b.id} style=${p.include?null:{opacity:.62}}>
+            <td className="chk"><input type="checkbox" aria-label=${'Include '+v.name} checked=${p.include} onChange=${e=>act.toggleRun(b.id,e.target.checked)}/></td>
+            <td><button className="btn ghost" style=${{height:'auto',padding:0,fontWeight:500}} onClick=${()=>openBill(b.id)}><span className="vcell"><${VLogo} v=${v} size="sm"/>${v.name}</span></button></td>
+            <td className="hide-sm num">${fmtD(b.due)}</td><td className="hide-md">${p.method}</td>
+            <td className="r num" style=${{fontWeight:500}}><${Money} n=${b.amt}/></td>
+            <td className="wrap" style=${{minWidth:200}}><span className=${p.discount?'':'muted'} style=${p.discount?{color:'var(--green)'}:null}>${p.reason}</span></td>
+          </tr>`; })}
+          ${held.map(b=>{ const v=vendorOf(db,b); return html`<tr key=${b.id} style=${{background:'var(--amber-soft)'}}><td className="chk"><input type="checkbox" disabled aria-label="Held"/></td><td><span className="vcell"><${VLogo} v=${v} size="sm"/><span className="muted">${v.name}</span></span></td><td className="hide-sm num muted">${fmtD(b.due)}</td><td className="hide-md muted">—</td><td className="r num muted"><${Money} n=${b.amt}/></td><td><button className="btn sm" onClick=${()=>openBill(b.id)}>Held: ${b.flags[0]?FLAG[b.flags[0].type].label.toLowerCase():'review'}</button></td></tr>`; })}
+          </tbody></table></div>` : html`<div className="card"><${Empty} title="Nothing to pay yet" text="Approved bills are added to the next run automatically." action=${html`<button className="btn sm" onClick=${()=>ctx.nav('approvals')}>Go to approvals</button>`}/></div>`}
+      </div>
+      <div className="aside-stack">
+        <div className="card card-b stack" style=${{gap:10,paddingTop:16}}>
+          <div className="row" style=${{alignItems:'baseline'}}><span className="sub">${inc.length} bills</span><span className="spacer"></span><span style=${{fontSize:24,fontWeight:600,letterSpacing:'-.01em'}}><${Money} n=${total}/></span></div>
+          <div className="kv"><span>From</span><span>Operating ··2502</span></div>
+          <div className="kv"><span>Balance after</span><span className="num">${money(START_BAL-total,0)}</span></div>
+        </div>
+        <div className="card card-b stack" style=${{gap:8,paddingTop:14}}>
+          <div className="row"><span style=${{fontWeight:600}}>30-day cash</span><span className="spacer"></span><span className=${'pill '+(fc.low.v>=db.settings.floor?'green':'red')}>${fc.low.v>=db.settings.floor?'Above floor':'Below floor'}</span></div>
+          <${LineChart} pts=${fc.pts} floor=${db.settings.floor} h=${200} label="30-day cash forecast after this run"/>
+          <span className="sub" style=${{lineHeight:1.5}}>Lowest point is ${kfmt(fc.low.v)} on ${fmtD(fc.low.d)}, ${fc.low.v>=db.settings.floor?kfmt(fc.low.v-db.settings.floor)+' above':kfmt(db.settings.floor-fc.low.v)+' below'} your ${kfmt(db.settings.floor)} floor.</span>
+        </div>
+        <div className="card card-b stack" style=${{gap:2,paddingTop:14}}>
+          <span style=${{fontWeight:600,marginBottom:6}}>Costs and savings</span>
+          <div className="kv"><span>Early-payment discounts</span><span className="num" style=${{color:'var(--green)',fontWeight:500}}>+${money(disc)}</span></div>
+          <div className="kv"><span>Wire and FX fees</span><span className="num">${money(fees)}</span></div>
+          <div className="kv" style=${{borderTop:'1px solid var(--line-2)',marginTop:4,paddingTop:10}}><span style=${{color:'var(--ink)',fontWeight:500}}>Net saving</span><span className="num" style=${{fontWeight:600}}>${money(disc-fees)}</span></div>
+        </div>
+        <div className="card card-b stack" style=${{gap:10,paddingTop:14}}>
+          <div className="row"><${Icon} n="lock" s=${15} cls="muted"/><span style=${{fontWeight:600}}>${total>50000?'Release needs 2 people':'You can release this run'}</span></div>
+          <span className="sub" style=${{lineHeight:1.5}}>${total>50000?'You release. Omar Reyes co-signs because the run is over $50,000.':'Runs under $50,000 need one approver.'}</span>
+          <button className="btn pri" disabled=${!inc.length} onClick=${()=>setModal({type:'release',list:inc.map(x=>x.b.id)})}>Review and release</button>
+        </div>
+      </div>
+    </div>`}
+    ${tab==='scheduled' && html`<div className="tbl-wrap">${sched.length?html`<table className="t"><thead><tr><th>Vendor</th><th>Pays on</th><th className="hide-sm">Method</th><th className="r">Amount</th><th className="r">Actions</th></tr></thead><tbody>${sched.map(b=>{ const v=vendorOf(db,b); return html`<tr key=${b.id} className="click" onClick=${()=>openBill(b.id)}><td><div className="vcell"><${VLogo} v=${v}/><div className="stack"><span className="nm">${v.name}</span><span className="sub mono">${b.num}</span></div></div></td><td className="num">${fmtD(b.payOn)}</td><td className="hide-sm">${b.method}</td><td className="r num" style=${{fontWeight:500}}><${Money} n=${b.amt}/></td><td className="r" onClick=${e=>e.stopPropagation()}><div className="row" style=${{justifyContent:'flex-end'}}><button className="btn sm" onClick=${()=>act.cancelPayment(b.id)}>Cancel</button><button className="btn sm" onClick=${()=>act.settle(b.id)} title="Simulates the bank settling this payment">Settle <span className="demo-tag">Demo</span></button></div></td></tr>`; })}</tbody></table>`:html`<${Empty} title="Nothing scheduled" text="Release a payment run to schedule bills."/>`}</div>`}
+    ${tab==='paid' && html`<div className="tbl-wrap"><table className="t"><thead><tr><th>Vendor</th><th>Paid on</th><th className="hide-sm">Method</th><th className="r">Amount</th><th>Reconciled</th></tr></thead><tbody>${paid.map(b=>{ const v=vendorOf(db,b); const m=db.txns.find(t=>t.match===b.id&&t.status==='matched'); return html`<tr key=${b.id} className="click" onClick=${()=>openBill(b.id)}><td><div className="vcell"><${VLogo} v=${v}/><div className="stack"><span className="nm">${v.name}</span><span className="sub mono">${b.num}</span></div></div></td><td className="num">${fmtD(b.paidOn)}</td><td className="hide-sm">${b.method||'ACH'}</td><td className="r num"><${Money} n=${b.amt}/></td><td>${m?html`<span className="pill green">Matched</span>`:html`<span className="pill amber">Waiting for bank</span>`}</td></tr>`; })}</tbody></table></div>`}
+  </div>`;
+}
+
+/* ---------- Vendors ---------- */
+function VendorsPage({ctx}){
+  const {db,setDrawer} = ctx; const [q,setQ] = useState(''); const [cat,setCat] = useState('');
+  const cats = [...new Set(db.vendors.map(v=>v.cat))].sort();
+  const rows = db.vendors.filter(v=>(!cat||v.cat===cat) && (!q||v.name.toLowerCase().includes(q.toLowerCase())));
+  const stats = v => { const bs = billsFor(db,v.id); return {open:bs.filter(isOpen).reduce((s,b)=>s+b.amt,0), paid:bs.filter(b=>b.status==='paid').reduce((s,b)=>s+b.amt,0), n:bs.length}; };
+  const lvl = {suggest:'Suggest',copilot:'Co-pilot',autopilot:'Autopilot'};
+  return html`<div className="page">
+    <div className="ph"><div><h1>Vendors</h1><div className="desc">${db.vendors.length} vendors · bank details are verified by phone before first payment</div></div><div className="spacer"></div><button className="btn pri" onClick=${()=>ctx.toast('Vendor invites are not part of this demo')}><${Icon} n="plus" s=${15}/>Add vendor</button></div>
+    <div className="toolbar"><label className="filter-inp"><${Icon} n="search" s=${14} cls="muted"/><input id="vendor-search" aria-label="Search vendors" placeholder="Search vendors" value=${q} onInput=${e=>setQ(e.target.value)}/></label>
+      <select className="sel sm" aria-label="Category" value=${cat} onChange=${e=>setCat(e.target.value)}><option value="">All categories</option>${cats.map(c=>html`<option key=${c}>${c}</option>`)}</select></div>
+    <div className="tbl-wrap"><table className="t"><thead><tr><th>Vendor</th><th className="hide-sm">Category</th><th className="hide-md">Terms</th><th>Bank</th><th className="hide-lg">Autopilot</th><th className="r">Open</th><th className="r hide-sm">Paid, 90 days</th></tr></thead>
+      <tbody>${rows.map(v=>{ const s=stats(v); return html`<tr key=${v.id} className="click" onClick=${()=>setDrawer({type:'vendor',id:v.id})}>
+        <td><div className="vcell"><${VLogo} v=${v}/><div className="stack"><span className="nm">${v.name}</span><span className="sub">${s.n} bills</span></div></div></td>
+        <td className="hide-sm">${v.cat}</td><td className="hide-md">${v.terms}</td>
+        <td>${v.pendingBank?html`<span className="pill red"><${Icon} n="shield" s=${12} w=${2}/>Change requested</span>`:html`<span className="row" style=${{gap:6}}><${Icon} n="check" s=${14} w=${2.2} cls="ok"/>${v.bank.name} ··${v.bank.last4}</span>`}</td>
+        <td className="hide-lg"><span className=${'pill '+(v.level==='autopilot'?'blue':'gray')}>${lvl[v.level]}</span></td>
+        <td className="r num">${s.open?html`<${Money} n=${s.open}/>`:html`<span className="muted">—</span>`}</td>
+        <td className="r num hide-sm">${s.paid?html`<${Money} n=${s.paid}/>`:html`<span className="muted">—</span>`}</td></tr>`; })}</tbody></table>
+      ${!rows.length && html`<${Empty} title="No vendors found" text="Try a different search."/>`}</div>
+  </div>`;
+}
+function VendorDrawer({ctx, id, close}){
+  const {db,act,openBill} = ctx; const v = db.vendors.find(x=>x.id===id); const [tab,setTab] = useState('bills'); if (!v) return null;
+  const bs = billsFor(db,v.id).sort((a,b)=>a.issued<b.issued?1:-1);
+  const unpaid = bs.filter(b=>['review','hold','ready','approval','approved'].includes(b.status)).reduce((s,b)=>s+b.amt,0);
+  const sched = bs.filter(b=>b.status==='scheduled').reduce((s,b)=>s+b.amt,0);
+  const paid = bs.filter(b=>b.status==='paid').reduce((s,b)=>s+b.amt,0);
+  const head = html`<div className="row" style=${{gap:12}}><${VLogo} v=${v} size="lg"/><div className="stack" style=${{flex:1,minWidth:0}}><span style=${{fontSize:17,fontWeight:600}}>${v.name}</span><span className="sub">${v.cat} · owner ${v.owner}</span></div><${CloseBtn} close=${close}/></div>
+    <${Tabs} label="Vendor sections" value=${tab} onChange=${setTab} items=${[['bills','Bills',bs.length],['details','Details'],['autopilot','Autopilot']]}/>`;
+  return html`<${Drawer} close=${close} head=${head} label=${v.name}>
+    <div className="stats" style=${{gridTemplateColumns:'repeat(3,minmax(0,1fr))'}}>
+      <div className="stat"><span className="sub">Unpaid</span><span className="v"><${Money} n=${unpaid}/></span></div>
+      <div className="stat"><span className="sub">Scheduled</span><span className="v"><${Money} n=${sched}/></span></div>
+      <div className="stat"><span className="sub">Paid, 90 days</span><span className="v"><${Money} n=${paid}/></span></div>
+    </div>
+    ${v.pendingBank && html`<div className="flag-card red"><div className="row"><${Icon} n="shield" cls="bad"/><b style=${{fontWeight:600}}>Bank change requested</b></div><p>An invoice asked to pay ${v.pendingBank.name} ··${v.pendingBank.last4}. Payments stay on the verified account until someone confirms by phone.</p><div className="row"><button className="btn sm pri" onClick=${()=>{ const b=bs.find(x=>x.flags.some(f=>f.type==='bank')); if (b) ctx.setModal({type:'fraud',id:b.id}); }}>Review the change</button></div></div>`}
+    ${tab==='bills' && html`<div className="tbl-wrap"><table className="t" style=${{minWidth:0}}><thead><tr><th>Invoice</th><th>Date</th><th className="r">Amount</th><th>Status</th></tr></thead><tbody>${bs.map(b=>html`<tr key=${b.id} className="click" onClick=${()=>openBill(b.id)}><td className="mono">${b.num}</td><td className="num">${fmtD(b.issued)}</td><td className="r num"><${Money} n=${b.amt}/></td><td>${statusPill(b)}</td></tr>`)}</tbody></table></div>`}
+    ${tab==='details' && html`<div className="fgrid">
+      <div className="card card-b stack" style=${{gap:2,paddingTop:14}}><span className="sec-t" style=${{marginBottom:6}}>Payment</span><div className="kv"><span>Bank</span><span>${v.bank.name}</span></div><div className="kv"><span>Account</span><span className="mono">··${v.bank.last4}</span></div><div className="kv"><span>Verified</span><span>${fmtDY(v.bank.verified)}</span></div><div className="kv"><span>Terms</span><span>${v.terms}</span></div></div>
+      <div className="card card-b stack" style=${{gap:2,paddingTop:14}}><span className="sec-t" style=${{marginBottom:6}}>Contact</span><div className="kv"><span>Email</span><span style=${{wordBreak:'break-all',textAlign:'right'}}>${v.email}</span></div><div className="kv"><span>Phone on file</span><span className="mono">${v.phone}</span></div><div className="kv"><span>Currency</span><span>${v.cur||'USD'}</span></div></div>
+      <div className="card card-b stack" style=${{gap:2,paddingTop:14}}><span className="sec-t" style=${{marginBottom:6}}>Accounting defaults</span><div className="kv"><span>GL account</span><span>${glName(v.gl)}</span></div><div className="kv"><span>Budget owner</span><span>${v.owner}</span></div><div className="kv"><span>1099</span><span>${['hl','bs'].includes(v.id)?'Yes':'No'}</span></div></div>
+    </div>`}
+    ${tab==='autopilot' && html`<div className="stack" style=${{gap:14}}>
+      <p className="muted" style=${{lineHeight:1.5}}>Choose how much Ledgerline does on its own for ${v.name}. Bank changes and new payees always need a person.</p>
+      <${Seg} label="Autopilot level" value=${v.level} onChange=${l=>act.setVendorLevel(v.id,l)} items=${[['suggest','Suggest'],['copilot','Co-pilot'],['autopilot','Autopilot']]}/>
+      <div className="card card-b stack" style=${{gap:2,paddingTop:14}}><div className="kv"><span>Bills read, 90 days</span><span className="num">${Math.max(3,bs.length*6)}</span></div><div className="kv"><span>Fields corrected</span><span className="num">${v.id==='nw'?0:1}</span></div><div className="kv"><span>Usual GL</span><span>${glName(v.gl)}</span></div></div>
+    </div>`}
+  <//>`;
+}
+
+/* ---------- Purchase orders ---------- */
+function POPage({ctx}){
+  const {db,tabs,setTab,setDrawer} = ctx; const tab = tabs.pos;
+  const billed = p => db.bills.filter(b=>b.po===p.id && b.status!=='void').reduce((s,b)=>s+b.amt,0);
+  const f = {open:p=>p.status!=='closed', closed:p=>p.status==='closed', all:()=>true}[tab];
+  const rows = db.pos.filter(f);
+  const stLabel = {open:['Open','blue'],received:['Received','green'],partial:['Partly billed','amber'],closed:['Closed','gray']};
+  return html`<div className="page">
+    <div className="ph"><div><h1>Purchase orders</h1><div className="desc">Bills are matched to POs and goods receipts automatically.</div></div><div className="spacer"></div><button className="btn pri" onClick=${()=>ctx.toast('PO creation is not part of this demo')}><${Icon} n="plus" s=${15}/>New PO</button></div>
+    <${Tabs} label="PO status" value=${tab} onChange=${k=>setTab('pos',k)} items=${[['open','Open',db.pos.filter(p=>p.status!=='closed').length],['closed','Closed'],['all','All']]}/>
+    <div className="tbl-wrap"><table className="t"><thead><tr><th>PO</th><th>Vendor</th><th className="hide-md">Owner</th><th>Billed</th><th className="r">Amount</th><th>Status</th></tr></thead>
+      <tbody>${rows.map(p=>{ const v=db.vendors.find(x=>x.id===p.v); const bl=Math.min(billed(p),p.amt); const pct=bl/p.amt*100; const st=stLabel[p.status]; return html`<tr key=${p.id} className="click" onClick=${()=>setDrawer({type:'po',id:p.id})}>
+        <td className="mono">${p.id}</td><td><div className="vcell"><${VLogo} v=${v} size="sm"/>${v.name}</div></td><td className="hide-md">${p.owner}</td>
+        <td style=${{minWidth:150}}><div className="stack" style=${{gap:5}}><div className="meter"><i style=${{width:pct+'%'}}></i></div><span className="sub num">${money(bl,0)} of ${money(p.amt,0)}</span></div></td>
+        <td className="r num"><${Money} n=${p.amt}/></td><td><span className=${'pill '+st[1]}>${st[0]}</span></td></tr>`; })}</tbody></table></div>
+  </div>`;
+}
+function PODrawer({ctx, id, close}){
+  const {db,openBill} = ctx; const p = db.pos.find(x=>x.id===id); if (!p) return null; const v = db.vendors.find(x=>x.id===p.v);
+  const linked = db.bills.filter(b=>b.po===p.id && b.status!=='void');
+  const head = html`<div className="row" style=${{gap:12}}><div className="stack" style=${{flex:1}}><span className="mono" style=${{fontSize:17,fontWeight:600}}>${p.id}</span><span className="sub">${v.name} · created ${fmtDY(p.created)} by ${p.owner}</span></div><${CloseBtn} close=${close}/></div>`;
+  return html`<${Drawer} close=${close} head=${head} narrow label=${p.id}>
+    <div className="card card-b stack" style=${{gap:2,paddingTop:14}}><div className="kv"><span>Amount</span><span className="num" style=${{fontWeight:600}}>${money(p.amt)}</span></div><div className="kv"><span>Goods received</span><span>${p.received?fmtDY(p.received):'Not yet'}</span></div><div className="kv"><span>Billed</span><span className="num">${money(linked.reduce((s,b)=>s+b.amt,0))}</span></div></div>
+    <div className="stack" style=${{gap:8}}><span className="sec-t">Lines</span><div className="lines">${p.lines.map((l,i)=>html`<div key=${i} className="ln" style=${{gridTemplateColumns:'minmax(0,1fr) auto'}}><span>${l[0]}</span><span className="num"><${Money} n=${l[1]}/></span></div>`)}</div></div>
+    <div className="stack" style=${{gap:8}}><span className="sec-t">Matched bills</span>${linked.length?html`<div className="lines">${linked.map(b=>html`<button key=${b.id} className="ln" style=${{gridTemplateColumns:'minmax(0,1fr) auto auto',border:0,borderBottom:'1px solid var(--line-2)',background:'none',width:'100%',textAlign:'left',cursor:'pointer'}} onClick=${()=>openBill(b.id)}><span className="mono">${b.num}</span>${statusPill(b)}<span className="num"><${Money} n=${b.amt}/></span></button>`)}</div>`:html`<span className="muted">No bills yet.</span>`}</div>
+  <//>`;
+}
+
+/* ---------- Reconciliation ---------- */
+function ReconPage({ctx}){
+  const {db,tabs,setTab,act,openBill} = ctx; const tab = tabs.recon;
+  const att = db.txns.filter(t=>t.status!=='matched'); const done = db.txns.filter(t=>t.status==='matched');
+  const [gl,setGl] = useState({}); const [pick,setPick] = useState({});
+  const unpaidCands = t => db.bills.filter(b=>['paid','scheduled'].includes(b.status) && Math.abs(b.amt-Math.abs(t.amt))<1);
+  return html`<div className="page">
+    <div className="ph"><div><h1>Reconciliation</h1><div className="desc">Operating ··2502 and company cards · October</div></div><div className="spacer"></div><span className="sub">${done.length} of ${db.txns.length} matched</span></div>
+    <div className="stats"><div className="stat"><span className="sub">Matched by Autopilot</span><span className="v num">${57+done.filter(t=>t.by==='Autopilot').length}</span></div><div className="stat"><span className="sub">Need a person</span><span className="v num">${att.length}</span></div><div className="stat"><span className="sub">Days to close</span><span className="v num">4</span></div><div className="stat"><span className="sub">Close date</span><span className="v">${fmtD('2026-10-31')}</span></div></div>
+    <${Tabs} label="Transactions" value=${tab} onChange=${k=>setTab('recon',k)} items=${[['attention','Needs attention',att.length],['matched','Matched',done.length]]}/>
+    ${tab==='attention' && (att.length ? html`<div className="stack" style=${{gap:10}}>${att.map(t=>{ const m=t.match&&db.bills.find(b=>b.id===t.match); const v=m&&vendorOf(db,m); const cands=unpaidCands(t);
+      return html`<div key=${t.id} className="card rc">
+        <div className="stack" style=${{minWidth:0}}><span className="mono" style=${{fontSize:12.5}}>${t.desc}</span><span className="sub">${fmtDY(t.date)}</span><span className="num" style=${{fontWeight:600,color:t.amt>0?'var(--green)':'var(--ink)',marginTop:2}}>${t.amt>0?'+':''}${money(t.amt)}</span></div>
+        <div className="stack" style=${{gap:6,minWidth:0}}>
+          ${t.status==='suggested' && m ? html`<span className="ai-mark"><${Spark}/>Suggested match · ${t.conf}%</span><button className="btn ghost" style=${{height:'auto',padding:0,justifyContent:'flex-start'}} onClick=${()=>openBill(m.id)}><span className="vcell"><${VLogo} v=${v} size="sm"/><span>${v.name} · <span className="mono">${m.num}</span> · ${money(m.amt)}</span></span></button>`
+          : html`<span className="sub" style=${{lineHeight:1.5}}>${t.hint}</span>`}
+          ${t.status==='unmatched' && !t.deposit && !t.receipt && html`<div className="row" style=${{flexWrap:'wrap'}}><select className="sel sm" aria-label="GL account" value=${gl[t.id]||t.gl} onChange=${e=>setGl(g=>({...g,[t.id]:e.target.value}))}>${Object.keys(GL).map(c=>html`<option key=${c} value=${c}>${glName(c)}</option>`)}</select>${cands.length?html`<select className="sel sm" aria-label="Match to bill" value=${pick[t.id]||''} onChange=${e=>setPick(p=>({...p,[t.id]:e.target.value}))}><option value="">Or match to a bill…</option>${cands.map(b=>html`<option key=${b.id} value=${b.id}>${b.num}</option>`)}</select>`:null}</div>`}
+          ${t.requested && html`<span className="pill amber" style=${{alignSelf:'flex-start'}}>Receipt requested</span>`}
+        </div>
+        <div className="row" style=${{justifyContent:'flex-end',flexWrap:'wrap'}}>
+          ${t.status==='suggested' && html`<button className="btn sm" onClick=${()=>act.recon(t.id,'reject')}>Not this</button><button className="btn sm pri" onClick=${()=>act.recon(t.id,'accept')}>Accept match</button>`}
+          ${t.status==='unmatched' && t.deposit && html`<button className="btn sm pri" onClick=${()=>act.recon(t.id,'deposit')}>Send to Receivables</button>`}
+          ${t.status==='unmatched' && t.receipt && html`<button className="btn sm" disabled=${t.requested} onClick=${()=>act.recon(t.id,'receipt')}>Ask for receipt</button><button className="btn sm pri" onClick=${()=>act.recon(t.id,'expense',t.gl)}>Book to Travel</button>`}
+          ${t.status==='unmatched' && !t.deposit && !t.receipt && html`${pick[t.id]?html`<button className="btn sm pri" onClick=${()=>act.recon(t.id,'link',pick[t.id])}>Match bill</button>`:html`<button className="btn sm pri" onClick=${()=>act.recon(t.id,'expense',gl[t.id]||t.gl)}>Book as expense</button>`}`}
+        </div>
+      </div>`; })}</div>` : html`<div className="card"><${Empty} title="Everything is reconciled" text="October is ready to close."/></div>`)}
+    ${tab==='matched' && html`<div className="tbl-wrap"><table className="t"><thead><tr><th>Date</th><th>Bank description</th><th>Matched to</th><th className="hide-sm">By</th><th className="r">Amount</th></tr></thead><tbody>${done.sort((a,b)=>a.date<b.date?1:-1).map(t=>{ const m=t.match&&db.bills.find(b=>b.id===t.match); return html`<tr key=${t.id} className=${m?'click':''} onClick=${()=>m&&openBill(m.id)}><td className="num">${fmtD(t.date)}</td><td className="mono" style=${{fontSize:12.5}}>${t.desc}</td><td>${m?html`<span className="mono">${m.num}</span>`:html`<span>${t.booked}</span>`}</td><td className="hide-sm">${t.by==='Autopilot'?html`<span className="ai-mark"><${Spark}/>Autopilot</span>`:t.by}</td><td className="r num">${money(t.amt)}</td></tr>`; })}</tbody></table></div>`}
+  </div>`;
+}
+
+/* ---------- Spend ---------- */
+function SpendPage({ctx}){
+  const {db,setAsk} = ctx; const [q,setQ] = useState('q3');
+  const idx = q==='q3'?2:1; const cats = SPEND.cats.slice().sort((a,b)=>b[idx]-a[idx]); const max = Math.max(...cats.map(c=>Math.max(c[1],c[2])));
+  const tot = cats.reduce((s,c)=>s+c[idx],0), prev = cats.reduce((s,c)=>s+c[1],0);
+  const sw = SPEND.software;
+  return html`<div className="page">
+    <div className="ph"><div><h1>Spend</h1><div className="desc">Paid and approved bills by category</div></div><div className="spacer"></div><${Seg} label="Quarter" value=${q} onChange=${setQ} items=${[['q2','Q2 2026'],['q3','Q3 2026']]}/></div>
+    <div className="stats">
+      <div className="stat"><span className="sub">${q==='q3'?'Q3':'Q2'} total</span><span className="v num">${money(tot,0)}</span>${q==='q3'?html`<span className="sub"><span style=${{color:'var(--amber)'}}>+${((tot/prev-1)*100).toFixed(1)}%</span> vs Q2</span>`:null}</div>
+      <div className="stat"><span className="sub">Largest category</span><span className="v">${cats[0][0]}</span></div>
+      <div className="stat"><span className="sub">Fastest growing</span><span className="v">Travel</span><span className="sub">+39% vs Q2</span></div>
+      <div className="stat"><span className="sub">Unused software</span><span className="v num">${db.renewalsHeld?'0 tools':'3 tools'}</span><span className="sub">${db.renewalsHeld?'Renewals held':'$2,140 a month'}</span></div>
+    </div>
+    <div className="split">
+      <section className="card"><div className="card-h"><h3>By category</h3><span className="spacer"></span><div className="legend"><span><i className="sw" style=${{background:'var(--accent)'}}></i>${q.toUpperCase()}</span>${q==='q3'?html`<span><i className="sw" style=${{background:'var(--line-strong)'}}></i>Q2</span>`:null}</div></div>
+        <div className="card-b">${cats.map(c=>html`<div key=${c[0]} className="hbar"><span style=${{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>${c[0]}</span><div className="stack" style=${{gap:3}}><div className="track"><i style=${{display:'block',width:(c[idx]/max*100)+'%',background:'var(--accent)'}}></i></div>${q==='q3'?html`<div className="track" style=${{height:5}}><i style=${{display:'block',width:(c[1]/max*100)+'%',background:'var(--line-strong)'}}></i></div>`:null}</div><span className="num" style=${{textAlign:'right'}}>${money(c[idx],0)}</span></div>`)}</div></section>
+      <section className="card"><div className="card-h"><h3>Why is software up?</h3></div><div className="card-b stack" style=${{gap:10}}><p className="muted" style=${{lineHeight:1.5}}>Software grew 18% in Q3. Ask Ledger can break it down with sources.</p><button className="btn ai-btn" onClick=${()=>setAsk({seed:'Why is software spend up this quarter?'})}><${Spark}/>Ask Ledger</button></div></section>
+    </div>
+    <section className="stack" style=${{gap:10}}><h2 style=${{fontSize:16,fontWeight:600}}>Software vendors</h2>
+      <div className="tbl-wrap"><table className="t"><thead><tr><th>Vendor</th><th className="hide-sm">Owner</th><th className="r">Q2</th><th className="r">Q3</th><th className="r">Change</th></tr></thead><tbody>${sw.map(r=>{ const v = r[1]?db.vendors.find(x=>x.id===r[1]):{name:r[0],ini:r[5],h:r[6]}; const ch=r[4]-r[3]; return html`<tr key=${r[0]} style=${ch>5000?{background:'var(--accent-soft)'}:null}><td><div className="vcell"><${VLogo} v=${v} size="sm"/>${r[0]}${r[7]?html`<span className=${'pill '+(db.renewalsHeld?'gray':'amber')}>${db.renewalsHeld?'Renewal held':'No sign-ins 60d'}</span>`:null}</div></td><td className="hide-sm">${r[2]}</td><td className="r num">${money(r[3],0)}</td><td className="r num">${money(r[4],0)}</td><td className="r num" style=${{color:ch>0?'var(--amber)':'var(--muted)'}}>${ch>0?'+':''}${money(ch,0)}</td></tr>`; })}</tbody></table></div></section>
+  </div>`;
+}
+
+/* ---------- Cash forecast ---------- */
+function ForecastPage({ctx}){
+  const {db,act} = ctx; const [days,setDays] = useState('30'); const [floorIn,setFloorIn] = useState(String(db.settings.floor));
+  const n = Number(days); const fc = forecast(db,n); const floor = db.settings.floor; const below = fc.pts.find(p=>p.v<floor);
+  const outs = fc.events.filter(e=>e.a<0).sort((a,b)=>a.d<b.d?-1:1);
+  return html`<div className="page">
+    <div className="ph"><div><h1>Cash forecast</h1><div className="desc">Operating ··2502, from scheduled payments, approved bills, payroll and expected receipts</div></div><div className="spacer"></div><${Seg} label="Horizon" value=${days} onChange=${setDays} items=${[['30','30 days'],['60','60 days'],['90','90 days']]}/></div>
+    <div className="stats">
+      <div className="stat"><span className="sub">Balance today</span><span className="v"><${Money} n=${START_BAL}/></span></div>
+      <div className="stat"><span className="sub">Lowest point</span><span className="v num" style=${below?{color:'var(--red)'}:null}>${kfmt(fc.low.v)}</span><span className="sub">${fmtD(fc.low.d)}</span></div>
+      <div className="stat"><span className="sub">In ${n} days</span><span className="v num">${kfmt(fc.endBal)}</span></div>
+      <div className="stat"><span className="sub">Floor</span><span className="v num">${kfmt(floor)}</span></div>
+    </div>
+    ${below && html`<div className="flag-card red"><div className="row"><${Icon} n="alert" cls="bad"/><b style=${{fontWeight:600}}>Balance drops below your floor on ${fmtD(below.d)}</b></div><p>The dip comes from payroll on ${fmtD(below.d)} landing before the ${fmtD('2026-12-18')} customer milestone. Pay Planner will hold non-urgent bills that week unless you change the floor or move cash from savings.</p></div>`}
+    <section className="card"><div className="card-h"><h3>Projected balance</h3><span className="spacer"></span><div className="legend"><span><i className="sw" style=${{background:'var(--accent)'}}></i>Balance</span><span><i className="sw" style=${{background:'var(--red-mark)'}}></i>Floor</span></div></div>
+      <div className="card-b"><${LineChart} pts=${fc.pts} floor=${floor} h=${260} label=${`${n}-day cash forecast`}/></div></section>
+    <div className="split">
+      <section className="stack" style=${{gap:10,minWidth:0}}><h2 style=${{fontSize:16,fontWeight:600}}>Money going out</h2>
+        <div className="tbl-wrap"><table className="t"><thead><tr><th>Date</th><th>What</th><th className="hide-sm">Type</th><th className="r">Amount</th></tr></thead><tbody>${outs.slice(0,14).map((e,i)=>html`<tr key=${i}><td className="num">${fmtD(e.d)}</td><td>${e.label}</td><td className="hide-sm"><span className=${'pill '+(e.kind==='expected'?'gray':e.kind==='payroll'?'blue':'gray')}>${{payroll:'Payroll',rent:'Rent',bill:'Scheduled bill',expected:'Expected bill'}[e.kind]}</span></td><td className="r num">${money(e.a)}</td></tr>`)}</tbody></table></div></section>
+      <section className="card card-b stack" style=${{gap:10,paddingTop:16}}>
+        <span style=${{fontWeight:600}}>Cash floor</span><span className="sub" style=${{lineHeight:1.5}}>Pay Planner won't schedule payments that take the balance below this amount.</span>
+        <label className="lbl-f" htmlFor="floor" style=${{margin:0}}>Minimum balance (USD)</label>
+        <div className="row"><input id="floor" className="inp num" inputMode="numeric" value=${floorIn} onInput=${e=>setFloorIn(e.target.value.replace(/[^0-9]/g,''))}/><button className="btn pri" disabled=${!floorIn||Number(floorIn)===floor} onClick=${()=>{act.setSetting('floor',Number(floorIn)); ctx.toast('Cash floor updated');}}>Save</button></div>
+      </section>
+    </div>
+  </div>`;
+}
+
+/* ---------- Autopilot ---------- */
+function AutopilotPage({ctx}){
+  const {db,act} = ctx; const lv = [['suggest','Suggest'],['copilot','Co-pilot'],['autopilot','Autopilot']];
+  return html`<div className="page">
+    <div className="ph"><div><h1>Autopilot</h1><div className="desc">Choose how much Ledgerline does on its own for each vendor, category or amount.</div></div><div className="spacer"></div><button className="btn" onClick=${()=>ctx.nav('activity')}>View activity log</button></div>
+    <div className="stats">
+      <div className="stat"><span className="sub">Auto-approved today</span><span className="v num">$6,420 <span className="sub" style=${{fontWeight:400}}>of $20,000</span></span><div className="meter"><i style=${{width:'32.1%'}}></i></div></div>
+      <div className="stat"><span className="sub">Bills with no edits, 30 days</span><span className="v num">38%</span><span className="sub">458 of 1,204</span></div>
+      <div className="stat"><span className="sub">Fields corrected by people</span><span className="v num">0.4%</span><span className="sub">31 of 8,428</span></div>
+      <div className="stat"><span className="sub">Audit samples waiting</span><span className="v num">${db.auditWaiting}</span>${db.auditWaiting?html`<button className="btn sm" style=${{alignSelf:'flex-start'}} onClick=${act.auditDone}>Check one</button>`:html`<span className="sub">All checked</span>`}</div>
+    </div>
+    <div className="split">
+      <div className="stack" style=${{gap:12,minWidth:0}}>
+        <div className="legend" style=${{fontSize:12.5}}><span><b style=${{color:'var(--ink)',fontWeight:600}}>Suggest</b> you fill each field</span><span><b style=${{color:'var(--ink)',fontWeight:600}}>Co-pilot</b> fills the bill, you review it</span><span><b style=${{color:'var(--accent-text)',fontWeight:600}}>Autopilot</b> runs within limits, you see exceptions</span></div>
+        <div className="tbl-wrap"><table className="t"><thead><tr><th>Applies to</th><th>Level</th><th>Limits</th><th className="hide-md">Accuracy, 90 days</th></tr></thead><tbody>
+          ${db.rules.map(r=>html`<tr key=${r.id}>
+            <td><div className="stack"><span style=${{fontWeight:500}}>${r.name}</span><span className="sub">${r.sub}</span></div></td>
+            <td><${Seg} label=${'Level for '+r.name} value=${r.level} disabled=${r.locked} onChange=${l=>act.setLevel(r.id,l)} items=${lv}/></td>
+            <td>${r.locked?html`<span className="row sub" style=${{gap:6}}><${Icon} n="lock" s=${13}/>Always</span>`: r.level==='autopilot' ? html`<div className="stack" style=${{gap:4}}><label className="row sub" style=${{gap:6}}>Per bill $<input className="inp num" style=${{height:28,width:84}} aria-label=${'Per bill limit for '+r.name} value=${r.capBill} onInput=${e=>act.setCap(r.id,'capBill',e.target.value.replace(/[^0-9]/g,''))}/></label><label className="row sub" style=${{gap:6}}>Per day $<input className="inp num" style=${{height:28,width:84}} aria-label=${'Per day limit for '+r.name} value=${r.capDay} onInput=${e=>act.setCap(r.id,'capDay',e.target.value.replace(/[^0-9]/g,''))}/></label></div>` : html`<span className="muted">—</span>`}</td>
+            <td className="hide-md num">${r.acc?html`${r.acc} <span className="sub">· ${r.n} bills</span>`:html`<span className="muted">—</span>`}</td>
+          </tr>`)}
+        </tbody></table></div>
+      </div>
+      <div className="aside-stack">
+        ${!db.promoted && html`<div className="banner" style=${{flexDirection:'column',alignItems:'stretch',gap:10,padding:16}}><span className="ai-mark"><${Spark}/>Suggestion</span><p style=${{lineHeight:1.5}}>Northwind Freight had 41 bills in 90 days and nobody corrected a field. Move it to Autopilot with a $20,000 limit per bill?</p><div className="row"><button className="btn sm" onClick=${()=>ctx.toast('Okay. Autopilot will ask again next month.')}>Not now</button><button className="btn sm pri" onClick=${act.promote}>Move to Autopilot</button></div></div>`}
+        <div className="card card-b stack" style=${{gap:12,paddingTop:16}}><span style=${{fontWeight:600}}>Always done by a person</span><span className="sub" style=${{marginTop:-6}}>These stay manual at every level.</span>
+          ${['Adding a new payee','Changing bank details','Releasing a payment run','Closing the accounting period'].map(t=>html`<div key=${t} className="row" style=${{color:'var(--ink-2)'}}><${Icon} n="lock" s=${15} cls="muted"/>${t}</div>`)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Activity ---------- */
+function ActivityPage({ctx}){
+  const {db,setDrawer} = ctx; const [who,setWho] = useState('all'); const [q,setQ] = useState('');
+  const rows = db.activity.filter(a=> who==='all' || (who==='ai' ? a.actor==='ai' : a.actor!=='ai')).filter(a=>!q || a.text.toLowerCase().includes(q.toLowerCase()));
+  const groups = [...new Set(rows.map(r=>r.day))];
+  return html`<div className="page">
+    <div className="ph"><div><h1>Activity log</h1><div className="desc">Every action Autopilot takes, with its sources and the person who accepted it.</div></div><div className="spacer"></div><button className="btn" onClick=${()=>ctx.toast('Audit export is not part of this demo')}>Export for audit</button></div>
+    <div className="toolbar"><${Seg} label="Actor" value=${who} onChange=${setWho} items=${[['all','All'],['ai','Autopilot'],['people','People']]}/><label className="filter-inp"><${Icon} n="search" s=${14} cls="muted"/><input id="act-search" aria-label="Search activity" placeholder="Search activity" value=${q} onInput=${e=>setQ(e.target.value)}/></label><span className="spacer"></span><span className="sub">${rows.length} entries</span></div>
+    <div className="tbl-wrap">${groups.map(g=>html`<div key=${g}><div className="sub" style=${{padding:'12px 16px 6px',fontWeight:500}}>${g}</div>
+      <table className="t" style=${{minWidth:620}}><tbody>${rows.filter(r=>r.day===g).map(a=>html`<tr key=${a.id} className="click" onClick=${()=>setDrawer({type:'activity',id:a.id})}>
+        <td className="num sub" style=${{width:84}}>${a.t}</td>
+        <td style=${{width:150}}>${a.actor==='ai'?html`<span className="ai-mark"><${Spark}/>Autopilot</span>`:html`<span className="row"><span className="avatar sm" style=${{'--h':a.actor==='Dana Nguyen'?25:a.actor==='Priya Shah'?250:180}}>${a.actor.split(' ').map(x=>x[0]).join('')}</span>${a.actor}</span>`}</td>
+        <td className="wrap" style=${{textDecoration:a.undone?'line-through':'none'}}>${a.text}</td>
+        <td className="hide-md sub wrap" style=${{width:200}}>${a.out||''}</td>
+      </tr>`)}</tbody></table></div>`)}
+      ${!rows.length && html`<${Empty} title="No matching activity" text="Try another filter."/>`}</div>
+  </div>`;
+}
+function ActivityDrawer({ctx, id, close}){
+  const {db,act,openBill} = ctx; const a = db.activity.find(x=>x.id===id); if (!a) return null;
+  const b = a.billId && db.bills.find(x=>x.id===a.billId);
+  const canUndo = a.undo && !a.undone && b && b.status===a.undo.to;
+  const head = html`<div className="row" style=${{alignItems:'flex-start'}}><div className="stack" style=${{flex:1,gap:6}}><div className="row">${a.actor==='ai'?html`<span className="pill blue">Autopilot</span>`:html`<span className="pill gray">${a.actor}</span>`}${a.undone?html`<span className="pill gray">Undone</span>`:null}</div><h2 style=${{fontSize:17,fontWeight:600}}>${a.text}</h2><span className="sub">${a.kind||'Action'} · ${a.day} ${a.t}</span></div><${CloseBtn} close=${close}/></div>`;
+  const foot = html`${canUndo?html`<button className="btn" onClick=${()=>{act.undo(a.id); close();}}><${Icon} n="undo" s=${15}/>Undo</button>`:html`<span className="sub">${a.undo?'Can no longer be undone':'This action can’t be undone here'}</span>`}<span className="spacer"></span>${b?html`<button className="btn pri" onClick=${()=>openBill(b.id)}>Open bill</button>`:null}`;
+  return html`<${Drawer} close=${close} head=${head} foot=${foot} narrow label="Activity detail">
+    ${a.out && html`<div className="kv" style=${{borderBottom:'1px solid var(--line-2)'}}><span>Outcome</span><span>${a.out}</span></div>`}
+    ${a.detail && html`<div className="stack" style=${{gap:8}}><span className="sec-t">What it did</span><p style=${{lineHeight:1.55,color:'var(--ink-2)'}}>${a.detail}</p></div>`}
+    ${a.sources && html`<div className="stack" style=${{gap:8}}><span className="sec-t">Sources it used</span>${a.sources.map(s=>html`<div key=${s} className="row" style=${{padding:'8px 10px',border:'1px solid var(--line)',borderRadius:8}}><${Icon} n="file" s=${14} cls="muted"/>${s}</div>`)}</div>`}
+    <div className="stack" style=${{gap:2}}><span className="sec-t" style=${{marginBottom:6}}>Details</span>
+      ${a.actor==='ai'?html`<div className="kv"><span>Model</span><span>${a.kind==='Smart Coding'?'Coding model v4.2':a.kind==='Guardrails'?'Risk model v2.8':'Extraction model v5.1'}</span></div>`:null}
+      <div className="kv"><span>Can be undone</span><span>${a.undo?'Until the October close on Oct 31':'No'}</span></div></div>
+  <//>`;
+}
+
+/* ---------- Settings ---------- */
+function SettingsPage({ctx}){
+  const {db,tabs,setTab,act} = ctx; const tab = tabs.settings; const s = db.settings;
+  const items = [['company','Company'],['team','Team and roles'],['policies','Approval rules'],['integrations','Integrations'],['notifications','Notifications'],['demo','Demo data']];
+  const team = [['Dana Nguyen','Controller','Approves over $25,000 · releases runs',25],['Omar Reyes','CFO','Co-signs runs over $50,000',180],['Priya Shah','AP specialist','Reviews and submits bills',250],['Marcus Chen','Operations lead','Approves logistics and parts under $25,000',200],['Luis Ortega','Facilities manager','Approves facilities and utilities',120],['Jamie Park','Design lead','Owns design software',330]];
+  return html`<div className="page">
+    <div className="ph"><div><h1>Settings</h1></div></div>
+    <div className="settings">
+      <nav className="set-nav" aria-label="Settings sections">${items.map(([k,l])=>html`<button key=${k} className="ni" aria-current=${tab===k?'page':undefined} onClick=${()=>setTab('settings',k)}><span className="lbl">${l}</span></button>`)}</nav>
+      <div className="stack" style=${{gap:16,minWidth:0}}>
+        ${tab==='company' && html`<h2 style=${{fontSize:16,fontWeight:600}}>Company</h2><div className="form-grid">
+          ${[['company','Display name'],['legal','Legal name'],['ein','EIN'],['address','Address'],['fy','Fiscal year starts'],['currency','Base currency']].map(([k,l])=>html`<div key=${k}><label className="lbl-f" htmlFor=${'set-'+k}>${l}</label><input id=${'set-'+k} className="inp" value=${s[k]} onInput=${e=>act.setSetting(k,e.target.value)}/></div>`)}
+        </div><span className="sub">Changes save automatically.</span>`}
+        ${tab==='team' && html`<h2 style=${{fontSize:16,fontWeight:600}}>Team and roles</h2><div className="tbl-wrap"><table className="t"><thead><tr><th>Name</th><th>Role</th><th className="hide-sm">Can do</th></tr></thead><tbody>${team.map(t=>html`<tr key=${t[0]}><td><div className="row"><span className="avatar sm" style=${{'--h':t[3]}}>${t[0].split(' ').map(x=>x[0]).join('')}</span>${t[0]}${t[0]===ME?html`<span className="pill gray">You</span>`:null}</div></td><td>${t[1]}</td><td className="hide-sm wrap muted">${t[2]}</td></tr>`)}</tbody></table></div>`}
+        ${tab==='policies' && html`<h2 style=${{fontSize:16,fontWeight:600}}>Approval rules</h2><div className="card">${[['Bills of $25,000 or more','Dana Nguyen'],['Logistics and parts under $25,000','Marcus Chen'],['Facilities and utilities','Luis Ortega'],['Recurring software under $2,000','Autopilot, within limits'],['Payment runs over $50,000','Dana Nguyen + Omar Reyes'],['New or changed bank details','Two people, after a phone check']].map(([a,b])=>html`<div key=${a} className="set-row"><div className="stack" style=${{flex:1}}><span style=${{fontWeight:500}}>${a}</span><span className="sub">Approved by ${b}</span></div><button className="btn sm" onClick=${()=>ctx.toast('Rule editing is not part of this demo')}>Edit</button></div>`)}</div>`}
+        ${tab==='integrations' && html`<h2 style=${{fontSize:16,fontWeight:600}}>Integrations</h2><div className="card">${[['netsuite','NetSuite','Two-way sync of bills, vendors and GL'],['chase','Chase business banking','Bank feed and payments for Operating ··2502'],['gmail','Email forwarding','bills@kestrel.ledgerline.com'],['slack','Slack','Approval briefs and fraud alerts in #finance'],['quickbooks','QuickBooks Online','Use instead of NetSuite']].map(([k,n,d])=>html`<div key=${k} className="set-row"><span className="ti" style=${{width:32,height:32,borderRadius:8,display:'grid',placeItems:'center',background:'var(--chip)'}}><${Icon} n="plug" s=${16}/></span><div className="stack" style=${{flex:1,minWidth:0}}><span style=${{fontWeight:500}}>${n}</span><span className="sub">${d}</span></div>${s.integ[k]?html`<span className="pill green hide-sm">Connected</span>`:null}<${Switch} label=${n} on=${s.integ[k]} onChange=${v=>{act.setSetting('integ.'+k,v); ctx.toast(v?n+' connected':n+' disconnected');}}/></div>`)}</div>`}
+        ${tab==='notifications' && html`<h2 style=${{fontSize:16,fontWeight:600}}>Notifications</h2><div className="card">${[['digest','Daily digest','A summary of what Autopilot did overnight, at 8 AM'],['fraud','Fraud and bank-change alerts','Right away, by email and Slack'],['approvals','Approvals waiting for me','When a bill is routed to you'],['slack','Send to Slack','In addition to email'],['weekly','Weekly spend report','Mondays at 9 AM']].map(([k,n,d])=>html`<div key=${k} className="set-row"><div className="stack" style=${{flex:1}}><span style=${{fontWeight:500}}>${n}</span><span className="sub">${d}</span></div><${Switch} label=${n} on=${s.notif[k]} onChange=${v=>act.setSetting('notif.'+k,v)}/></div>`)}</div>`}
+        ${tab==='demo' && html`<h2 style=${{fontSize:16,fontWeight:600}}>Demo data</h2><div className="card card-b stack" style=${{gap:12,paddingTop:16}}><p style=${{lineHeight:1.5}}>This prototype uses sample data for a fictional company. Your changes are kept in this browser only.</p><div className="row"><button className="btn danger" onClick=${act.reset}><${Icon} n="refresh" s=${15}/>Reset demo data</button></div></div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Modals ---------- */
+function ModalHost({ctx, modal, close}){
+  return html`<div className="modal-wrap"><div className="scrim" onClick=${close}></div>
+    <div style=${{position:'relative',zIndex:91,width:'100%',display:'grid',placeItems:'center'}}>
+      ${modal.type==='fraud' && html`<${FraudModal} ctx=${ctx} id=${modal.id} close=${close}/>`}
+      ${modal.type==='release' && html`<${ReleaseModal} ctx=${ctx} ids=${modal.list} close=${close}/>`}
+      ${modal.type==='upload' && html`<${UploadModal} ctx=${ctx} close=${close}/>`}
+    </div></div>`;
+}
+function FraudModal({ctx, id, close}){
+  const {db,act} = ctx; const b = db.bills.find(x=>x.id===id); const v = vendorOf(db,b); const pb = v.pendingBank;
+  const [step,setStep] = useState('review'); const [called,setCalled] = useState(false); const [co,setCo] = useState('Omar Reyes');
+  if (!pb) return null;
+  const copy = () => { try { navigator.clipboard.writeText(v.phone).then(()=>ctx.toast('Number copied'),()=>ctx.toast(v.phone)); } catch(e){ ctx.toast(v.phone); } };
+  return html`<div className="modal" role="dialog" aria-modal="true" aria-labelledby="fraud-t">
+    <div className="mh"><div className="m-icon" style=${{background:'var(--red-bg)',color:'var(--red)'}}><${Icon} n="shield" s=${18}/></div><div className="stack" style=${{flex:1,gap:4}}><h2 id="fraud-t" style=${{fontSize:17,fontWeight:600}}>Bank details changed for ${v.name}</h2><p className="muted" style=${{lineHeight:1.5}}>Autopilot held <span className="mono">${b.num}</span> for ${money(b.amt)} before it could be scheduled.</p></div><${CloseBtn} close=${close}/></div>
+    ${step==='review' ? html`<div className="mb">
+      <div className="cmp"><div className="cr" style=${{background:'var(--sunk)'}}><span></span><span className="sub" style=${{fontWeight:500}}>Verified on file</span><span className="sub" style=${{fontWeight:500,color:'var(--red)'}}>On this invoice</span></div>
+        <div className="cr"><span className="muted">Bank</span><span>${v.bank.name}</span><span className="diff">${pb.name}</span></div>
+        <div className="cr"><span className="muted">Account</span><span className="mono">··${v.bank.last4}</span><span className="mono diff">··${pb.last4}</span></div>
+        <div className="cr"><span className="muted">Routing</span><span className="mono">${v.bank.routing||'—'}</span><span className="mono diff">${pb.routing}</span></div>
+        <div className="cr"><span className="muted">Sent from</span><span style=${{wordBreak:'break-all'}}>${v.email}</span><span className="diff" style=${{wordBreak:'break-all'}}>${pb.from}</span></div></div>
+      <div className="stack" style=${{gap:8}}><span className="sec-t">Why Autopilot held it</span>
+        <div className="bullet">The sender's domain differs from the one on file and was registered 9 days ago.</div>
+        <div className="bullet">This is the first change to ${v.name.split(' ')[0]}'s payment details in 14 months and 22 invoices.</div>
+        <div className="bullet">The amount and layout match past bills. Payment-redirection fraud usually looks like this.</div></div>
+      <div className="banner"><${Icon} n="phone" s=${17}/><div className="txt">Call ${v.name.split(' ')[0]} on the number already on file, <b className="mono" style=${{fontWeight:500}}>${v.phone}</b>. Don't use contact details from this invoice.</div><button className="btn sm" onClick=${copy}>Copy number</button></div>
+    </div>
+    <div className="mf"><button className="btn danger" onClick=${()=>act.reportFraud(b.id)}>Report as fraud</button><span className="spacer"></span><button className="btn" onClick=${close}>Keep on hold</button><button className="btn pri" onClick=${()=>setStep('verify')}>I verified by phone</button></div>`
+    : html`<div className="mb">
+      <label className="row" style=${{alignItems:'flex-start',gap:10,lineHeight:1.5}}><input type="checkbox" id="called" checked=${called} onChange=${e=>setCalled(e.target.checked)} style=${{marginTop:3}}/><span>I called ${v.phone} and ${v.name} confirmed the new account ending ${pb.last4}.</span></label>
+      <div><label className="lbl-f" htmlFor="cosign">Second approver</label><select id="cosign" className="sel" value=${co} onChange=${e=>setCo(e.target.value)}><option>Omar Reyes</option><option>Marcus Chen</option></select><span className="sub" style=${{display:'block',marginTop:6}}>In this demo the second approval is simulated.</span></div>
+    </div>
+    <div className="mf"><button className="btn" onClick=${()=>setStep('review')}>Back</button><span className="spacer"></span><button className="btn pri" disabled=${!called} onClick=${()=>act.verifyBank(b.id,co)}>Update bank details</button></div>`}
+  </div>`;
+}
+function ReleaseModal({ctx, ids, close}){
+  const {db,act} = ctx; const list = ids.map(id=>{ const b=db.bills.find(x=>x.id===id); return {b,p:planFor(db,b)}; }).filter(x=>x.b && x.b.status==='approved');
+  const total = list.reduce((s,x)=>s+x.b.amt,0); const needCo = total>50000; const [ok,setOk] = useState(false); const [co,setCo] = useState(false);
+  return html`<div className="modal sm" role="dialog" aria-modal="true" aria-labelledby="rel-t">
+    <div className="mh"><div className="m-icon" style=${{background:'var(--accent-soft)',color:'var(--accent-text)'}}><${Icon} n="payments" s=${18}/></div><div className="stack" style=${{flex:1,gap:4}}><h2 id="rel-t" style=${{fontSize:17,fontWeight:600}}>Release ${list.length} payments</h2><p className="muted">${money(total)} from Operating ··2502 on ${fmtD(RUN_DATE)}</p></div><${CloseBtn} close=${close}/></div>
+    <div className="mb">
+      <div className="lines">${list.map(({b,p})=>html`<div key=${b.id} className="ln"><span>${vendorOf(db,b).name}</span><span className="sub">${p.method}</span><span className="num" style=${{textAlign:'right',minWidth:96}}><${Money} n=${b.amt}/></span></div>`)}</div>
+      <label className="row" style=${{alignItems:'flex-start',gap:10}}><input type="checkbox" id="rel-ok" checked=${ok} onChange=${e=>setOk(e.target.checked)} style=${{marginTop:3}}/><span>I reviewed the vendors, amounts and dates.</span></label>
+      ${needCo && html`<label className="row" style=${{alignItems:'flex-start',gap:10}}><input type="checkbox" id="rel-co" checked=${co} onChange=${e=>setCo(e.target.checked)} style=${{marginTop:3}}/><span>Omar Reyes co-signed in the Ledgerline app. <span className="demo-tag">Demo</span></span></label>`}
+    </div>
+    <div className="mf"><span className="spacer"></span><button className="btn" onClick=${close}>Cancel</button><button className="btn pri" disabled=${!ok||(needCo&&!co)} onClick=${()=>act.releaseRun(list,needCo?'Omar Reyes':null)}>Release ${money(total)}</button></div>
+  </div>`;
+}
+function UploadModal({ctx, close}){
+  const {act,openBill} = ctx; const [stage,setStage] = useState('pick'); const [file,setFile] = useState(null); const [done,setDone] = useState(0); const [over,setOver] = useState(false); const inputRef = useRef(null);
+  const steps = ['Reading the document','Matching the vendor','Coding line items','Running duplicate and bank checks'];
+  const start = name => { setFile(name); setStage('read'); setDone(0); steps.forEach((_,i)=>setTimeout(()=>setDone(i+1), 550*(i+1))); setTimeout(()=>{ const id=uid('b'); act.addBill({id,v:'gg',num:'GG-3340',amt:486.20,issued:TODAY,due:addDays(TODAY,15),status:'ready',src:'Upload',rcv:'just now',po:'PO-3399',flags:[],lines:[{d:'Same-day courier, Fremont to San Jose, 4 runs',a:486.20,gl:'5210',c:'h',sug:false}]}); close(); openBill(id); ctx.toast('Autopilot read the invoice. It’s ready to submit.'); }, 550*steps.length+400); };
+  return html`<div className="modal sm" role="dialog" aria-modal="true" aria-labelledby="up-t">
+    <div className="mh"><div className="stack" style=${{flex:1,gap:4}}><h2 id="up-t" style=${{fontSize:17,fontWeight:600}}>Add a bill</h2><p className="muted">Autopilot reads the invoice and fills in the bill for you.</p></div><${CloseBtn} close=${close}/></div>
+    <div className="mb">${stage==='pick' ? html`
+      <div className=${cx('drop',over&&'over')} role="button" tabIndex="0" onClick=${()=>inputRef.current&&inputRef.current.click()} onKeyDown=${e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); inputRef.current&&inputRef.current.click(); } }} onDragOver=${e=>{e.preventDefault(); setOver(true);}} onDragLeave=${()=>setOver(false)} onDrop=${e=>{e.preventDefault(); setOver(false); const f=e.dataTransfer.files[0]; if (f) start(f.name);}}>
+        <${Icon} n="upload" s=${22} cls="muted"/><b style=${{fontWeight:500}}>Drop a PDF or image here</b><span className="sub">or click to choose a file</span>
+        <input ref=${inputRef} id="bill-file" type="file" accept=".pdf,image/*" hidden onChange=${e=>{ const f=e.target.files[0]; if (f) start(f.name); }}/>
+      </div>
+      <div className="row"><span className="sub" style=${{flex:1}}>No file handy?</span><button className="btn sm" onClick=${()=>start('GG-3340.pdf')}>Use a sample invoice</button></div>
+      <span className="sub">Demo: files aren't uploaded anywhere. A sample Golden Gate Couriers invoice is used for the result.</span>`
+      : html`<div className="row" style=${{padding:'10px 12px',border:'1px solid var(--line)',borderRadius:10}}><${Icon} n="file" cls="muted"/><span className="mono" style=${{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>${file}</span></div>
+        <div className="steps">${steps.map((s,i)=>html`<div key=${s} className="step">${i<done?html`<${Icon} n="check" s=${16} w=${2.2} cls="ok"/>`:i===done?html`<span className="spin"></span>`:html`<span style=${{width:16,height:16,borderRadius:'50%',border:'2px solid var(--line-strong)',flex:'none'}}></span>`}<span style=${{color:i<=done?'var(--ink)':'var(--muted)'}}>${s}</span></div>`)}</div>`}
+    </div></div>`;
+}
+
+/* ---------- Notifications ---------- */
+function Notifications({ctx, close}){
+  const {db,openBill,nav} = ctx;
+  const items = [];
+  db.bills.filter(b=>b.flags.some(f=>f.type==='bank')).forEach(b=>items.push({icon:'shield',tone:'red',t:`Bank change requested by ${vendorOf(db,b).name}`,s:'Held before payment',go:()=>openBill(b.id)}));
+  db.bills.filter(b=>b.status==='approval'&&b.approver===ME).forEach(b=>items.push({icon:'approvals',t:`${vendorOf(db,b).name} needs your approval`,s:money(b.amt),go:()=>nav('approvals',{tab:'mine'})}));
+  items.push({icon:'recon',t:'57 bank transactions matched overnight',s:'Autopilot · 7:30 AM',go:()=>nav('recon')});
+  return html`<div className="pop" role="dialog" aria-label="Notifications"><div className="row" style=${{padding:'12px 14px',borderBottom:'1px solid var(--line)'}}><b style=${{fontWeight:600}}>Notifications</b><span className="spacer"></span><button className="btn sm ghost" onClick=${close}>Close</button></div>
+    ${items.map((it,i)=>html`<button key=${i} className="task" style=${{borderTop:i?'1px solid var(--line-2)':0}} onClick=${()=>{close(); it.go();}}><span className="ti" style=${it.tone==='red'?{background:'var(--red-bg)',color:'var(--red)'}:null}><${Icon} n=${it.icon}/></span><span className="stack" style=${{flex:1,minWidth:0}}><span style=${{fontWeight:500}}>${it.t}</span><span className="sub">${it.s}</span></span></button>`)}</div>`;
+}
+
+/* ---------- Command palette ---------- */
+function Palette({ctx, close}){
+  const {db,nav,openBill,setDrawer} = ctx; const [q,setQ] = useState(''); const [i,setI] = useState(0); const ref = useRef(null);
+  useEffect(()=>{ ref.current && ref.current.focus(); },[]);
+  const ql = q.trim().toLowerCase();
+  const pages = NAV.filter(n=>n[0]!=='-').filter(n=>!ql||n[1].toLowerCase().includes(ql)).map(n=>({grp:'Pages',icon:n[2],label:n[1],go:()=>nav(n[0])}));
+  const bills = db.bills.filter(b=>b.status!=='void').filter(b=>ql && (vendorOf(db,b).name+' '+b.num+' '+b.amt).toLowerCase().includes(ql)).slice(0,6).map(b=>({grp:'Bills',icon:'bills',label:`${vendorOf(db,b).name} · ${b.num}`,meta:money(b.amt),go:()=>openBill(b.id)}));
+  const vends = db.vendors.filter(v=>ql && v.name.toLowerCase().includes(ql)).slice(0,5).map(v=>({grp:'Vendors',icon:'vendors',label:v.name,meta:v.cat,go:()=>setDrawer({type:'vendor',id:v.id})}));
+  const actions = [{grp:'Actions',icon:'upload',label:'Upload a bill',go:()=>ctx.setModal({type:'upload'})},{grp:'Actions',icon:'payments',label:'Review the payment run',go:()=>nav('payments',{tab:'run'})}].filter(a=>!ql||a.label.toLowerCase().includes(ql));
+  const all = [...bills,...vends,...pages,...actions];
+  const run = it => { close(); it.go(); };
+  let lastGrp = null;
+  return html`<div><div className="scrim" style=${{zIndex:94}} onClick=${close}></div><div className="palette" role="dialog" aria-label="Search">
+    <input ref=${ref} id="palette-q" aria-label="Search bills, vendors or pages" placeholder="Search bills, vendors or pages" value=${q} onInput=${e=>{setQ(e.target.value); setI(0);}} onKeyDown=${e=>{ if (e.key==='ArrowDown'){e.preventDefault(); setI(x=>Math.min(x+1,all.length-1));} else if (e.key==='ArrowUp'){e.preventDefault(); setI(x=>Math.max(x-1,0));} else if (e.key==='Enter' && all[i]) run(all[i]); }}/>
+    <div className="pal-list" role="listbox">${all.map((it,k)=>{ const g = it.grp!==lastGrp; lastGrp = it.grp; return html`<div key=${k}>${g?html`<div className="pal-grp">${it.grp}</div>`:null}<button className="pal-item" role="option" aria-selected=${k===i} onMouseEnter=${()=>setI(k)} onClick=${()=>run(it)}><${Icon} n=${it.icon} cls="muted"/><span style=${{flex:1}}>${it.label}</span>${it.meta?html`<span className="sub num">${it.meta}</span>`:null}</button></div>`; })}
+      ${!all.length && html`<div className="empty" style=${{padding:24}}>No results for "${q}"</div>`}</div>
+  </div></div>`;
+}
+
+/* ---------- Ask Ledger ---------- */
+function answerFor(q, db, ctx){
+  if (q==='__cancel') return {body:html`<p>Okay. Nothing changed.</p>`};
+  const s = q.toLowerCase();
+  const cite = (label, go) => html`<button className="cite" onClick=${go}>${label}</button>`;
+  if (/software|saas|subscription/.test(s)) return {body:html`<p>Software spend was <b style=${{fontWeight:600}}>$148,300</b> in Q3, up 18% from $125,700 in Q2. Two vendors explain most of the $22,600 increase:</p>
+      <p>1. <b style=${{fontWeight:600}}>Atlas Cloud</b>, +$14,900. Usage grew with the new simulation cluster.${cite('6 bills',()=>ctx.setDrawer({type:'vendor',id:'ac'}))}</p>
+      <p>2. <b style=${{fontWeight:600}}>Figment Design</b>, +$5,200. 12 seats were added in August.${cite('1 bill',()=>ctx.setDrawer({type:'vendor',id:'fd'}))}</p>
+      ${db.renewalsHeld?html`<p>The 3 unused tools are already on hold.</p>`:html`<p>3 tools had no sign-ins for 60 days: Loomwise, Tabula Forms and Stackpad. They renew for <b style=${{fontWeight:600}}>$2,140 a month</b>.${cite('SSO log',()=>ctx.nav('spend'))}</p>`}`,
+    src:'Based on 42 bills, 2 contracts and the SSO sign-in log.', chips: db.renewalsHeld?['What is due this week?']:['Hold the 3 unused renewals','What is due this week?']};
+  if (/hold.*renewal|unused/.test(s)) return db.renewalsHeld ? {body:html`<p>Those renewals are already on hold.</p>`} : {body:html`<p>Here's the plan. Nothing changes until you confirm.</p>`, plan:true};
+  if (/due|this week|next week|upcoming/.test(s)){ const end=addDays(TODAY,7); const list=db.bills.filter(b=>isOpen(b)&&b.status!=='scheduled'&&b.due>=TODAY&&b.due<=end).sort((a,b)=>a.due<b.due?-1:1);
+    return {body:html`<p>${list.length} unpaid bills are due by ${fmtD(end)}, ${money(list.reduce((x,b)=>x+b.amt,0))} in total:</p>${list.map(b=>html`<p key=${b.id}>${fmtD(b.due)} · ${vendorOf(db,b).name}, ${money(b.amt)} ${cite(b.num,()=>ctx.openBill(b.id))}</p>`)}<p className="muted">${db.bills.filter(b=>b.status==='scheduled').length} more are already scheduled.</p>`, src:'From open bills in Ledgerline.', chips:['What needs my review?','How is cash looking?']}; }
+  if (/overdue|late/.test(s)){ const list=db.bills.filter(isOverdue); return {body: list.length?html`<p>${list.length} bills are past due:</p>${list.map(b=>html`<p key=${b.id}>${vendorOf(db,b).name}, ${money(b.amt)}, due ${fmtD(b.due)} ${cite(b.num,()=>ctx.openBill(b.id))}</p>`)}<p className="muted">Atlas AC-88213 is on hold as a likely duplicate, so it may not be owed at all.</p>`:html`<p>Nothing is overdue.</p>`, chips:['What is due this week?']}; }
+  if (/cash|runway|balance|forecast/.test(s)){ const fc=forecast(db,30); return {body:html`<p>Operating ··2502 has <b style=${{fontWeight:600}}>${money(START_BAL,0)}</b> today. Over the next 30 days the balance bottoms out at <b style=${{fontWeight:600}}>${kfmt(fc.low.v)}</b> on ${fmtD(fc.low.d)}, ${fc.low.v>=db.settings.floor?'which stays above':'which is below'} your ${kfmt(db.settings.floor)} floor.${cite('Forecast',()=>ctx.nav('forecast'))}</p>`, src:'From scheduled and approved bills, payroll and expected receipts.', chips:['What is due this week?']}; }
+  if (/review|need|attention|todo|to do/.test(s)){ const list=db.bills.filter(b=>b.status==='review'||b.status==='hold'); return {body:html`<p>${list.length} bills need you:</p>${list.map(b=>html`<p key=${b.id}>${vendorOf(db,b).name}: ${b.flags.map(f=>FLAG[f.type].label.toLowerCase()).join(', ')||'suggestion to accept'} ${cite(b.num,()=>ctx.openBill(b.id))}</p>`)}`, chips:['What is due this week?']}; }
+  const v = db.vendors.find(x=>s.includes(x.name.toLowerCase().split(' ')[0]));
+  if (v){ const bs=billsFor(db,v.id); const paid=bs.filter(b=>b.status==='paid'); return {body:html`<p><b style=${{fontWeight:600}}>${v.name}</b> has ${bs.filter(isOpen).length} open bills worth ${money(bs.filter(isOpen).reduce((x,b)=>x+b.amt,0))}. You paid ${paid.length} bills in the last 90 days. Terms are ${v.terms}, and they're on ${v.level}.${cite('Vendor',()=>ctx.setDrawer({type:'vendor',id:v.id}))}</p>`}; }
+  return {body:html`<p>I can answer questions about your bills, vendors, payments and spend, and point you to the source. Try one of these.</p>`, chips:['What needs my review?','What is due this week?','How is cash looking?','Why is software spend up this quarter?']};
+}
+function AskPanel({ctx, seedQ, close}){
+  const {db,act} = ctx; const [msgs,setMsgs] = useState([]); const [q,setQ] = useState(''); const endRef = useRef(null);
+  const ask = text => { if (!text.trim()) return; setMsgs(m=>[...m,{role:'u',text},{role:'a',q:text}]); setQ(''); };
+  useEffect(()=>{ if (seedQ) ask(seedQ); },[]);
+  useEffect(()=>{ endRef.current && endRef.current.scrollIntoView({block:'end'}); },[msgs]);
+  const starters = ['What needs my review?','What is due this week?','How is cash looking?','Why is software spend up this quarter?'];
+  return html`<aside className="ask" aria-label="Ask Ledger">
+    <div className="row" style=${{height:56,padding:'0 12px 0 16px',borderBottom:'1px solid var(--line)',flex:'none'}}><span className="ai-mark" style=${{fontSize:14,color:'var(--ink)'}}><${Spark} s=${14}/>Ask Ledger</span><span className="spacer"></span><${CloseBtn} close=${close}/></div>
+    <div className="ask-body">
+      ${!msgs.length && html`<div className="stack" style=${{gap:10}}><p className="muted" style=${{lineHeight:1.5}}>Ask about bills, vendors, payments or spend. Answers link to their sources, and nothing changes without your confirmation.</p><div className="row" style=${{flexWrap:'wrap',gap:6}}>${starters.map(s=>html`<button key=${s} className="chip" onClick=${()=>ask(s)}>${s}</button>`)}</div></div>`}
+      ${msgs.map((m,i)=> m.role==='u' ? html`<div key=${i} className="bubble">${m.text}</div>` : (()=>{ const a = answerFor(m.q, db, ctx); return html`<div key=${i} className="answer">${a.body}
+        ${a.src && html`<span className="sub">${a.src}</span>`}
+        ${a.plan && !db.renewalsHeld && html`<div className="plan"><div className="row" style=${{padding:'10px 12px',background:'var(--sunk)',borderBottom:'1px solid var(--line-2)'}}><b style=${{fontWeight:600}}>Plan: hold 3 renewals</b><span className="sub">saves $2,140 a month</span></div>
+          ${[['Loomwise · Design','Nov 3','$980/mo'],['Tabula Forms · Operations','Nov 9','$640/mo'],['Stackpad · Operations','Nov 15','$520/mo']].map(r=>html`<div key=${r[0]} className="pr"><span>${r[0]}</span><span className="sub">Renews ${r[1]}</span><span className="num">${r[2]}</span></div>`)}
+          <div style=${{padding:'10px 12px',fontSize:12.5,lineHeight:1.5,color:'var(--ink-2)'}}>Tool owners Jamie Park and Luis Ortega will get a note. You can undo any hold before its renewal date.</div>
+          <div className="row" style=${{padding:'0 12px 12px',justifyContent:'flex-end'}}><button className="btn sm" onClick=${()=>setMsgs(x=>[...x,{role:'a',q:'__cancel'}])}>Cancel</button><button className="btn sm pri" onClick=${act.holdRenewals}>Hold 3 renewals</button></div></div>`}
+        ${a.plan && db.renewalsHeld && html`<span className="pill green" style=${{alignSelf:'flex-start'}}>Done: 3 renewals held</span>`}
+        ${a.chips && i===msgs.length-1 && html`<div className="row" style=${{flexWrap:'wrap',gap:6}}>${a.chips.map(c=>html`<button key=${c} className="chip" onClick=${()=>ask(c)}>${c}</button>`)}</div>`}
+      </div>`; })())}
+      <div ref=${endRef}></div>
+    </div>
+    <form style=${{flex:'none',padding:'12px 16px 16px',borderTop:'1px solid var(--line)'}} onSubmit=${e=>{e.preventDefault(); ask(q);}}>
+      <label className="row" style=${{height:44,border:'1px solid var(--line-strong)',borderRadius:10,padding:'0 6px 0 12px'}}><input id="ask-q" aria-label="Ask Ledger a question" placeholder="Ask about bills, vendors or spend" value=${q} onInput=${e=>setQ(e.target.value)} style=${{flex:1,border:0,outline:'none',background:'transparent',minWidth:0}}/><button className="btn pri icon-btn sm" type="submit" aria-label="Send" disabled=${!q.trim()}><${Icon} n="send" s=${15} w=${2}/></button></label>
+    </form>
+  </aside>`;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+})();
+</script>
