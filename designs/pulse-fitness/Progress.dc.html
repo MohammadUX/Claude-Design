@@ -50,28 +50,26 @@ button{cursor:pointer}
 </div>
 <svg width="326" height="178" viewBox="0 0 326 178" role="img" aria-label="{{chartLabel}}">
 <defs><linearGradient id="wa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6A1A" stop-opacity="0.28"></stop><stop offset="1" stop-color="#FF6A1A" stop-opacity="0"></stop></linearGradient></defs>
-<sc-if value="{{showGoal}}" hint-placeholder-val="{{true}}">
+<g display="{{goalDisp}}">
 <line x1="8" y1="{{goalY}}" x2="318" y2="{{goalY}}" stroke="#6B6B6B" stroke-width="1.5" stroke-dasharray="2 4"></line>
 <text x="316" y="{{goalLabelY}}" font-size="10" font-weight="800" fill="#6B6B6B" text-anchor="end">Goal · 14 Dec</text>
-</sc-if>
+</g>
 <path d="{{area}}" fill="url(#wa)"></path>
-<path d="{{cone}}" fill="rgba(28,28,30,0.10)"></path>
+<path d="{{cone}}" fill="rgba(255,106,26,0.12)"></path>
 <path d="{{proj}}" fill="none" stroke="#FF6A1A" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round"></path>
-<sc-for list="{{dots}}" as="d" hint-placeholder-count="12">
-<circle cx="{{d.x}}" cy="{{d.y}}" r="2.6" fill="rgba(14,14,14,0.35)"></circle>
-</sc-for>
+<path d="{{dotsPath}}" fill="rgba(14,14,14,0.28)"></path>
 <path d="{{trend}}" fill="none" stroke="#FF6A1A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path>
 <line x1="{{nowX}}" y1="10" x2="{{nowX}}" y2="148" stroke="rgba(14,14,14,0.25)" stroke-width="1"></line>
 <circle cx="{{nowX}}" cy="{{nowY}}" r="6" fill="#FF6A1A" stroke="#FFFFFF" stroke-width="2.5"></circle>
-<sc-if value="{{showPin}}" hint-placeholder-val="{{true}}">
+<g>
 <line x1="{{pinX}}" y1="{{pinY}}" x2="{{pinX}}" y2="{{pinTop}}" stroke="#FF6A1A" stroke-width="1.5"></line>
 <rect x="{{pinBoxX}}" y="{{pinBoxY}}" width="108" height="20" rx="10" fill="rgba(255,106,26,0.95)"></rect>
 <text x="{{pinTextX}}" y="{{pinTextY}}" font-size="10" font-weight="800" fill="#2A2A2A" text-anchor="middle">Leg day water +0.6</text>
-</sc-if>
-<sc-if value="{{showNums}}" hint-placeholder-val="{{true}}">
+</g>
+<g display="{{numsDisp}}">
 <text x="318" y="20" font-size="10" fill="#505050" text-anchor="end">{{yTop}}</text>
 <text x="318" y="146" font-size="10" fill="#505050" text-anchor="end">{{yBot}}</text>
-</sc-if>
+</g>
 <text x="8" y="168" font-size="10" fill="#505050">{{startLabel}}</text>
 <text x="{{nowX}}" y="168" font-size="10" font-weight="800" fill="#0E0E0E" text-anchor="middle">Today</text>
 <text x="318" y="168" font-size="10" fill="#505050" text-anchor="end">{{endLabel}}</text>
@@ -91,16 +89,16 @@ button{cursor:pointer}
 <svg width="326" height="118" viewBox="0 0 326 118" role="img" aria-label="Contributors this week: fat loss from your deficit minus 0.40 kilograms, water after leg day plus 0.25, Saturday intake plus 0.05. Net minus 0.10.">
 <line x1="190" y1="4" x2="190" y2="112" stroke="rgba(14,14,14,0.25)" stroke-width="1"></line>
 <text x="0" y="22" font-size="12" font-weight="700" fill="#0E0E0E">Fat loss</text>
-<rect x="82" y="10" width="108" height="18" rx="6" fill="#1C1C1E"></rect>
+<rect x="82" y="10" width="108" height="18" rx="6" fill="#FF6A1A"></rect>
 <text x="0" y="56" font-size="12" font-weight="700" fill="#0E0E0E">Leg-day water</text>
-<rect x="190" y="44" width="68" height="18" rx="6" fill="#AEAEB2"></rect>
+<rect x="190" y="44" width="68" height="18" rx="6" fill="#D1D1D6"></rect>
 <text x="0" y="90" font-size="12" font-weight="700" fill="#0E0E0E">Saturday intake</text>
-<rect x="190" y="78" width="14" height="18" rx="5" fill="#FF6A1A"></rect>
-<sc-if value="{{showNums}}" hint-placeholder-val="{{true}}">
-<text x="90" y="23" font-size="11" font-weight="800" fill="#FFFFFF">−0.40</text>
+<rect x="190" y="78" width="14" height="18" rx="5" fill="#FFB48A"></rect>
+<g display="{{numsDisp}}">
+<text x="90" y="23" font-size="11" font-weight="800" fill="#2A1203">−0.40</text>
 <text x="262" y="57" font-size="11" font-weight="800" fill="#4D4D4D">+0.25</text>
 <text x="208" y="91" font-size="11" font-weight="800" fill="#9A3A06">+0.05</text>
-</sc-if>
+</g>
 </svg>
 <span style="font-size: 13px; line-height: 1.45; color: #242424">{{whyText}}</span>
 </section>
@@ -114,28 +112,28 @@ button{cursor:pointer}
 <defs><linearGradient id="cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A3A3C"></stop><stop offset="1" stop-color="#8E8E93"></stop></linearGradient><linearGradient id="co" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6A1A"></stop><stop offset="1" stop-color="#FFA06B"></stop></linearGradient></defs>
 <line x1="8" y1="116" x2="318" y2="116" stroke="rgba(14,14,14,0.12)"></line>
 <rect x="17" y="22.1" width="28" height="93.9" rx="8" fill="#FF6A1A"></rect>
-<rect x="61" y="39.2" width="28" height="76.8" rx="8" fill="#1C1C1E"></rect>
-<rect x="105" y="37.1" width="28" height="78.9" rx="8" fill="#1C1C1E"></rect>
-<rect x="149" y="43.1" width="28" height="72.9" rx="8" fill="#1C1C1E"></rect>
-<rect x="193" y="37.8" width="28" height="78.2" rx="8" fill="#1C1C1E"></rect>
-<rect x="237" y="36.4" width="28" height="79.6" rx="8" fill="#1C1C1E"></rect>
-<rect x="281" y="41.7" width="28" height="74.3" rx="8" fill="#1C1C1E"></rect>
-<g stroke="#0E0E0E" stroke-width="2.5" stroke-linecap="round">
+<rect x="61" y="39.2" width="28" height="76.8" rx="8" fill="#DCDCE0"></rect>
+<rect x="105" y="37.1" width="28" height="78.9" rx="8" fill="#DCDCE0"></rect>
+<rect x="149" y="43.1" width="28" height="72.9" rx="8" fill="#DCDCE0"></rect>
+<rect x="193" y="37.8" width="28" height="78.2" rx="8" fill="#DCDCE0"></rect>
+<rect x="237" y="36.4" width="28" height="79.6" rx="8" fill="#DCDCE0"></rect>
+<rect x="281" y="41.7" width="28" height="74.3" rx="8" fill="#DCDCE0"></rect>
+<g stroke="#505050" stroke-width="2.5" stroke-linecap="round">
 <line x1="13" y1="35.6" x2="49" y2="35.6"></line><line x1="57" y1="41" x2="93" y2="41"></line><line x1="101" y1="35.6" x2="137" y2="35.6"></line><line x1="145" y1="41" x2="181" y2="41"></line><line x1="189" y1="35.6" x2="225" y2="35.6"></line><line x1="233" y1="35.6" x2="269" y2="35.6"></line><line x1="277" y1="41" x2="313" y2="41"></line>
 </g>
-<sc-if value="{{showNums}}" hint-placeholder-val="{{true}}"><text x="31" y="15" font-size="10.5" font-weight="800" fill="#C44A0C" text-anchor="middle">+380</text></sc-if>
+<g display="{{numsDisp}}"><text x="31" y="15" font-size="10.5" font-weight="800" fill="#C44A0C" text-anchor="middle">+380</text></g>
 <g font-size="11" font-weight="700" fill="#505050" text-anchor="middle"><text x="31" y="134">Sat</text><text x="75" y="134">Sun</text><text x="119" y="134">Mon</text><text x="163" y="134">Tue</text><text x="207" y="134">Wed</text><text x="251" y="134">Thu</text><text x="295" y="134">Fri</text></g>
-<text x="8" y="148" font-size="10" fill="#505050">Black tick = that day's target (higher on training days)</text>
+<text x="8" y="148" font-size="10" fill="#505050">Dark tick = that day's target (higher on training days)</text>
 </svg>
 </section>
 
-<section aria-label="Weekly summary" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 20px; color: #FFFFFF; background: #141414; border: 1px solid #333333">
-<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #FFB489">Your week</span>
+<section aria-label="Weekly summary" style="padding: 18px; display: flex; flex-direction: column; gap: 12px; border-radius: 20px; color: #0E0E0E; background: #FFFFFF; border: 1px solid #E6E6E6">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #C44A0C">Your week</span>
 <p style="margin: 0; font-size: 16px; line-height: 1.5">{{summary}}</p>
-<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; background: #242424; border: 1px solid #333333">
-<span style="font-size: 11px; font-weight: 800; color: #CACACA">Try this week</span>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; background: #FFF4EC; border: 1px solid #FFE1CF">
+<span style="font-size: 11px; font-weight: 800; color: #6E6E73">Try this week</span>
 <span style="font-size: 14.5px; font-weight: 700">Pre-log Saturday dinner by 5 pm</span>
-<span style="font-size: 12.5px; color: #CACACA">Last month this halved your weekend overshoot.</span>
+<span style="font-size: 12.5px; color: #6E6E73">Last month this halved your weekend overshoot.</span>
 <button onClick="{{toggleTry}}" style="{{tryBtn}}">{{tryLabel}}</button>
 </div>
 </section>
@@ -187,7 +185,7 @@ var endV = 78.8 + slope * dMax;
 var spread = 0.8 * dMax / 78;
 var proj = 'M' + X(0).toFixed(1) + ' ' + Y(78.8).toFixed(1) + ' L' + X(dMax).toFixed(1) + ' ' + Y(endV).toFixed(1);
 var cone = 'M' + X(0).toFixed(1) + ' ' + Y(78.8).toFixed(1) + ' L' + X(dMax).toFixed(1) + ' ' + Y(endV + spread).toFixed(1) + ' L' + X(dMax).toFixed(1) + ' ' + Y(endV - spread).toFixed(1) + ' Z';
-var dots = vis.map(function (p) { return { x: X(p.d).toFixed(1), y: Y(p.w).toFixed(1) }; });
+var dotsPath = vis.map(function (p) { return 'M' + (X(p.d) - 2.6).toFixed(1) + ' ' + Y(p.w).toFixed(1) + ' a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0'; }).join(' ');
 var pin = pts[pts.length - 2];
 var px = X(pin.d), py = Y(pin.w);
 var first = vis[0];
@@ -206,7 +204,7 @@ ranges: ranges, calm: calm, showNums: !calm,
 toggleCalm: function () { self.setState({ calm: !calm }); },
 switchTrack: 'width: 40px; height: 24px; border-radius: 12px; position: relative; display: inline-block; ' + (calm ? 'background: #FF6A1A;' : 'background: rgba(14,14,14,0.18);'),
 switchKnob: 'position: absolute; top: 2px; width: 20px; height: 20px; border-radius: 10px; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.2); ' + (calm ? 'left: 18px;' : 'left: 2px;'),
-trend: trend, area: area, proj: proj, cone: cone, dots: dots,
+trend: trend, area: area, proj: proj, cone: cone, dotsPath: dotsPath, numsDisp: calm ? 'none' : 'inline', goalDisp: three ? 'inline' : 'none',
 nowX: X(0).toFixed(1), nowY: Y(78.8).toFixed(1),
 showGoal: three, goalY: Y(76).toFixed(1), goalLabelY: (Y(76) - 5).toFixed(1),
 showPin: true, pinX: px.toFixed(1), pinY: (py - 4).toFixed(1), pinTop: (py - 22).toFixed(1),
@@ -220,7 +218,7 @@ whyText: calm ? 'Your eating is doing its job. Water from Wednesday’s leg day 
 summary: calm ? 'You’re on track for your goal in mid-December. Saturdays are the one pattern to work on, mostly from drinks.' : 'On pace for 76 kg by 14 December. Saturdays run about 380 kcal over target, mostly from drinks. Everything else is within 50 kcal.',
 toggleTry: function () { self.setState({ tried: !s.tried }); },
 tryLabel: s.tried ? 'Reminder set for Sat 5:00 pm' : 'Remind me Saturday',
-tryBtn: 'align-self: flex-start; height: 40px; padding: 0 16px; border-radius: 20px; border: none; font-family: inherit; font-size: 13px; font-weight: 800; ' + (s.tried ? 'background: #FF6A1A; color: #0B0B0B;' : 'background: #FFFFFF; color: #0E0E0E;')
+tryBtn: 'align-self: flex-start; height: 40px; padding: 0 16px; border-radius: 20px; border: none; font-family: inherit; font-size: 13px; font-weight: 800; ' + (s.tried ? 'background: #FF6A1A; color: #0B0B0B;' : 'background: #0E0E0E; color: #FFFFFF;')
 };
 }
 }
