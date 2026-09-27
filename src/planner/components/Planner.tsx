@@ -579,7 +579,7 @@ export function Planner({
                   onToggleGroup={(k) => setCollapsed((c) => new Set(c.has(k) ? [...c].filter((x) => x !== k) : [...c, k]))}
                 />
               )}
-              {!noResults && !widget && view !== 'board' && <Legend />}
+              {!noResults && !widget && <Legend />}
               {widget && openPlannerHref && (
                 <a className="planner__open" href={openPlannerHref}>
                   Open planner <ArrowRight size={14} />
