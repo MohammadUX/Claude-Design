@@ -88,6 +88,7 @@ type Popup =
   | { kind: 'group'; rect: DOMRect }
   | { kind: 'filter'; rect: DOMRect }
   | { kind: 'bulk-assign'; rect: DOMRect }
+  | { kind: 'unassigned'; rect: DOMRect }
   | null;
 
 const isTyping = (el: EventTarget | null) => {
@@ -388,7 +389,7 @@ export function Planner({
                   <>
                     <b>{daySum.busy}</b> of {data.drivers.length} drivers working {focusDay === today ? 'today' : fmtMedium(focusDay)}
                     <span className="dotsep"> · </span>
-                    <button className={`phead__link ${periodUnassigned ? 'is-alert' : ''}`} onClick={() => document.querySelector('.grow-unassigned')?.scrollIntoView({ block: 'nearest' })}>
+                    <button className={`phead__link ${periodUnassigned ? 'is-alert' : ''}`} onClick={(e) => setPopup({ kind: 'unassigned', rect: e.currentTarget.getBoundingClientRect() })} aria-haspopup="dialog">
                       <b>{periodUnassigned}</b> tour{periodUnassigned === 1 ? '' : 's'} waiting for a driver
                     </button>
                   </>
@@ -551,7 +552,7 @@ export function Planner({
                   date={anchor}
                   items={items}
                   unassigned={unassigned.get(anchor) ?? []}
-                  showUnassigned={showUnassigned}
+                  showUnassigned={false}
                   autoHeight={widget}
                   onToggleGroup={(k) => setCollapsed((c) => new Set(c.has(k) ? [...c].filter((x) => x !== k) : [...c, k]))}
                 />
@@ -578,7 +579,7 @@ export function Planner({
                   onToggleGroup={(k) => setCollapsed((c) => new Set(c.has(k) ? [...c].filter((x) => x !== k) : [...c, k]))}
                 />
               )}
-              {!noResults && !widget && <Legend />}
+              {!noResults && !widget && view !== 'board' && <Legend />}
               {widget && openPlannerHref && (
                 <a className="planner__open" href={openPlannerHref}>
                   Open planner <ArrowRight size={14} />
@@ -620,6 +621,26 @@ export function Planner({
         )}
 
         {/* Popovers */}
+        {popup?.kind === 'unassigned' && (
+          <Popover anchor={popup.rect} onClose={() => setPopup(null)} className="cellpop cellpop--unassigned" placement="bottom-start">
+            <div className="cellpop__head">
+              <b>Waiting for a driver</b>
+              <span>{view === 'week' ? fmtRange(days[0], days.at(-1)!) : fmtMedium(anchor)}</span>
+            </div>
+            <p className="cellpop__hint">Drag a card onto a driver, or open it to pick one.</p>
+            <div className="cellpop__list">
+              {days.flatMap((d) => unassigned.get(d) ?? []).length === 0 && <p className="cellpop__hint">Every tour has a driver.</p>}
+              {days.flatMap((d) => unassigned.get(d) ?? []).map((t) => (
+                <TourCard key={t.id} tour={t} full />
+              ))}
+            </div>
+            {!readOnly && (
+              <button className="btn btn--ghost btn--sm" onClick={() => { setPopup(null); onCreate({ date: focusDay }); }}>
+                <Plus size={14} /> Add tour without driver
+              </button>
+            )}
+          </Popover>
+        )}
         {popup?.kind === 'cell' && (
           <Popover anchor={popup.rect} onClose={() => setPopup(null)} className="cellpop" placement="bottom-start">
             <div className="cellpop__head">

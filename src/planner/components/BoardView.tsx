@@ -4,7 +4,7 @@
  * Rows have variable height (cards wrap), so the virtualizer measures each row.
  */
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { ChevronRight, Inbox, Lock, Plus, TriangleAlert, Truck } from 'lucide-react';
+import { Inbox, Plus } from 'lucide-react';
 import { memo, useRef } from 'react';
 import { ABSENCE, DOC_STATE, DOCS, TOUR_STATUS } from '../config';
 import { diffDays, fmtMedium, fmtRelativeDays, fmtShort, nowMin } from '../date';
@@ -17,7 +17,6 @@ import {
   driverNow,
   etaLabel,
   initials,
-  isActive,
   isMultiDay,
   lastDay,
   routeFull,
@@ -55,9 +54,9 @@ const BoardCard = memo(function BoardCard({ tour, date }: { tour: Tour; date: st
       : ({ in_transit: 'live', assigned: 'plan', completed: 'done', draft: 'draft', delayed: 'late', cancelled: 'cancel' } as const)[tour.status];
 
   const when = multi
-    ? `${fmtShort(tour.date)} – ${fmtShort(lastDay(tour))} (${day!.total}d)`
+    ? `${fmtShort(tour.date)} – ${fmtShort(lastDay(tour))}`
     : tour.start
-      ? `${tour.start}${tour.end ? ` – ${tour.end}` : ''}`
+      ? `${tour.start}–${tour.end ?? ''}`
       : 'No time set';
 
   return (
@@ -88,80 +87,68 @@ const BoardCard = memo(function BoardCard({ tour, date }: { tour: Tour; date: st
       }}
       aria-label={`${tour.id}, ${route || 'tour to fill in'}, ${when}, ${status.label}`}
     >
-      <div className={`bcard__vehicle ${missingVehicle ? 'is-missing' : ''}`}>
-        {missingVehicle ? <TriangleAlert size={14} aria-hidden /> : <Truck size={14} aria-hidden />}
-        <Trunc>
-          {missingVehicle
-            ? !tractor && !trailer
-              ? 'Vehicle to be assigned'
-              : !tractor
-                ? `Tractor to assign · ${trailer!.plate}`
-                : `${tractor.plate} · trailer to assign`
-            : `${tractor?.plate ?? '—'} · ${trailer?.plate ?? '—'}`}
-        </Trunc>
-        <ChevronRight size={15} className="bcard__chev" aria-hidden />
-      </div>
-
-      <div className="bcard__route">
+      <div className="bcard__top">
         {route ? (
-          <Trunc tip={`${tour.id} · ${routeFull(tour)}`}>{route}</Trunc>
+          <Trunc className="bcard__route" tip={`${tour.id} · ${routeFull(tour)}${client ? `\n${client}` : ''}`}>
+            {route}
+          </Trunc>
         ) : (
-          <span className="bcard__todo">Tour to fill in</span>
+          <span className="bcard__route bcard__todo">Tour to fill in</span>
         )}
-        {stopsExtra > 0 && (
-          <span className="bcard__stops" data-tip={routeFull(tour)}>
-            +{stopsExtra} stop{stopsExtra > 1 ? 's' : ''}
-          </span>
-        )}
+        <span className="bcard__status" data-status={tour.status}>
+          <span className="bcard__dot" aria-hidden />
+          {status.label}
+        </span>
       </div>
-
-      <div className="bcard__when">
+      <div className="bcard__meta">
         <span>{when}</span>
-        {day && <span className="bcard__day">Day {day.n} of {day.total}</span>}
-        {eta && <span className="bcard__eta">ETA {eta}</span>}
+        {stopsExtra > 0 && <span data-tip={routeFull(tour)}>via {tour.stops.filter((s) => s.city).slice(1, -1).map((s) => s.city).join(', ')}</span>}
       </div>
-
-      {errors.length > 0 && (
-        <div className="bcard__issue" data-tip={errors.map((i) => i.message).join('\n')}>
-          <TriangleAlert size={13} aria-hidden />
-          <Trunc>{errors[0].message}</Trunc>
+      {!missingVehicle && tractor && <div className="bcard__plates">{`${tractor.plate} · ${trailer?.plate ?? '—'}`}</div>}
+      {(missingVehicle || errors.length > 0 || tour.status === 'delayed' || day) && (
+        <div className="bcard__note">
+          {errors.length > 0 ? (
+            <span className="is-bad" data-tip={errors.map((i) => i.message).join('\n')}>
+              {errors[0].message}
+            </span>
+          ) : tour.status === 'delayed' ? (
+            <span className="is-bad">
+              {tour.delayMin} min late{eta ? ` · arrives ${eta}` : ''}
+            </span>
+          ) : missingVehicle ? (
+            <span className="is-warn">
+              {!tractor && !trailer ? 'Vehicle to be assigned' : !tractor ? 'Tractor to be assigned' : 'Semi-trailer to be assigned'}
+            </span>
+          ) : (
+            <span>
+              Day {day!.n} of {day!.total}
+            </span>
+          )}
         </div>
       )}
-
-      <div className="bcard__foot">
-        <span className="bcard__status" data-status={tour.status}>
-          <status.icon size={12} strokeWidth={2.4} aria-hidden />
-          {status.label}
-          {tour.status === 'delayed' && tour.delayMin ? ` +${tour.delayMin}m` : ''}
-        </span>
-        {client && <Trunc className="bcard__client">{client}</Trunc>}
-      </div>
     </div>
   );
 });
 
 /* ------------------------------------------------------ Driver info cell */
 
-function DocChips({ driver, refDate }: { driver: Driver; refDate: string }) {
+/** Documents only speak up when something needs doing. */
+function DocNotes({ driver, refDate }: { driver: Driver; refDate: string }) {
+  const issues = DOCS.map((d) => ({ d, exp: driver.docs[d.key], st: docState(driver.docs[d.key], refDate) })).filter((x) => x.st !== 'ok');
+  if (!issues.length) return null;
   return (
-    <div className="dchips" data-tip={docTooltip(driver, refDate)} tabIndex={0}>
-      {DOCS.map((d) => {
-        const exp = driver.docs[d.key];
-        const st = docState(exp, refDate);
-        const c = DOC_STATE[st];
-        return (
-          <span key={d.key} className={`dchip dchip--${st}`} style={{ color: c.color, background: c.bg }}>
-            <span className="dchip__dot" aria-hidden />
-            {d.key === 'tacho' ? 'Tacho' : d.label}
-            {st !== 'ok' && <span className="dchip__date">{st === 'expired' ? 'expired' : fmtShort(exp)}</span>}
-          </span>
-        );
-      })}
+    <div className="bdocs" data-tip={docTooltip(driver, refDate)} tabIndex={0}>
+      {issues.map(({ d, exp, st }) => (
+        <span key={d.key} className={`bdoc bdoc--${st}`} style={{ color: DOC_STATE[st].color, background: DOC_STATE[st].bg }}>
+          <span className="bcard__dot" aria-hidden />
+          {d.key === 'tacho' ? 'Tachograph' : d.label} {st === 'expired' ? 'expired' : `expires ${fmtShort(exp)}`}
+        </span>
+      ))}
     </div>
   );
 }
 
-function DriverInfo({ driver, date, count }: { driver: Driver; date: string; count: number }) {
+function DriverInfo({ driver, date }: { driver: Driver; date: string }) {
   const ctx = usePlannerCtx();
   const tractor = driver.defaultTractorId ? ctx.idx.tractorById.get(driver.defaultTractorId) : undefined;
   const now = driverNow(ctx.idx, driver, date, ctx.today, nowMin());
@@ -171,21 +158,13 @@ function DriverInfo({ driver, date, count }: { driver: Driver; date: string; cou
       onMouseEnter={(e) => ctx.hoverDriver(driver, e.currentTarget.getBoundingClientRect())}
       onMouseLeave={() => ctx.hoverDriver(null)}
     >
-      <div className="binfo__head">
-        <span className="dcell__avatar">
-          <Avatar text={initials(driver)} id={driver.id} size={36} />
-          <span className={`dcell__dot dcell__dot--${now.tone}`} aria-hidden />
-        </span>
-        <div className="binfo__who">
-          <span className="binfo__nameline">
-            <Trunc className="binfo__name">{`${driver.firstName} ${driver.lastName}`}</Trunc>
-            {count > 0 && <span className="binfo__count">{count}</span>}
-          </span>
-          <Trunc className="binfo__truck">{tractor ? `${tractor.model} · ${tractor.plate}` : 'No usual tractor'}</Trunc>
-        </div>
+      <Avatar text={initials(driver)} id={driver.id} size={36} />
+      <div className="binfo__who">
+        <Trunc className="binfo__name">{`${driver.firstName} ${driver.lastName}`}</Trunc>
+        <Trunc className="binfo__sub">{tractor ? `${tractor.model} · ${tractor.plate}` : 'No usual tractor'}</Trunc>
+        <Trunc className={`binfo__now binfo__now--${now.tone}`}>{now.text}</Trunc>
+        <DocNotes driver={driver} refDate={ctx.today} />
       </div>
-      <Trunc className={`binfo__now dcell__now--${now.tone}`}>{now.text}</Trunc>
-      <DocChips driver={driver} refDate={ctx.today} />
     </div>
   );
 }
@@ -195,7 +174,7 @@ function DriverInfo({ driver, date, count }: { driver: Driver; date: string; cou
 function AddCard({ onClick, label }: { onClick: () => void; label: string }) {
   return (
     <button className="badd" onClick={onClick} aria-label={label}>
-      <Plus size={16} aria-hidden /> Add tour
+      <Plus size={14} aria-hidden /> Add tour
     </button>
   );
 }
@@ -206,40 +185,28 @@ const BoardRow = memo(function BoardRow({ driver, date }: { driver: Driver; date
   const absence = absenceOn(ctx.idx, driver.id, date);
   const doc = absence ? undefined : blockingDoc(driver, date);
   const drop = useDropTarget(driver.id, date);
-  const active = tours.filter(isActive).length;
 
   return (
     <div className="brow">
-      <DriverInfo driver={driver} date={date} count={active} />
+      <DriverInfo driver={driver} date={date} />
       <div
         className={`brow__lane ${drop.check ? (drop.check.ok ? (drop.check.warning ? 'is-drop-warn' : 'is-drop-ok') : 'is-drop-bad') : ''}`}
         {...drop.handlers}
       >
         {absence && (
-          <div className="bstate bstate--absent" data-tip={absence.note}>
-            {(() => {
-              const A = ABSENCE[absence.reason];
-              return <A.icon size={16} aria-hidden />;
-            })()}
-            <div>
-              <b>{ABSENCE[absence.reason].label}</b>
-              <span>
-                {absence.from === absence.to ? fmtMedium(absence.from) : `${fmtMedium(absence.from)} → ${fmtMedium(absence.to)}`}
-                {absence.note ? ` · ${absence.note}` : ''}
-              </span>
-            </div>
-          </div>
+          <p className="bstate">
+            {ABSENCE[absence.reason].label}
+            <span>
+              {absence.from === absence.to ? fmtMedium(absence.from) : `${fmtMedium(absence.from)} – ${fmtMedium(absence.to)}`}
+              {absence.note ? ` · ${absence.note}` : ''}
+            </span>
+          </p>
         )}
         {doc && (
-          <div className="bstate bstate--blocked">
-            <Lock size={16} aria-hidden />
-            <div>
-              <b>Can’t drive · {docLabel(doc)} expired</b>
-              <span>
-                Expired {fmtRelativeDays(diffDays(driver.docs[doc], ctx.today))}. Renew it to assign tours.
-              </span>
-            </div>
-          </div>
+          <p className="bstate">
+            No tours until the {docLabel(doc)} is renewed
+            <span>Expired {fmtRelativeDays(diffDays(driver.docs[doc], ctx.today))}</span>
+          </p>
         )}
         {tours.map((t) => (
           <BoardCard key={t.id} tour={t} date={date} />
