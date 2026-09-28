@@ -461,8 +461,7 @@ let TRIPS=[
   {id:'TRP-0310',d:'d4',s:14,e:18.5,from:'Pisa',to:'Genoa',client:'Müller Logistics',cargo:'Textiles, 18 pallets',value:690},
   {id:'TRP-0305',d:'d5',s:8,e:13,from:'Florence',to:'Rome',client:'BauGroup GmbH',cargo:'Building materials, 24 pallets',value:1150},
   {id:'TRP-0312',d:'d5',s:15,e:20,from:'Rome',to:'Naples',client:'FreshFoods AG',cargo:'Chilled goods, 20 pallets',value:980},
-  {id:'TRP-0306',d:'d6',s:10.75,e:12.25,loading:true,from:'Central Hub',to:'Central Hub',client:'Mario Spa',cargo:'Loading bay 4 · 30 pallets',value:0},
-  {id:'TRP-0307',d:'d6',s:12.25,e:17.5,from:'Prato',to:'Turin',client:'Mario Spa',cargo:'Packaged food, 30 pallets',value:1320},
+  {id:'TRP-0307',d:'d6',s:10.75,e:17.5,loadUntil:12.25,from:'Prato',to:'Turin',client:'Mario Spa',cargo:'Packaged food, 30 pallets · loading at bay 4',value:1320},
   {id:'TRP-0313',d:'d7',s:14,e:18,from:'Arezzo',to:'Perugia',client:'Flora Toscana',cargo:'Plants, 16 pallets',value:520},
   {id:'TRP-0297',d:'d8',s:6.5,e:8,from:'Prato',to:'Florence',client:'Toscana Pallets Srl',cargo:'Parcels, 6 pallets',value:140},
   {id:'TRP-0299',d:'d8',s:8.5,e:11,from:'Siena',to:'Florence',client:'Agricultural Glory',cargo:'Wine, 9 pallets',value:320},
@@ -471,7 +470,7 @@ let TRIPS=[
 ];
 function statusOf(t){
   if(!t.d) return 'unassigned';
-  if(t.loading && t.s<=NOW && NOW<t.e) return 'loading';
+  if(t.loadUntil && t.s<=NOW && NOW<t.loadUntil) return 'loading';
   if(t.e+(t.delay||0)/60<=NOW) return 'completed';
   if(t.s<=NOW) return t.delay?'delayed':'transit';
   return 'scheduled';
@@ -479,10 +478,10 @@ function statusOf(t){
 const ST={
   transit:{label:'In transit',c:'var(--green)'},
   loading:{label:'Loading',c:'var(--amber)'},
-  scheduled:{label:'Scheduled',c:'var(--faint)'},
+  scheduled:{label:'Assigned',c:'var(--faint)'},
   completed:{label:'Completed',c:'#4A4643'},
   delayed:{label:'Delayed',c:'var(--red)'},
-  unassigned:{label:'Unassigned',c:'var(--accent)'},
+  unassigned:{label:'Needs a driver',c:'var(--accent)'},
   canceled:{label:'Canceled',c:'#4A4643'}
 };
 function driverState(dr){
@@ -490,7 +489,7 @@ function driverState(dr){
   if(dr.off) return {k:'off',label:'Off today',c:'#4A4643',calm:1};
   const cur=TRIPS.find(t=>t.d===dr.id && t.s<=NOW && NOW<t.e+(t.delay||0)/60);
   if(cur){const st=statusOf(cur);
-    if(st==='loading') return {k:'loading',label:'Loading at hub · till '+hm(cur.e),c:'var(--amber)'};
+    if(st==='loading') return {k:'loading',label:'Loading at hub · till '+hm(cur.loadUntil),c:'var(--amber)'};
     if(st==='delayed') return {k:'road',label:'Delayed '+cur.delay+' min · ETA '+hm(cur.e+cur.delay/60),c:'var(--red)'};
     return {k:'road',label:'On road · ETA '+cur.to+' '+hm(cur.e),c:'var(--green)',calm:1};
   }
@@ -528,7 +527,7 @@ const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov',
 
 /* ================= Widget registry ================= */
 const W={
-  planner:{title:'Planner',group:'Operations',desc:'Each driver with today’s tours, document status, and tours waiting for a driver.',h:620,span:8,render:renderPlanner},
+  planner:{title:'Planner',group:'Operations',desc:'Each driver with today’s trips, document status, and trips waiting for a driver.',h:620,span:8,render:renderPlanner},
   deadlines:{title:'Deadlines & renewals',group:'Operations',desc:'Licences, CQC and tachograph cards, services, inspections and insurance.',h:620,span:4,render:renderDeadlines},
   earnings:{title:'Total earnings',group:'Finance',desc:'Year to date, split into collected, awaiting payment and trips in progress.',h:450,span:8,render:renderEarnings},
   payments:{title:'Pending payments',group:'Finance',desc:'Money clients owe you, sorted by urgency, with one-click reminders.',h:450,span:4,render:renderPayments},
@@ -604,8 +603,8 @@ function renderKpis(){
      sub:`${done} done · ${moving} moving · ${planned} planned · ${unass} unassigned`,aria:`${total} trips today: ${done} done, ${moving} moving, ${planned} planned, ${unass} unassigned`},
     {label:'Needs a dispatcher',dot:'var(--accent)',val:unass+delayed,to:'planner',
      sub:`${unass} unassigned · <em style="--c:var(--red)">${delayed} delayed</em>`},
-    {label:'Deadlines this week',val:dlSoon,to:'deadlines',
-     sub:`<em style="--c:var(--red)">${overdueDl} already overdue</em>`},
+    {label:'Deadlines to act on',val:dlSoon,to:'deadlines',
+     sub:`<em style="--c:var(--red)">${overdueDl} overdue</em> · ${dlSoon-overdueDl} this week`},
     {label:'Overdue payments',val:eur(overdue),to:'payments',
      sub:`${od.length} clients · oldest ${Math.max(...od.map(p=>-p.due))} days`}
   ];
@@ -630,52 +629,52 @@ function boardState(d){
   if(d.blocked) return {k:'blocked',rank:0,text:"Can't drive · licence expired",c:'var(--red)',dot:'var(--red)',attn:true};
   if(d.off) return {k:'off',rank:4,text:'Rest day · back Tue 06:00',c:'var(--faint)',dot:'#4A4643'};
   if(cur&&cur.delay) return {k:'working',rank:0,text:`Delayed ${cur.delay} min · arrives ${cur.to} ${hm(cur.e+cur.delay/60)}`,c:'var(--red)',dot:'var(--red)',attn:true};
-  if(cur&&cur.loading) return {k:'working',rank:2,text:'Loading at hub · leaves '+hm(cur.e),c:'var(--amber)',dot:'var(--amber)',attn:docSoon};
+  if(cur&&statusOf(cur)==='loading') return {k:'working',rank:2,text:'Loading at hub · leaves '+hm(cur.loadUntil),c:'var(--amber)',dot:'var(--amber)',attn:docSoon};
   if(cur) return {k:'working',rank:docSoon?1:2,text:`On the road · ETA ${cur.to} ${hm(cur.e)}`,c:'var(--muted)',dot:'var(--green)',attn:docSoon};
-  return {k:'available',rank:3,text:next?'Available · next tour '+hm(next.s):'Available all day',c:'#C9C3BD',dot:'var(--faint)',attn:docSoon};
+  return {k:'available',rank:3,text:next?'Available · next trip '+hm(next.s):TRIPS.some(t=>t.d===d.id)?'Available for the rest of the day':'Available all day',c:'#C9C3BD',dot:'var(--faint)',attn:docSoon};
 }
 function tourCard(t,d){
   const st=statusOf(t);
-  const label={transit:'In transit',loading:'Loading',scheduled:'Assigned',completed:'Completed',delayed:`Delayed +${t.delay}m`,unassigned:'Draft'}[st];
+  const label={transit:'In transit',loading:'Loading',scheduled:'Assigned',completed:'Completed',delayed:`Delayed +${t.delay}m`,unassigned:'Needs a driver'}[st];
   const cls={completed:'done',delayed:'late',loading:'loading',unassigned:'unass'}[st]||'';
   const prog=['transit','delayed','loading'].includes(st)?Math.min(1,(NOW-t.s)/(t.e-t.s)):0;
-  const top=d?`${ic('truck',13)}<span>${d.plate}</span>`:`${ic('alert',13)}<span>Needs a driver</span>`;
+  const top=d?`${ic('truck',13)}<span>${d.plate}</span>`:`${ic('alert',13)}<span>No driver or vehicle yet</span>`;
   return `<button type="button" class="tc ${cls}" data-id="${t.id}" aria-label="${esc(`${t.id}, ${t.from} to ${t.to}, ${label}`)}">
     <div class="tc-top">${top}${ic('chev',13)}</div>
-    <div class="tc-route">${esc(t.loading?'Loading · Central Hub':t.from+' → '+t.to)}</div>
+    <div class="tc-route">${esc(t.from+' → '+t.to)}</div>
     <div class="tc-when num">${hm(t.s)} – ${hm(t.e)}</div>
-    ${t.delay?`<div class="tc-eta num">ETA ${hm(t.e+t.delay/60)}</div>`:''}
+    ${t.delay?`<div class="tc-eta num">ETA ${hm(t.e+t.delay/60)}</div>`:''}${st==='loading'?`<div class="tc-when">Loading until ${hm(t.loadUntil)}</div>`:''}
     ${prog?`<div class="tc-prog"><i style="width:${prog*100}%;--c:var(--muted)"></i></div>`:''}
     <div class="tc-foot"><span class="pill" style="--c:${st==='unassigned'?'var(--faint)':ST[st].c}">${label}</span><span class="tc-client">${esc(t.client)}</span></div>
   </button>`;
 }
 function renderPlanner(card){
   const rows=DRIVERS.map(d=>({d,st:boardState(d)}));
-  const working=rows.filter(r=>r.st.k==='working').length, avail=rows.filter(r=>r.st.k==='available').length, absent=rows.filter(r=>r.st.k==='off').length, attn=rows.filter(r=>r.st.attn).length;
+  const working=rows.filter(r=>r.st.k==='working').length, avail=rows.filter(r=>r.st.k==='available').length, absent=rows.filter(r=>r.st.k==='off'||r.st.k==='blocked').length, attn=rows.filter(r=>r.st.attn).length;
   const un=TRIPS.filter(t=>!t.d);
-  const filters=[['all','All',DRIVERS.length],['working','Working',working],['available','Available',avail],['absent','Absent',absent],['attention','Needs attention',attn,'var(--red)']];
+  const filters=[['all','All',DRIVERS.length],['working','Working',working],['available','Available',avail],['absent','Unavailable',absent],['attention','Needs attention',attn,'var(--red)']];
   append(card,`<div class="card-head">
-      <div class="grow"><h2 class="card-title">Planner</h2><div class="card-sub"><b style="color:var(--text);font-weight:600">${working}</b> of ${DRIVERS.length} drivers working today${un.length?` · <button type="button" class="linkish" data-waiting><b>${un.length}</b> tour${un.length>1?'s':''} waiting for a driver</button>`:''}</div></div>
+      <div class="grow"><h2 class="card-title">Planner</h2><div class="card-sub"><b style="color:var(--text);font-weight:600">${working}</b> of ${DRIVERS.length} drivers working today${un.length?` · <button type="button" class="linkish" data-waiting><b>${un.length}</b> trip${un.length>1?'s':''} waiting for a driver</button>`:''}</div></div>
       <a class="link" href="planner.html">Open planner ${ic('chev',14)}</a>
     </div>
     <div class="card-head" style="padding-top:0">
       <div class="plan-summary" role="group" aria-label="Filter drivers">${filters.map(([k,l,n,c])=>`<button class="chip" type="button" data-f="${k}" aria-pressed="${planFilter===k}">${c?`<i style="--c:${c}"></i>`:''}${l} <b class="num">${n}</b></button>`).join('')}</div>
     </div>
     <div class="pb-scroll"></div>
-    <div class="pb-legend"><span><i class="l-road"></i>On the road</span><span><i></i>Planned</span><span><i class="l-late"></i>Delayed</span><span><i class="l-draft"></i>Needs a driver</span><span><i class="l-off"></i>Absent</span><span class="grow"></span><span>Drag and drop tours in the full planner</span></div>`);
+    <div class="pb-legend"><span><i class="l-road"></i>On the road</span><span><i></i>Planned</span><span><i class="l-late"></i>Delayed</span><span><i class="l-draft"></i>Needs a driver</span><span><i class="l-off"></i>Absent</span><span class="grow"></span><span>Drag and drop trips in the full planner</span></div>`);
   const sc=card.querySelector('.pb-scroll');
-  const show=r=>planFilter==='all'||(planFilter==='attention'?r.st.attn:r.st.k===planFilter);
+  const show=r=>planFilter==='all'||(planFilter==='attention'?r.st.attn:planFilter==='absent'?(r.st.k==='off'||r.st.k==='blocked'):r.st.k===planFilter);
   let html='';
   if(un.length&&(planFilter==='all'||planFilter==='attention'))
-    html+=`<div class="pb-row waiting"><div class="pb-left"><div class="pb-id"><span class="av" style="--c:var(--amber)">${un.length}</span><div><div class="pb-name">Waiting for a driver</div><div class="pb-truck">Click a tour to choose a driver</div></div></div></div><div class="pb-tours">${un.map(t=>tourCard(t,null)).join('')}</div></div>`;
+    html+=`<div class="pb-row waiting"><div class="pb-left"><div class="pb-id"><span class="av" style="--c:var(--amber)">${un.length}</span><div><div class="pb-name">Waiting for a driver</div><div class="pb-truck">Click a trip to choose a driver</div></div></div></div><div class="pb-tours">${un.map(t=>tourCard(t,null)).join('')}</div></div>`;
   rows.sort((a,b)=>a.st.rank-b.st.rank).forEach(({d,st})=>{
     const trips=TRIPS.filter(t=>t.d===d.id).sort((a,b)=>a.s-b.s);
     const docs=DOCS[d.id]||{};
     const chip=(k,label,icn)=>{const v=docs[k];const cls=v?v[0]:'';const txt=v?(v[0]==='expired'?label+' expired':label+' '+v[1]):label;return `<span class="doc ${cls}">${ic(icn,12)}${txt}</span>`};
     let tours='';
-    if(d.blocked) tours=`<button type="button" class="pb-wide bad" data-scroll="deadlines">${ic('alert',18)}<span><b>Can't drive · driving licence expired</b>Expired 176 days ago. Renew it to assign tours.</span></button>`;
+    if(d.blocked) tours=`<button type="button" class="pb-wide bad" data-scroll="deadlines">${ic('alert',18)}<span><b>Can't drive · driving licence expired</b>Expired 176 days ago. Renew it to assign trips.</span></button>`;
     else if(d.off) tours=`<div class="pb-wide off"><span><b>Rest day</b>Mon 28 Sep · back Tue 29 at 06:00</span></div>`;
-    else tours=trips.map(t=>tourCard(t,d)).join('')+`<button type="button" class="tc-add" data-add="${d.name}">${ic('plus',16)}Add tour</button>`;
+    else tours=trips.map(t=>tourCard(t,d)).join('')+`<button type="button" class="tc-add" data-add="${d.name}">${ic('plus',16)}Add trip</button>`;
     html+=`<div class="pb-row" ${show({st})?'':'hidden'}><div class="pb-left">
         <div class="pb-id"><span class="av" style="--c:${st.dot}">${d.ini}</span><div><div class="pb-name">${d.name}${trips.length?`<span class="pb-count num">${trips.length}</span>`:''}</div><div class="pb-truck">${d.truck} · ${d.plate}</div></div></div>
         <div class="pb-status" style="color:${st.c}">${st.text}</div>
@@ -686,14 +685,14 @@ function renderPlanner(card){
   card.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{planFilter=b.dataset.f;rerender('planner')});
   const w=card.querySelector('[data-waiting]'); if(w) w.onclick=()=>{planFilter='attention';rerender('planner')};
   sc.querySelectorAll('.tc').forEach(b=>b.onclick=ev=>{ev.stopPropagation();openTrip(b.dataset.id,b)});
-  sc.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>toast('New tour form opened for '+b.dataset.add));
+  sc.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>toast('New trip form opened for '+b.dataset.add));
 }
 /* ================= Trip popover & assignment ================= */
 const pop=document.getElementById('pop');
 function openTrip(id,anchor){
   const t=TRIPS.find(x=>x.id===id);const st=statusOf(t);const d=t.d&&drv(t.d);
   let body=`<div class="pop-h"><span class="pill" style="--c:${ST[st].c}">${ST[st].label}${t.delay?` · +${t.delay} min`:''}</span><button class="tool" type="button" data-close aria-label="Close">${ic('x',16)}</button></div>
-    <div class="route">${esc(t.loading?'Loading at Central Hub':t.from+' → '+t.to)}</div>
+    <div class="route">${esc(t.from+' → '+t.to)}</div>
     <div class="card-sub num">${t.id} · ${esc(t.client)}</div>
     <dl class="num"><dt>Planned</dt><dd>${hm(t.s)} – ${hm(t.e)}</dd>${t.delay?`<dt>New ETA</dt><dd style="color:var(--red)">${hm(t.e+t.delay/60)}</dd>`:''}<dt>Cargo</dt><dd>${esc(t.cargo)}</dd>${t.value?`<dt>Trip value</dt><dd>${eur(t.value)}</dd>`:''}${d?`<dt>Driver</dt><dd>${d.name}<br><span class="card-sub" style="user-select:all">${d.phone}</span></dd><dt>Vehicle</dt><dd>${d.truck} · ${d.plate}</dd>`:''}</dl>`;
   if(!t.d){
@@ -827,7 +826,7 @@ function renderTrips(card){
     wrap.innerHTML=`<table><thead><tr><th>Trip</th><th>Client</th><th>Route</th><th>Driver · vehicle</th><th>Timing</th><th>Status</th><th style="text-align:right">Value</th><th></th></tr></thead><tbody>${rows.map(t=>{
       const st=t._st||statusOf(t), d=t.d&&drv(t.d);
       const prog=['transit','delayed','loading'].includes(st)?Math.min(1,(NOW-t.s)/(t.e-t.s)):st==='completed'?1:0;
-      return `<tr data-id="${t.id}" ${t._st?'data-past':''}><td class="num">${t.id}</td><td>${esc(t.client)}</td><td class="mut">${esc(t.loading?'Loading · Central Hub':t.from+' → '+t.to)}</td><td>${d?`${d.name} <span class="card-sub" style="display:inline">· ${d.plate}</span>`:`<span style="color:var(--accent-2)">Needs a driver</span>`}</td><td class="num mut">${t._day?t._day+' · ':''}${hm(t.s)} → ${hm(t.e)}${t.delay?` <span style="color:var(--red)">+${t.delay}m</span>`:''}${prog&&!t._st?`<div class="prog-bar"><i style="width:${prog*100}%;--c:${st==='delayed'?'var(--red)':st==='loading'?'var(--amber)':'var(--muted)'}"></i></div>`:''}</td><td><span class="pill" style="--c:${ST[st].c}">${ST[st].label}</span></td><td class="num" style="text-align:right">${t.value?eur(t.value):'—'}</td><td style="width:32px;color:var(--faint)">${ic('chev',16)}</td></tr>`}).join('')}</tbody></table>`;
+      return `<tr data-id="${t.id}" ${t._st?'data-past':''}><td class="num">${t.id}</td><td>${esc(t.client)}</td><td class="mut">${esc(t.from+' → '+t.to)}</td><td>${d?`${d.name} <span class="card-sub" style="display:inline">· ${d.plate}</span>`:`<span style="color:var(--faint)">Not assigned</span>`}</td><td class="num mut">${t._day?t._day+' · ':''}${hm(t.s)} → ${hm(t.e)}${t.delay?` <span style="color:var(--red)">+${t.delay}m</span>`:''}${prog&&!t._st?`<div class="prog-bar"><i style="width:${prog*100}%;--c:${st==='delayed'?'var(--red)':st==='loading'?'var(--amber)':'var(--muted)'}"></i></div>`:''}</td><td><span class="pill" style="--c:${ST[st].c}">${ST[st].label}</span></td><td class="num" style="text-align:right">${t.value?eur(t.value):'—'}</td><td style="width:32px;color:var(--faint)">${ic('chev',16)}</td></tr>`}).join('')}</tbody></table>`;
     wrap.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>{if(tr.hasAttribute('data-past')){toast('Opening '+tr.dataset.id);return}openTrip(tr.dataset.id,tr)});
   };
   draw();
