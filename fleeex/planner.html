@@ -28,6 +28,19 @@ Error generating stack: `+e.message+`
 <style>
 /* Fleeex palette overrides: warm greys, one orange, semantic colour only for exceptions */
 .phead__title h1{font-weight:500;letter-spacing:-.03em}
+/* Brand buttons: white text and icons */
+:root{--on-orange:#fff}
+.btn--primary,.btn--primary svg{color:#fff}
+/* Calm cards: flat grey surface, colour only on small marks (status icon, ETA, issue line) */
+.bcard,.bcard[data-tone=plan],.bcard[data-tone=live]{background:#1c1b19;border-color:transparent}
+.bcard:hover{background:#211f1d;border-color:#3a3633}
+.bcard__status{background:transparent!important;padding:0!important;color:var(--text-2)!important;font-weight:500}
+.bcard__status svg{color:var(--status)}
+.bcard[data-tone=late]{background:#1c1b19;border-color:#e5484d4d}
+.bcard[data-tone=issue]{background:transparent;border:1px dashed #e5484d59}
+.bcard[data-tone=unassigned],.bcard[data-tone=draft]{background:transparent;border:1px dashed #4d4945}
+.bstate--blocked{background:#1a1917;border:1px dashed #3a3633}
+.badd{border-color:#2d2a27}
 </style>
 <script>
 /* Main nav: Dashboard opens the home page. Works both from the repo (file://) and the published artifact. */
