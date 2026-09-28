@@ -58,5 +58,54 @@ document.addEventListener('click',function(e){
   if(t==='Dashboard'){e.preventDefault();e.stopPropagation();location.href=location.protocol==='file:'?'home-dashboard.html':'./';}
 },true);
 </script>
+<script src="driver-drawer.js"></script>
+<script>
+/* Driver details drawer on the Planner: built from what the board already shows. */
+(function(){
+  const txt=(el,sel)=>{const n=el&&el.querySelector(sel);return n?n.textContent.trim():''};
+  const DOCINFO={'License':['Driving licence C+E','Needed to drive trucks with a trailer.','card'],'CQC':['CQC','Certificate of Professional Competence. Required to drive goods vehicles for work.','shield'],'Tachograph card':['Tachograph card','Records driving and rest hours.','gauge']};
+  function parseDocs(tip){
+    return (tip||'').split('\n').filter(Boolean).map(line=>{
+      const m=line.match(/^([^:]+):\s*(\w+)\s*·\s*(.+?)\s*\((.+)\)$/);if(!m)return null;
+      const [,key,state,date,rel]=m;const info=DOCINFO[key]||[key,'','card'];
+      const st=/expired/i.test(state)?'expired':/expiring/i.test(state)?'expiring':'ok';
+      return {label:info[0],info:info[1],icon:info[2],date,state:st,when:st==='ok'?'Valid':st==='expired'?rel.replace(/^/, 'Expired '):rel.replace(/^in /,'In ')};
+    }).filter(Boolean);
+  }
+  function rowOf(el){let n=el;while(n&&!n.querySelector('.bcard, .badd, .bstate--blocked')&&!n.classList.contains('planner'))n=n.parentElement;return n}
+  function open(info){
+    const row=rowOf(info);
+    const name=txt(info,'.binfo__name'), veh=txt(info,'.binfo__truck');
+    const nowEl=info.querySelector('.binfo__now'), nowText=nowEl?nowEl.textContent.trim():'';
+    const cls=nowEl?nowEl.className:'';
+    const toneS=/late|blocked/.test(cls)?'bad':/free|off|done/.test(cls)?'muted':'live';
+    const card=seen[name]||{};const phone=card.phone||'',base=card.base||'';
+    const cards=row?[...row.querySelectorAll('.bcard')]:[];
+    const tone=t=>({live:'live',late:'bad',issue:'bad',done:'done',unassigned:'warn',draft:'muted',cancel:'done'}[t]||'muted');
+    const trips=cards.map(c=>({time:(txt(c,'.bcard__when').match(/\d{2}:\d{2}/)||['—'])[0],route:txt(c,'.bcard__route').replace(/\s*\+\d+ stops?$/,''),client:txt(c,'.bcard__client'),status:txt(c,'.bcard__status')||'Planned',tone:tone(c.dataset.tone)}));
+    const live=cards.find(c=>/live|late/.test(c.dataset.tone||''));
+    let now=null,alert=null;
+    const blocked=row&&row.querySelector('.bstate--blocked');
+    if(blocked){alert={title:'Can’t drive',text:blocked.textContent.trim().replace(/^Can’t drive\s*·?\s*/,'').replace(/\s+/g,' ')};}
+    else if(live){const r=txt(live,'.bcard__route').replace(/\s*\+\d+ stops?$/,''),parts=r.split('→').map(x=>x.trim());
+      now={route:r,from:parts[0],to:parts[parts.length-1],late:live.dataset.tone==='late',detail:[txt(live,'.bcard__eta')||txt(live,'.bcard__when'),txt(live,'.bcard__client')].filter(Boolean).join(' · ')};}
+    else now={title:nowText||'No trip right now',detail:cards.length?'':'Nothing planned today'};
+    const ini=txt(info,'.avatar')||name.split(' ').map(w=>w[0]).join('').slice(0,2);
+    FxDriver.open({ini,name,vehicle:veh,phone,base,status:{text:nowText,tone:toneS},now,alert,drivenH:null,trips,
+      emptyTrips:'No trips planned today.',docs:parseDocs((info.querySelector('.dchips')||{}).dataset?.tip)});
+  }
+  /* The board's hover card holds phone and depot; remember it while it is visible (it closes on press). */
+  const seen={};
+  const grab=()=>{const q=document.querySelector('.qcard');if(!q)return;const n=txt(q,'.qcard__head b');if(n)seen[n]={phone:txt(q,'.qcard__phone'),base:txt(q,'.qcard__head div span')}};
+  new MutationObserver(grab).observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('pointerdown',grab,true);
+  document.addEventListener('click',e=>{
+    const hit=e.target.closest('.binfo__head, .binfo__now');
+    if(!hit)return;const info=hit.closest('.binfo');if(!info)return;
+    e.preventDefault();e.stopPropagation();open(info);
+  },true);
+  const st=document.createElement('style');st.textContent='.binfo__head{cursor:pointer;border-radius:10px}.binfo__head:hover .binfo__name{text-decoration:underline;text-underline-offset:3px;text-decoration-color:#8a847e}';document.head.appendChild(st);
+})();
+</script>
 </body>
 </html>

@@ -286,35 +286,6 @@ td.mut{color:var(--muted)}
 @keyframes tipIn{from{opacity:0;margin-top:4px}}
 @media(prefers-reduced-motion:reduce){.xtip{animation:none}}
 
-/* ---------- Driver panel ---------- */
-.dp-head{display:flex;align-items:center;gap:14px;padding:20px 20px 14px}
-.dp-head .av{width:48px;height:48px;font-size:16px}
-.dp-head .av::after{width:12px;height:12px}
-.dp-name{font-size:18px;font-weight:500;letter-spacing:-.01em}
-.dp-state{font-size:13px;margin-top:2px}
-.dp-actions{display:flex;gap:8px;padding:0 20px 16px;border-bottom:1px solid var(--line)}
-.dp-actions .btn{flex:1 1 0;min-width:0;justify-content:center;padding:0 8px;font-size:12.5px}
-.dp-sec{padding:16px 20px;border-bottom:1px solid var(--line)}
-.dp-sec:last-child{border-bottom:0}
-.dp-sec h3{margin:0 0 10px;font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600}
-.dp-line{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13.5px}
-.dp-line>svg{color:var(--faint);flex:none}
-.dp-line .grow{flex:1;min-width:0;user-select:all}
-.dp-line small{color:var(--muted);font-size:12px}
-.dp-trip{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;font-size:13px;border-top:1px solid var(--line)}
-.dp-trip:first-of-type{border-top:0}
-.dp-trip .t{color:var(--muted);font-size:12px}
-.dp-trip b{font-weight:500;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dp-trip span.s{font-size:12px;color:var(--muted)}
-.dp-hours{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
-.dp-hours small{color:var(--muted)}
-.dp-bar{height:6px;border-radius:999px;background:var(--surface-3);overflow:hidden}
-.dp-bar i{display:block;height:100%;border-radius:999px;background:var(--c)}
-.dp-doc{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;font-size:13px;border-top:1px solid var(--line)}
-.dp-doc:first-of-type{border-top:0}
-.dp-doc svg{color:var(--faint)}
-.dp-doc small{display:block;color:var(--muted);font-size:12px}
-.dp-doc .st{font-size:12.5px;font-weight:500;text-align:right}
 .pb-who{display:flex;align-items:center;gap:10px;min-width:0;text-align:left;border-radius:10px;margin:-4px;padding:4px}
 .pb-who:hover .pb-name{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--faint)}
 .drv-link{border-bottom:1px dashed var(--faint)}
@@ -442,10 +413,10 @@ td.mut{color:var(--muted)}
   </div>
   <div class="drawer-body" id="drawerBody"></div>
 </aside>
-<aside class="drawer" id="driverPanel" hidden aria-label="Driver details"></aside>
 <div class="pop" id="pop" hidden role="dialog"></div>
 <div class="toast" id="toast" hidden role="status"></div>
 
+<script src="driver-drawer.js"></script>
 <script>
 /* ================= Icons ================= */
 const ICONS={
@@ -958,7 +929,7 @@ function openDrawer(){
   if(!editing)setEditing(true);
   drawer.hidden=false;scrim.hidden=false;document.getElementById('drawerClose').focus();
 }
-function closeDrawer(){drawer.hidden=true;scrim.hidden=true;closeDriver()}
+function closeDrawer(){drawer.hidden=true;scrim.hidden=true}
 document.getElementById('drawerClose').onclick=closeDrawer;scrim.onclick=closeDrawer;
 
 /* ================= Tooltips ================= */
@@ -978,33 +949,32 @@ document.addEventListener('pointerover',e=>{const el=e.target.closest('[data-tip
 document.addEventListener('focusin',e=>{const el=e.target.closest('[data-tip]');hideTip();if(el&&el.matches(':focus-visible')){tipEl=el;showTip(el)}});
 document.addEventListener('focusout',hideTip);document.addEventListener('pointerdown',hideTip);addEventListener('scroll',hideTip,true);
 
-/* ================= Driver panel ================= */
-const dpanel=document.getElementById('driverPanel');
+/* ================= Driver drawer (shared component: driver-drawer.js) ================= */
 function drivenHours(d){return TRIPS.filter(t=>t.d===d.id&&t.s<NOW).reduce((a,t)=>{const start=t.loadUntil?Math.max(t.s,t.loadUntil):t.s;return a+Math.max(0,Math.min(NOW,t.e+(t.delay||0)/60)-start)},0)}
-const hmDur=h=>`${Math.floor(h)}h ${String(Math.round((h%1)*60)).padStart(2,'0')}m`;
 function openDriver(id){
   const d=drv(id),st=boardState(d),docs=DOCS[d.id];
   const trips=TRIPS.filter(t=>t.d===d.id).sort((a,b)=>a.s-b.s);
-  const driven=drivenHours(d),left=Math.max(0,9-driven),pct=Math.min(100,driven/9*100);
-  const dcol=s=>s==='expired'?'var(--red)':s==='expiring'?'var(--amber)':'var(--muted)';
-  dpanel.innerHTML=`
-    <div class="dp-head"><span class="av" style="--c:${st.dot}">${d.ini}</span><div style="flex:1;min-width:0"><div class="dp-name">${d.name}</div><div class="dp-state" style="color:${st.c}">${esc(st.text)}</div></div><button class="tool" type="button" data-dp-close aria-label="Close">${ic('x')}</button></div>
-    <div class="dp-actions"><button class="btn btn-sm btn-primary" type="button" data-soon="Driver profile">${ic('user',15)}Open profile</button><button class="btn btn-sm" type="button" data-copy="${d.phone}">${ic('phone',15)}Copy phone</button><button class="btn btn-sm" type="button" data-msg>${ic('msg',15)}Message</button></div>
-    <div class="dp-sec"><h3>Contact</h3>
-      <div class="dp-line">${ic('phone',16)}<span class="grow num">${d.phone}</span><button class="tool" type="button" data-copy="${d.phone}" data-tip="Copy phone number">${ic('copy',15)}</button></div>
-      <div class="dp-line">${ic('mail',16)}<span class="grow">${d.email}</span><button class="tool" type="button" data-copy="${d.email}" data-tip="Copy email">${ic('copy',15)}</button></div>
-      <div class="dp-line">${ic('truck',16)}<span class="grow">${d.truck} · ${d.plate}</span><small>${d.base}</small></div></div>
-    <div class="dp-sec"><h3>Today</h3>${trips.length?trips.map(t=>{const s=statusOf(t);return `<div class="dp-trip"><span class="t num">${hm(t.s)}</span><div style="min-width:0"><b>${esc(t.from)} → ${esc(t.to)}</b><span class="s">${esc(t.client)} · until ${hm(t.e)}</span></div><span class="pill" style="--c:${ST[s].c};border:0;padding:0">${s==='delayed'?`+${t.delay} min`:ST[s].label}</span></div>`}).join(''):`<div class="dp-line" style="color:var(--muted)">${d.off?'Rest day, back Tuesday at 06:00':d.blocked?'No trips. The driving licence has to be renewed first.':'No trips planned today'}</div>`}</div>
-    ${d.blocked||d.off?'':`<div class="dp-sec"><h3>Driving time today</h3><div class="dp-hours" data-tip="Daily driving limit\nEU rules allow 9 hours of driving a day (10 hours twice a week)."><span class="num">${hmDur(driven)} driven</span><small class="num">${hmDur(left)} left of 9h</small></div><div class="dp-bar"><i style="width:${pct}%;--c:${pct>85?'var(--amber)':'var(--muted)'}"></i></div></div>`}
-    <div class="dp-sec"><h3>Documents</h3>${['license','cqc','tacho'].map(k=>{const v=docs[k],s=docState(v[1]);return `<div class="dp-doc" tabindex="0" data-tip="${esc(DOC_INFO[k][0]+'\n'+DOC_INFO[k][1])}">${ic(k==='license'?'card':k==='cqc'?'shield':'gauge',16)}<div><span>${DOC_INFO[k][0]}</span><small>${v[0]}</small></div><span class="st num" style="color:${dcol(s)}">${s==='expired'?'Expired':s==='expiring'?`In ${v[1]} days`:'Valid'}</span></div>`}).join('')}</div>`;
-  dpanel.hidden=false;scrim.hidden=false;hideTip();
-  dpanel.querySelector('[data-dp-close]').onclick=closeDriver;
-  dpanel.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{const v=b.dataset.copy;const done=()=>toast('Copied '+v);try{navigator.clipboard.writeText(v).then(done,()=>toast(v))}catch(e){toast(v)}});
-  dpanel.querySelector('[data-msg]').onclick=()=>toast('Message draft opened for '+d.name);
-  dpanel.querySelector('[data-dp-close]').focus();
+  const cur=trips.find(t=>t.s<=NOW&&NOW<t.e+(t.delay||0)/60);
+  const next=trips.find(t=>t.s>NOW);
+  const toneOf=s=>({transit:'live',loading:'warn',delayed:'bad',completed:'done'}[s]||'muted');
+  let now=null,alert=null;
+  if(d.blocked) alert={title:'Can’t drive',text:'The driving licence expired 176 days ago. Trips can’t be assigned until it is renewed.',action:'Renew licence'};
+  else if(d.off) now={title:'Rest day',detail:'Back on Tuesday at 06:00'};
+  else if(cur){const s=statusOf(cur);now={route:`${cur.from} → ${cur.to}`,from:cur.from,to:cur.to,late:!!cur.delay,
+      progress:Math.min(1,(NOW-cur.s)/(cur.e+(cur.delay||0)/60-cur.s)),
+      detail:s==='loading'?`Loading at the hub, leaves at ${hm(cur.loadUntil)} · ${cur.client}`:cur.delay?`${cur.delay} min late · now arrives ${hm(cur.e+cur.delay/60)} instead of ${hm(cur.e)}`:`Arrives at ${hm(cur.e)} · ${cur.client}`};}
+  else now={title:next?`Free until ${hm(next.s)}`:'Free for the rest of the day',detail:next?`Next: ${next.from} → ${next.to} at ${hm(next.s)}`:'Can take a new trip now'};
+  FxDriver.open({
+    ini:d.ini,name:d.name,vehicle:`${d.truck} · ${d.plate}`,base:d.base,phone:d.phone,email:d.email,
+    status:{text:st.text,tone:st.k==='blocked'||st.text.startsWith('Delayed')?'bad':st.k==='off'?'muted':st.text.startsWith('Loading')?'warn':st.k==='working'?'live':'muted'},
+    now,alert,drivenH:d.blocked||d.off?null:drivenHours(d),
+    trips:trips.map(t=>{const s=statusOf(t);return {time:hm(t.s),route:`${t.from} → ${t.to}`,client:`${t.client} · until ${hm(t.e)}`,status:s==='delayed'?`Late +${t.delay}m`:ST[s].label,tone:toneOf(s)}}),
+    emptyTrips:d.off?'Rest day. No trips today.':d.blocked?'No trips. The driving licence has to be renewed first.':'No trips planned today.',
+    docs:['license','cqc','tacho'].map(k=>{const v=docs[k],s=docState(v[1]);return {label:DOC_INFO[k][0],info:DOC_INFO[k][1],date:v[0],state:s,icon:k==='license'?'card':k==='cqc'?'shield':'gauge',when:s==='expired'?`Expired ${-v[1]} days ago`:s==='expiring'?`In ${v[1]} days`:'Valid'}}),
+    actions:{alert:()=>document.getElementById('deadlines')?.scrollIntoView({behavior:'smooth'}),addTrip:x=>toast('New trip form opened for '+x.name)}
+  });
+  hideTip();
 }
-function closeDriver(){if(dpanel.hidden)return;dpanel.hidden=true;scrim.hidden=true}
-
 /* pages that are not part of this prototype yet */
 document.addEventListener('click',e=>{const a=e.target.closest('[data-soon]');if(!a)return;e.preventDefault();toast(a.dataset.soon+' page is not in this prototype yet')});
 /* toast */
