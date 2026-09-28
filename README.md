@@ -15,10 +15,12 @@ Absences, expiring/expired documents, drafts, delayed/completed/cancelled tours 
 ## Scale
 Built for ~100 drivers (the mock uses 100). Rows are virtualized, so scrolling stays smooth.
 
-## Views
-- **Day** (default) — the existing Fleeex pattern: each driver with their documents and live status on the left, that day's tour cards to the right, "+ Add tour" at the end. Tours without a driver open from the "waiting for a driver" link in the header.
-- **Timeline** — the same day hour by hour, with a live "now" line.
-- **Week** — seven days per driver, multi-day tours as one bar.
+## View
+The planner shows one day at a time: each driver with their documents and live status on the left, that day's tour cards to the right, "+ Add tour" at the end. Tours without a driver open from the "waiting for a driver" link in the header.
+
+`fleeex-planner.html` at the repo root is a single self-contained build of the prototype (open it in a browser, no install).
+
+(The Timeline and Week grids are still in the code — `view="day"` / `view="week"` on `<Planner />` — but the switch is removed from the UI.)
 
 ## Structure
 ```

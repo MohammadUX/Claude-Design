@@ -422,16 +422,6 @@ export function Planner({
                   />
                 </label>
               </div>
-              <Segmented
-                label="View"
-                value={view}
-                onChange={setView}
-                options={[
-                  { value: 'board', label: 'Day', tip: 'Tours per driver as cards' },
-                  { value: 'day', label: 'Timeline', tip: 'Hour by hour' },
-                  { value: 'week', label: 'Week' },
-                ]}
-              />
               {!readOnly && (
                 <button className="btn btn--primary" onClick={() => onCreate({ date: focusDay })} data-tip="New tour (N)">
                   <Plus size={16} strokeWidth={2.5} /> New tour
