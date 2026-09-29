@@ -4,6 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Fleeex Planner</title>
+<script>
+/* Demo clock: the prototype is set on Mon 28 Sep 2026, 11:40, same as the Dashboard and Figma. */
+(()=>{const R=Date,off=new R(2026,8,28,11,40).getTime()-R.now();
+class D extends R{constructor(...a){a.length?super(...a):super(R.now()+off)}static now(){return R.now()+off}}
+window.Date=D;})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
@@ -141,7 +147,7 @@ document.addEventListener('click',function(e){
       invoice:t=>toast2('Invoice draft created for '+t.client),
       duplicate:t=>openCreate({client:t.client,pickup:t.from,delivery:t.to})
     }};
-  function toast2(m){const t=document.createElement('div');t.className='fxd-toast';t.setAttribute('role','status');t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2800)}
+  function toast2(m){const t=document.createElement('div');t.className='fxd-toast';t.setAttribute('role','status');t.style.cssText='display:flex;align-items:center;gap:8px';t.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';t.append(m);document.body.appendChild(t);setTimeout(()=>t.remove(),2800)}
   window.toast=window.toast||toast2;
   function openCreate(preset){
     const clients=[...new Set([...document.querySelectorAll('.bcard__client')].map(n=>n.textContent.trim()).filter(Boolean))].sort();
