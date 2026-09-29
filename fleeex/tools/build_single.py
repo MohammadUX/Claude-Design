@@ -14,14 +14,20 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT / "prototype"
 OUT.mkdir(exist_ok=True)
 
-drawer = (ROOT / "driver-drawer.js").read_text()
-inline_drawer = "<script>\n" + drawer + "\n</script>"
-TAG = '<script src="driver-drawer.js"></script>'
+SCRIPTS = ["driver-drawer.js", "trip-drawer.js"]
+
+
+def inline_scripts(html):
+    """Replace <script src="…"> tags for the shared drawer files with their inline source."""
+    for name in SCRIPTS:
+        tag = f'<script src="{name}"></script>'
+        assert tag in html, tag
+        html = html.replace(tag, "<script>\n" + (ROOT / name).read_text() + "\n</script>", 1)
+    return html
 
 # ---- Planner document (runs inside the iframe)
 planner = (ROOT / "planner.html").read_text()
-assert TAG in planner
-planner = planner.replace(TAG, inline_drawer, 1)
+planner = inline_scripts(planner)
 old_nav = "location.href=location.protocol==='file:'?'home-dashboard.html':'./';"
 assert old_nav in planner
 planner = planner.replace(old_nav, "parent.postMessage('fx:dashboard','*');")
@@ -29,8 +35,7 @@ planner_b64 = base64.b64encode(planner.encode("utf-8")).decode("ascii")
 
 # ---- Dashboard with the Planner view wired in
 dash = (ROOT / "home-dashboard.html").read_text()
-assert TAG in dash
-dash = dash.replace(TAG, inline_drawer, 1)
+dash = inline_scripts(dash)
 for a, b in [
     ('<a href="planner.html">Planner</a>', '<a href="#planner">Planner</a>'),
     ('<a class="link" href="planner.html">Open planner', '<a class="link" href="#planner">Open planner'),

@@ -59,6 +59,7 @@ document.addEventListener('click',function(e){
 },true);
 </script>
 <script src="driver-drawer.js"></script>
+<script src="trip-drawer.js"></script>
 <script>
 /* Driver details drawer on the Planner: built from what the board already shows. */
 (function(){
@@ -105,6 +106,58 @@ document.addEventListener('click',function(e){
     e.preventDefault();e.stopPropagation();open(info);
   },true);
   const st=document.createElement('style');st.textContent='.binfo__head{cursor:pointer;border-radius:10px}.binfo__head:hover .binfo__name{text-decoration:underline;text-underline-offset:3px;text-decoration-color:#8a847e}';document.head.appendChild(st);
+})();
+</script>
+<script>
+/* Trip drawers on the Planner (same component as the Dashboard). Built from what the board shows. */
+(function(){
+  const txt=(el,sel)=>{const n=el&&el.querySelector(sel);return n?n.textContent.trim():''};
+  const dateLabel=()=>{const t=txt(document,'.datenav__picker span')||'Mon 28 Sep';const d=new Date(t);return isNaN(d)?t:d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).replace(',','').replace('Sept','Sep')};
+  const TONE={live:'transit',late:'delayed',plan:'assigned',done:'completed',unassigned:'unassigned',draft:'unassigned',issue:'assigned',cancel:'completed'};
+  function rows(){return [...document.querySelectorAll('.binfo')].map(b=>{const nowEl=b.querySelector('.binfo__now');const cls=nowEl?nowEl.className:'';const name=txt(b,'.binfo__name');return {id:name,ini:txt(b,'.avatar')||name.split(' ').map(w=>w[0]).join(''),name,veh:txt(b,'.binfo__truck'),now:nowEl?nowEl.textContent.trim():'',free:/free/.test(cls),blocked:/blocked/.test(cls),off:/off/.test(cls),el:b}})}
+  function rowOf(el){let n=el;while(n&&!n.querySelector('.binfo')&&!n.classList.contains('planner'))n=n.parentElement;return n&&n.querySelector('.binfo')?n:null}
+  function options(){return rows().map(r=>({id:r.id,ini:r.ini,name:r.name,vehicle:/·/.test(r.veh)?r.veh:'',sub:r.free?'Free · '+r.now.replace(/^Available\s*·?\s*/,''):r.now,ok:r.free,bad:r.blocked})).sort((a,b)=>b.ok-a.ok).slice(0,8)}
+  function tripFrom(card){
+    const row=card.closest('.upop')?null:rowOf(card),info=row&&row.querySelector('.binfo');
+    const route=txt(card,'.bcard__route').replace(/\s*\+\d+ stops?$/,'').replace(/\s*Day \d+ of \d+$/,'');const parts=route.split('→').map(x=>x.trim());
+    const when=txt(card,'.bcard__when'),times=when.match(/\d{2}:\d{2}/g)||[];
+    const idm=(card.getAttribute('aria-label')||'').match(/TRP-\d+/);const status=TONE[card.dataset.tone]||'assigned';
+    const eta=txt(card,'.bcard__eta').replace(/^ETA\s*/,'');const delay=+(txt(card,'.bcard__status').match(/\+(\d+)m/)||[])[1]||null;
+    const issue=txt(card,'.bcard__issue');
+    const name=info?txt(info,'.binfo__name'):'';
+    return {id:idm?idm[0]:'TRP',from:parts[0]||route,to:parts[parts.length-1]||'',client:txt(card,'.bcard__client')||'—',date:dateLabel(),s:times[0]||'—',e:times[1]||(when||'—'),status:status==='delayed'&&!delay?'assigned':status,delay,eta,
+      progress:status==='transit'||status==='delayed'?.5:null,remaining:eta?'ETA '+eta:'',
+      stops:[{kind:'Pickup',place:parts[0]||'',addr:'',when:times[0]||'',done:status==='transit'||status==='delayed'||status==='completed'},{kind:'Delivery',place:parts[parts.length-1]||'',addr:'',when:eta?'ETA '+eta:(times[1]||''),bad:status==='delayed'}],
+      driver:info?{id:name,ini:txt(info,'.avatar'),name,sub:[txt(card,'.bcard__vehicle'),info.querySelector('.binfo__now')?.textContent.trim()].filter(Boolean).join(' · '),dot:status==='delayed'?'#E5484D':'#8A847E',phone:''}:null,
+      cargo:'',price:null,payment:'Invoice after delivery',next:issue?{text:issue,bad:true}:null,docs:[],assignBy:'departure'};
+  }
+  const ctx={
+    driverOptions:()=>options(),
+    actions:{
+      openDriver:name=>{const r=rows().find(x=>x.name===name);if(r){r.el.querySelector('.binfo__head').click()}},
+      assign:(t,name)=>toast2(`In the prototype, drag ${t.id} onto ${name}’s row to assign it.`),
+      cancel:t=>toast2(`${t.id} cancelled (demo — the board is not changed)`),
+      endTrip:(t,r)=>({...t,status:'completed',result:r,deliveredAt:'now',deliveredNote:r.file?'Signed note attached · '+r.file:'Closed from the planner'}),
+      invoice:t=>toast2('Invoice draft created for '+t.client),
+      duplicate:t=>openCreate({client:t.client,pickup:t.from,delivery:t.to})
+    }};
+  function toast2(m){const t=document.createElement('div');t.className='fxd-toast';t.setAttribute('role','status');t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2800)}
+  window.toast=window.toast||toast2;
+  function openCreate(preset){
+    const clients=[...new Set([...document.querySelectorAll('.bcard__client')].map(n=>n.textContent.trim()).filter(Boolean))].sort();
+    FxTrip.create({today:new Date().toISOString().slice(0,10),preset,clients,vehicles:[...new Set(rows().map(r=>r.veh).filter(v=>/·/.test(v)))],
+      dateLabel:v=>{const d=new Date(v+'T12:00');return isNaN(d)?v:d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).replace(',','').replace('Sept','Sep')},
+      driverOptions:()=>options(),
+      onCreate:d=>toast2(`Trip ${d.from} → ${d.to} created (demo — add it to the board by dragging)`)});
+  }
+  document.addEventListener('click',e=>{
+    const card=e.target.closest('.bcard');
+    if(card){e.preventDefault();e.stopPropagation();FxTrip.details(tripFrom(card),ctx);return}
+    const b=e.target.closest('button');if(!b)return;
+    const label=b.textContent.trim();
+    if(b.classList.contains('badd')){e.preventDefault();e.stopPropagation();const row=rowOf(b);const name=row?txt(row,'.binfo__name'):'';openCreate({driver:name});return}
+    if(/^New trip( without driver)?$/.test(label)){e.preventDefault();e.stopPropagation();openCreate({});}
+  },true);
 })();
 </script>
 </body>
