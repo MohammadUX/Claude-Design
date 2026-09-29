@@ -757,22 +757,38 @@ const tripActions={
   cancel:tt=>{const i=TRIPS.findIndex(x=>x.id===tt.id);if(i>-1)TRIPS.splice(i,1);rerenderAll();toast(`${tt.id} cancelled`)},
   endTrip:(tt,r)=>{const t=TRIPS.find(x=>x.id===tt.id);const end=Math.max(t.s+.25,Math.min(NOW,t.e+(t.delay||0)/60));t.deliveredH=end;t.deliveredAt=hm(end);t.e=end;t.delay=0;delete t.loadUntil;t.value=r.gross;t.result=r;rerenderAll();toast(`${t.id} closed · net profit ${eur(r.gross-r.fuelCost-r.tolls)}`);return adaptTrip(t)},
   invoice:tt=>{const t=TRIPS.find(x=>x.id===tt.id);t.result=Object.assign(t.result||{},{status:'Invoiced'});toast('Invoice draft created for '+t.client)},
-  duplicate:tt=>openCreateTrip({client:tt.client,pickup:[ADDR[tt.from],tt.from].filter(Boolean).join(', '),delivery:[ADDR[tt.to],tt.to].filter(Boolean).join(', ')})
+  duplicate:tt=>openCreateTrip({client:tt.client,from:tt.from,to:tt.to})
 };
 function openTrip(id){const t=TRIPS.find(x=>x.id===id);if(!t)return;hideTip();FxTrip.details(adaptTrip(t),{actions:tripActions,driverOptions:tr=>driverOptions({id:tr.id})})}
+const TRAILERS=[['XM 757 KT','Box','Prato hub'],['XR 204 LC','Curtain','Prato hub'],['XA 318 PF','Reefer','Prato hub'],['XB 662 DS','Box','Livorno'],['XE 145 TT','Flatbed','Livorno'],['XC 903 MN','Curtain','Florence'],['XF 271 RG','Reefer','Florence']];
+function createDrivers(w){
+  const s=w.sH,e=w.eH;
+  return DRIVERS.map(d=>{
+    const meta=`${d.base} · ${d.plate}`,day=TRIPS.filter(x=>x.d===d.id);
+    if(d.blocked)return {id:d.id,name:d.name,meta,sub:'Can’t drive · licence expired',ok:false,bad:true,disabled:true};
+    if(d.off)return {id:d.id,name:d.name,meta,sub:'Rest day',ok:false,disabled:true};
+    if(s==null){const last=day.reduce((m,x)=>Math.max(m,x.e+(x.delay||0)/60),0);return {id:d.id,name:d.name,meta,sub:day.length?`${meta} · ${day.length} trip${day.length>1?'s':''} today, free after ${hm(last)}`:meta,ok:true}}
+    const clash=day.filter(x=>x.s<e&&s<x.e+(x.delay||0)/60);
+    if(clash.length)return {id:d.id,name:d.name,meta,sub:'Busy '+clash.map(b=>`${hm(b.s)}–${hm(b.e)} (${b.from} → ${b.to})`).join(', '),ok:false};
+    return {id:d.id,name:d.name,meta,sub:meta+' · free at that time',ok:true};
+  }).sort((a,b)=>b.ok-a.ok||(a.disabled?1:0)-(b.disabled?1:0));
+}
 function openCreateTrip(preset){
   hideTip();
-  if(preset&&preset.driver&&!preset.vehicle){const d=drv(preset.driver);if(d)preset.vehicle=`${d.truck} · ${d.plate}`}
   const clients=[...new Set([...TRIPS.map(t=>t.client),...PAYMENTS.map(p=>p.client)])].sort();
   FxTrip.create({today:'2026-09-28',preset,clients,
-    clientHint:c=>{if(!c)return '';const ts=TRIPS.filter(t=>t.client===c);const p=PAYMENTS.find(x=>x.client===c);return ts.length?`${ts.length} trip${ts.length>1?'s':''} today · usually ${ts[0].from} → ${ts[0].to}`:p?`${p.trips} trips in ${p.period}`:''},
-    vehicles:DRIVERS.map(d=>`${d.truck} · ${d.plate}`),
-    dateLabel:v=>{const dt=new Date(v+'T12:00');return isNaN(dt)?v:dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).replace(',','').replace('Sept','Sep')},
-    driverOptions:w=>driverOptions(w),
+    clientHint:c=>{const ts=TRIPS.filter(t=>t.client===c);const p=PAYMENTS.find(x=>x.client===c);return ts.length?`${ts.length} trip${ts.length>1?'s':''} today · usually ${ts[0].from} → ${ts[0].to}`:p?`${p.trips} trips in ${p.period}`:''},
+    drivers:createDrivers,
+    tractors:DRIVERS.map(d=>({id:d.plate,name:d.plate,meta:d.truck,sub:`${d.truck} · usually ${d.name}`})),
+    trailers:TRAILERS.map(([p,t,b])=>({id:p,name:p,meta:`${t} · ${b}`})),
+    tractorOf:id=>(drv(id)||{}).plate,
     onCreate:data=>{
       const n=Math.max(...TRIPS.map(t=>+t.id.slice(4)))+1,id='TRP-'+String(n).padStart(4,'0');
-      if(data.date!=='2026-09-28'){toast(`${id} created for ${new Date(data.date+'T12:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).replace(',','').replace('Sept','Sep')}`);return}
-      TRIPS.push({id,d:data.driver||null,s:data.sH,e:data.eH,from:data.from,to:data.to,client:data.client,cargo:[data.goods,data.pallets&&data.pallets+' pallets'].filter(Boolean).join(', ')||'General cargo',value:data.price});
+      const day=new Date(data.date+'T12:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).replace(',','').replace('Sept','Sep');
+      if(data.draft){toast(`${id} saved as draft · ${data.from} → ${data.to}`);return}
+      if(data.date!=='2026-09-28'){toast(`${id} created for ${day}`);return}
+      if(data.sH==null){toast(`${id} created · no time set yet`);return}
+      TRIPS.push({id,d:data.driver||null,s:data.sH,e:data.eH,from:data.from,to:data.to,client:data.client||'No client yet',cargo:data.notes||'General cargo',value:null});
       rerenderAll();const dd=data.driver&&drv(data.driver);toast(`${id} created${dd?' · assigned to '+dd.name:''}`);
     }});
 }

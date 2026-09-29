@@ -1,9 +1,9 @@
 /* Fleeex trip drawers. Needs driver-drawer.js (shared .fxd drawer styles). Matches the Figma "Trip drawer" set:
-   Create (Route, Schedule, Driver, Price & review, Missing info), Trip details (in transit, delayed, loading,
+   Create · New trip (one form: crew & vehicles, when, route, details; missing route), Trip details (in transit, delayed, loading,
    assigned, needs a driver), End trip, Completed.
    API:
      FxTrip.details(trip, ctx)   trip = see normalise() below
-     FxTrip.create(ctx)          ctx.clients, ctx.driverOptions(depH, arrH), ctx.vehicles, ctx.onCreate(data), ctx.preset
+     FxTrip.create(ctx)          ctx.drivers({sH,eH}), ctx.tractors, ctx.trailers, ctx.tractorOf(id), ctx.clients, ctx.clientHint, ctx.onCreate(data), ctx.preset
      FxTrip.close()                                                                                     */
 (function () {
   const css = `
@@ -41,11 +41,6 @@
 .fxt-doc{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:center;padding:6px 0}
 .fxt-doc .ic{width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,244,234,.12);display:grid;place-items:center;color:#C9C3BD}
 .fxt-doc .n{font-size:13.5px;font-weight:500}.fxt-doc .d{font-size:12px;color:#8A847E}
-.fxt-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.fxt-steps div{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:500;color:#8A847E}
-.fxt-steps div::before{content:"";height:3px;border-radius:2px;background:#272523}
-.fxt-steps .done{color:#F2EFEB}.fxt-steps .done::before{background:#F2EFEB}
-.fxt-steps .cur{color:#F2EFEB;font-weight:600}.fxt-steps .cur::before{background:#FF6A2B}
 .fxt-field{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
 .fxt-field>label{font-size:12.5px;font-weight:500;color:#C9C3BD}
 .fxt-field>label em{font-style:normal;color:#FF6A2B;margin-left:3px}
@@ -142,14 +137,14 @@
   const toH = t => { const [h, m] = (t || '0:0').split(':').map(Number); return h + m / 60; };
   const hm = h => { h = ((h % 24) + 24) % 24; const H = Math.floor(h), M = Math.round((h - H) * 60); return String(H + (M === 60 ? 1 : 0)).padStart(2, '0') + ':' + String(M === 60 ? 0 : M).padStart(2, '0'); };
 
-  let scrim, panel, onKey;
+  let scrim, panel, onKey, onEsc = null;
   function say(msg) { if (typeof window.toast === 'function') return window.toast(msg); const t = document.createElement('div'); t.className = 'fxd-toast'; t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2400); }
   function ensure() {
     if (panel) return;
     scrim = document.createElement('div'); scrim.className = 'fxd-scrim'; scrim.hidden = true;
     panel = document.createElement('aside'); panel.className = 'fxd'; panel.hidden = true; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true');
     document.body.append(scrim, panel); scrim.addEventListener('click', close);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { e.stopPropagation(); close(); } }, true);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { e.stopPropagation(); if (onEsc && onEsc()) return; close(); } }, true);
   }
   function show(label) {
     ensure(); if (window.FxDriver) window.FxDriver.close();
@@ -158,6 +153,7 @@
   }
   function close() {
     if (!panel || panel.hidden) return;
+    onEsc = null;
     scrim.classList.remove('is-open'); panel.classList.remove('is-open');
     const done = () => { scrim.hidden = true; panel.hidden = true; };
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) done(); else setTimeout(done, 240);
@@ -286,92 +282,187 @@
     show('Trip ' + t.id);
   }
 
-  /* ====================== Create trip ====================== */
+  /* ====================== Create trip ======================
+     One scrolling form, same as the Planner's own "New trip" panel:
+     Crew & vehicles, When, Route (stops A…B), Details (client, status, notes). */
+  const css2 = `
+.fxc-head{display:flex;align-items:flex-start;gap:12px;padding:20px 20px 14px;border-bottom:1px solid rgba(255,244,234,.07)}
+.fxc-head>div{flex:1;min-width:0}
+.fxc-eyebrow{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8A847E}
+.fxc-title{display:flex;align-items:center;gap:10px;margin:2px 0 2px;font-size:20px;font-weight:600;letter-spacing:-.01em}
+.fxc-dirty{font-size:11.5px;font-weight:600;color:#E0A23A;background:rgba(224,162,58,.14);padding:2px 8px;border-radius:999px;letter-spacing:0}
+.fxc-sub{font-size:13px;color:#C2BCB6}
+.fxc-x{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,244,234,.12)!important;color:#C2BCB6}
+.fxc-x:hover{background:#1C1B19!important;color:#F2EFEB}
+.fxc-body{flex:1;overflow:auto;padding:16px 20px 24px;display:flex;flex-direction:column;gap:26px;scrollbar-width:thin;scrollbar-color:#3A3633 transparent}
+.fxc-sec{display:flex;flex-direction:column;gap:12px}
+.fxc-sec>h3{margin:0;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#8A847E}
+.fxc-row{display:flex;gap:10px}
+.fxc-f{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;position:relative}
+.fxc-f>label,.fxc-f>.lbl{font-size:13px;font-weight:500;color:#C2BCB6}
+.fxc-f>label span,.fxc-f>.lbl span{font-weight:400;color:#8A847E}
+.fxc-c{display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-radius:10px;background:#1C1B19;border:1px solid #3A3633!important;color:#F2EFEB;font:inherit;font-size:13px;width:100%;min-width:0;text-align:left}
+.fxc-c svg{flex:none;color:#8A847E}
+.fxc-c:focus-within,button.fxc-c:focus-visible,button.fxc-c[aria-expanded=true]{border-color:#FF6A2B!important;box-shadow:0 0 0 3px rgba(255,106,43,.22);outline:none}
+.fxd .fxc-c :focus-visible{outline:none}
+.fxc-c input,.fxc-c textarea{flex:1;min-width:0;height:100%;background:none;border:0;outline:0;color:#F2EFEB;font:inherit;font-size:13px;color-scheme:dark}
+.fxc-c input::placeholder,.fxc-c textarea::placeholder{color:#8A847E}
+.fxc-c input[type=date]::-webkit-calendar-picker-indicator,.fxc-c input[type=time]::-webkit-calendar-picker-indicator{filter:invert(.6);cursor:pointer}
+.fxc-c.tall{height:auto;padding:10px 12px}.fxc-c textarea{height:58px;resize:vertical}
+.fxc-c input[list]::-webkit-calendar-picker-indicator{display:none!important}
+.fxc-c.sub{height:32px;background:transparent;font-size:12px}
+.fxc-c.err{border-color:rgba(229,72,77,.9)!important}
+.fxc-val{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fxc-val b{font-weight:500}.fxc-val small{font-size:12px;color:#8A847E;margin-left:6px}
+.fxc-val.ph{color:#8A847E}
+.fxc-help{margin:0;font-size:12px;color:#8A847E}.fxc-help.err{color:#E5484D}
+.fxc-pop{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:5;background:#1C1B19;border:1px solid #3A3633;border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.5);overflow:hidden}
+.fxc-pop .fxc-c{border:0!important;border-bottom:1px solid #2D2A27!important;border-radius:0;box-shadow:none;background:transparent}
+.fxc-list{max-height:300px;overflow:auto;padding:6px;scrollbar-width:thin;scrollbar-color:#3A3633 transparent}
+.fxc-gh{display:flex;gap:6px;padding:8px 8px 4px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#8A847E}
+.fxc-gh span{font-weight:500;letter-spacing:0}
+.fxc-opt{display:flex;flex-direction:column;gap:1px;width:100%;padding:8px 10px;border-radius:8px;text-align:left;font-size:13px;color:#F2EFEB}
+.fxc-opt small{font-size:12px;color:#8A847E}.fxc-opt small.bad{color:#E5484D}
+.fxc-opt:hover,.fxc-opt.hi{background:#272523!important}
+.fxc-opt[aria-selected=true]{box-shadow:inset 2px 0 0 #FF6A2B}
+.fxc-opt.off{color:#A29D97}
+.fxc-opt:disabled{opacity:.55;cursor:not-allowed;background:none!important}
+.fxc-empty{padding:12px 10px;font-size:12.5px;color:#8A847E}
+.fxc-stops{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.fxc-stop{display:grid;grid-template-columns:14px 26px minmax(0,1fr) auto;gap:10px;align-items:start}
+.fxc-grip{color:#57524D;padding-top:12px;cursor:grab}
+.fxc-mk{width:26px;height:26px;margin-top:7px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:600;background:rgba(162,157,151,.16);color:#A29D97}
+.fxc-mk.dest{background:rgba(255,106,43,.12);color:#FF6A2B}
+.fxc-sf{display:flex;flex-direction:column;gap:6px}
+.fxc-sa{display:flex;gap:2px;padding-top:8px}
+.fxc-ib{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;color:#C2BCB6}
+.fxc-ib:hover:not(:disabled){background:#272523!important}
+.fxc-ib:disabled{opacity:.3;cursor:default}
+.fxc-add{display:flex;align-items:center;justify-content:center;gap:6px;height:32px;border-radius:999px;border:1px solid #2D2A27!important;font-size:13px;font-weight:500;color:#C2BCB6}
+.fxc-add:hover{background:#1C1B19!important;color:#F2EFEB}
+.fxc-status{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.fxc-st{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:10px;border:1px solid #3A3633!important;font-size:13px;color:#C2BCB6}
+.fxc-st svg{color:var(--s)}
+.fxc-st:hover{background:#1C1B19!important}
+.fxc-st[aria-checked=true]{border-color:var(--s)!important;background:var(--sb)!important;color:#F2EFEB;font-weight:600}
+.fxc-foot{display:flex;gap:8px;align-items:center;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,244,234,.07)}
+.fxc-foot .sp{flex:1}
+.fxc-b{height:38px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:500;border:1px solid #3A3633!important;white-space:nowrap}
+.fxc-b:hover{background:#1C1B19!important}
+.fxc-b.sec{background:#272523!important}.fxc-b.sec:hover{background:#2D2A27!important}
+.fxc-b.pri{background:#FF6A2B!important;border-color:#FF6A2B!important;color:#fff;font-weight:600}.fxc-b.pri:hover{background:#FF7A40!important}
+`;
+  { const s = document.createElement('style'); s.textContent = css2; document.head.appendChild(s); }
+  Object.assign(P, {
+    user: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>', down: '<path d="M6 9l6 6 6-6"/>',
+    box: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
+    grip: '<circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/>',
+    up: '<path d="M12 19V5M6 11l6-6 6 6"/>', dn: '<path d="M12 5v14M6 13l6 6 6-6"/>', bld: '<path d="M4 21V5l8-3v19M12 9h8v12M8 8h0M8 12h0M8 16h0M16 13h0M16 17h0"/>',
+    draft: '<circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/>', ban: '<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>', okc: '<circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>'
+  });
+  const STATUSES = [['draft', 'Draft', '#A29D97', 'draft'], ['assigned', 'Assigned', '#A29D97', 'cal'], ['transit', 'In transit', '#4CAF6A', 'send'], ['delayed', 'Delayed', '#E5484D', 'clock'], ['completed', 'Completed', '#8A847E', 'okc'], ['cancelled', 'Cancelled', '#8A847E', 'ban']];
+  const CITIES = ['Prato', 'Firenze', 'Pisa', 'Livorno', 'Lucca', 'Empoli', 'Arezzo', 'Siena', 'La Spezia', 'Genova', 'Milano', 'Bologna', 'Verona', 'Parma', 'Piacenza', 'Modena', 'Brescia', 'Torino', 'Roma', 'Napoli', 'Perugia', 'Padova', 'Venezia', 'Trento', 'Bolzano', 'Rimini', 'Ancona'];
+  const longDate = v => { const d = new Date(v + 'T12:00'); return isNaN(d) ? v : d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(',', ''); };
+
   function create(ctx = {}) {
     ensure();
     const today = ctx.today || new Date().toISOString().slice(0, 10);
-    const d = Object.assign({ client: '', pickup: '', delivery: '', date: today, time: '', arrDate: today, arrTime: '', goods: '', pallets: '', weight: '', driver: '', vehicle: '', price: '', fuel: '', tolls: '', notes: '' }, ctx.preset || {});
-    let step = 0, errors = {};
-    const steps = ['Route', 'Schedule', 'Driver', 'Price'];
-    const subs = ['Who is it for and where does it go?', 'When should it leave and arrive?', 'Who drives it? Free drivers are listed first.', 'Check the details and set the price.'];
-    const field = (id, label, inner, o = {}) => `<div class="fxt-field ${errors[id] ? 'is-error' : ''}"><label for="fxt-${id}">${label}${o.req ? '<em>*</em>' : ''}</label><div class="fxt-in ${o.tall ? 'tall' : ''}">${o.icon ? ic(o.icon, 16) : ''}${inner}</div>${errors[id] ? `<span class="fxt-err">${ic('alert', 13)}${esc(errors[id])}</span>` : o.hint ? `<span class="fxt-hint">${esc(o.hint)}</span>` : ''}</div>`;
-    const input = (id, v, o = {}) => `<input id="fxt-${id}" name="${id}" value="${esc(v)}" ${o.type ? `type="${o.type}"` : ''} ${o.ph ? `placeholder="${esc(o.ph)}"` : ''} ${o.num ? 'inputmode="decimal"' : ''} autocomplete="off">`;
-    const est = () => estimate(d.pickup, d.delivery);
-    const window_ = () => { const dep = toH(d.time || '08:00'), e = est(); const arr = d.arrTime ? toH(d.arrTime) : dep + (e ? e.hrs : 3) + 1 / 3; return [dep, arr]; };
-    function validate() {
-      errors = {};
-      if (step === 0) { if (!d.client) errors.client = 'Choose a client to continue'; if (!d.pickup.trim()) errors.pickup = 'Add the pickup address'; if (!d.delivery.trim()) errors.delivery = 'Add the delivery address'; }
-      if (step === 1) { if (!d.date) errors.date = 'Pick a date'; if (!d.time) errors.time = 'Pick a departure time'; }
-      if (step === 2) { if (!d.driver) errors.driver = 'Choose a driver'; if (!d.vehicle) errors.vehicle = 'Choose a truck'; }
-      if (step === 3) { if (!(parseFloat(d.price) > 0)) errors.price = 'Enter the trip price'; }
-      return !Object.keys(errors).length;
+    const pre = ctx.preset || {};
+    const d = { driver: pre.driver || '', tractor: pre.tractor || '', trailer: pre.trailer || '', date: pre.date || today, time: pre.time || '', endDate: '', endTime: '', client: pre.client || '', status: pre.driver ? 'assigned' : 'draft', notes: '', stops: [{ city: pre.from || '', addr: '' }, { city: pre.to || '', addr: '' }] };
+    if (d.driver && !d.tractor && ctx.tractorOf) d.tractor = ctx.tractorOf(d.driver) || '';
+    let dirty = false, open = null, q = '', tried = false;
+    const win = () => { const s = d.time ? toH(d.time) : null; let e = d.endTime ? toH(d.endTime) : null; if (s != null && e == null) { const est = estimate(d.stops[0].city, d.stops[d.stops.length - 1].city); e = s + (est ? est.hrs + 1 / 3 : 3); } return { sH: s, eH: e }; };
+    const drivers = () => (ctx.drivers ? ctx.drivers(win()) : []);
+    const lists = {
+      driver: () => { const all = drivers(); return [['Available', all.filter(o => o.ok)], ['Busy at that time', all.filter(o => !o.ok && !o.disabled)], ['Can’t drive', all.filter(o => o.disabled)]]; },
+      tractor: () => [['Tractors', ctx.tractors || []]],
+      trailer: () => [['Semi-trailers', ctx.trailers || []]],
+      client: () => [['Clients', (ctx.clients || []).map(c => ({ id: c, name: c, sub: ctx.clientHint ? ctx.clientHint(c) : '' }))]]
+    };
+    const find = (k, id) => { for (const [, l] of lists[k]()) { const o = l.find(x => x.id === id); if (o) return o; } return null; };
+    const SEL = {
+      driver: { label: 'Driver', icon: 'user', ph: 'Unassigned — pick a driver', search: 'Search…' },
+      tractor: { label: 'Tractor', icon: 'truck', ph: 'Tractor to assign', search: 'Search plate or model…' },
+      trailer: { label: 'Semi-trailer', icon: 'box', ph: 'Trailer to assign', search: 'Search plate…' },
+      client: { label: 'Client', icon: 'bld', ph: 'Select client', search: 'Search client…' }
+    };
+    function select(k) {
+      const s = SEL[k], o = d[k] ? find(k, d[k]) : null;
+      const val = o ? `<span class="fxc-val"><b>${esc(o.name)}</b>${o.meta ? `<small>${esc(o.meta)}</small>` : ''}</span>` : `<span class="fxc-val ph">${esc(s.ph)}</span>`;
+      let pop = '';
+      if (open === k) {
+        const qq = q.toLowerCase();
+        const groups = lists[k]().map(([g, l]) => [g, l.filter(x => !qq || (x.name + ' ' + (x.meta || '') + ' ' + (x.sub || '')).toLowerCase().includes(qq))]).filter(([, l]) => l.length);
+        pop = `<div class="fxc-pop" role="presentation"><label class="fxc-c">${ic('search', 15)}<input data-q placeholder="${esc(s.search)}" value="${esc(q)}" aria-label="${esc(s.search)}"></label><div class="fxc-list" role="listbox" aria-label="${esc(s.label)}">${
+          (d[k] ? `<button type="button" class="fxc-opt" role="option" data-pick="" aria-selected="false"><span>${k === 'driver' ? 'Leave unassigned' : 'Clear'}</span></button>` : '') +
+          (groups.length ? groups.map(([g, l]) => `${groups.length > 1 || k === 'driver' ? `<div class="fxc-gh">${esc(g)}<span>${l.length}</span></div>` : ''}${l.map(x => `<button type="button" class="fxc-opt ${x.ok === false ? 'off' : ''}" role="option" data-pick="${esc(x.id)}" aria-selected="${x.id === d[k]}" ${x.disabled ? 'disabled aria-disabled="true"' : ''}><span>${esc(x.name)}</span>${x.sub || x.meta ? `<small class="${x.bad ? 'bad' : ''}">${esc(x.sub || x.meta)}</small>` : ''}</button>`).join('')}`).join('') : '<div class="fxc-empty">Nothing matches</div>')}</div></div>`;
+      }
+      return `<div class="fxc-f"><label for="fxc-${k}">${esc(s.label)}</label><button type="button" id="fxc-${k}" class="fxc-c" data-sel="${k}" aria-haspopup="listbox" aria-expanded="${open === k}">${ic(s.icon, 15)}${val}${ic('down', 15)}</button>${pop}</div>`;
     }
-    function body() {
-      const e = est();
-      if (step === 0) {
-        const hist = ctx.clientHint ? ctx.clientHint(d.client) : '';
-        return sec('Client', field('client', 'Client', `<select id="fxt-client"><option value="">Select a client…</option>${(ctx.clients || []).map(c => `<option ${c === d.client ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>`, { req: 1, icon: 'search', hint: hist }))
-          + sec('Route', `<div class="fxt-sec">${field('pickup', 'Pickup', input('pickup', d.pickup, { ph: 'Street, number, city' }), { req: 1, icon: 'pin' })}${field('delivery', 'Delivery', input('delivery', d.delivery, { ph: 'Street, number, city' }), { req: 1, icon: 'pin' })}</div><button class="fxt-add" type="button" data-stop>${ic('plus', 15)}Add a stop</button>`)
-          + (e ? `<div class="fxt-sum num"><div><span>Distance</span><b>${e.km} km</b></div><div><span>Drive time</span><b>${dur(e.hrs)}</b></div><div><span>Tolls (est.)</span><b>${eur(e.tolls)}</b></div></div>` : '');
-      }
-      if (step === 1) {
-        const [dep] = window_(), sug = e ? hm(dep + e.hrs + 1 / 3) : '';
-        return `<div class="fxt-card" style="flex-direction:row;align-items:center;gap:10px"><div style="flex:1"><div class="r" style="font-size:14.5px">${esc((e ? e.from : d.pickup) + ' → ' + (e ? e.to : d.delivery))}</div><div class="s">${esc(d.client)}${e ? ` · ${e.km} km · ${dur(e.hrs)} drive` : ''}</div></div><button class="fxt-add" type="button" data-goto="0">Edit</button></div>`
-          + sec('Departure', `<div class="fxt-row">${field('date', 'Date', input('date', d.date, { type: 'date' }), { req: 1 })}${field('time', 'Time', input('time', d.time, { type: 'time' }), { req: 1 })}</div>`)
-          + sec('Arrival', `<div class="fxt-row">${field('arrDate', 'Date', input('arrDate', d.arrDate, { type: 'date' }))}${field('arrTime', 'Time', input('arrTime', d.arrTime || sug, { type: 'time' }), { hint: sug ? `Suggested from the route: ${hm(dep + e.hrs)} + 20 min buffer` : '' })}</div>`)
-          + sec('Cargo', `<div class="fxt-row">${field('goods', 'Goods', input('goods', d.goods, { ph: 'e.g. Tiles' }))}${field('pallets', 'Pallets', input('pallets', d.pallets, { num: 1 }))}${field('weight', 'Weight', input('weight', d.weight, { num: 1 }) + 'kg')}</div>`);
-      }
-      if (step === 2) {
-        const [dep, arr] = window_();
-        const opts = ctx.driverOptions ? ctx.driverOptions({ sH: dep, eH: arr }) : [];
-        const chosen = opts.find(o => o.id === d.driver);
-        return sec('Driver', options(opts, d.driver) + (errors.driver ? `<span class="fxt-err">${ic('alert', 13)}${esc(errors.driver)}</span>` : ''), `${ctx.dateLabel ? ctx.dateLabel(d.date) : d.date} · ${hm(dep)}–${hm(arr)}`)
-          + sec('Vehicle', field('vehicle', 'Truck', `<select id="fxt-vehicle"><option value="">Select a truck…</option>${(ctx.vehicles || []).map(v => `<option ${v === d.vehicle ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select>`, { req: 1, icon: 'truck', hint: chosen && chosen.vehicle === d.vehicle ? `${chosen.name.split(' ')[0]}’s usual truck. Free for this trip.` : '' }));
-      }
-      const e2 = est(), price = parseFloat(d.price) || 0, fuel = d.fuel !== '' ? parseFloat(d.fuel) || 0 : (e2 ? Math.round(e2.km / 2.1 * 1.689) : 0), tolls = d.tolls !== '' ? parseFloat(d.tolls) || 0 : (e2 ? e2.tolls : 0);
-      const dr = (ctx.driverOptions ? ctx.driverOptions({ sH: window_()[0], eH: window_()[1] }) : []).find(o => o.id === d.driver);
-      const [dep, arr] = window_(), profit = price - fuel - tolls;
-      return `<dl class="fxt-review">${[['Client', d.client], ['Route', `${e2 ? e2.from + ' → ' + e2.to + ' · ' + e2.km + ' km' : d.pickup + ' → ' + d.delivery}`], ['When', `${ctx.dateLabel ? ctx.dateLabel(d.date) : d.date} · ${hm(dep)} → ${hm(arr)}`], ['Driver', `${dr ? dr.name : '—'} · ${d.vehicle}`], ['Cargo', [d.goods, d.pallets && d.pallets + ' pallets', d.weight && Number(d.weight).toLocaleString('en-US') + ' kg'].filter(Boolean).join(' · ') || '—']].map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`
-        + sec('Financials', `<div class="fxt-row">${field('price', 'Trip price', '€' + input('price', d.price, { num: 1, ph: '0.00' }), { req: 1 })}${field('distance', 'Distance', `<input id="fxt-distance" value="${e2 ? e2.km : ''}" readonly>km`)}</div><div class="fxt-row">${field('fuel', 'Fuel cost (est.)', '€' + input('fuel', d.fuel !== '' ? d.fuel : fuel, { num: 1 }))}${field('tolls', 'Tolls', '€' + input('tolls', d.tolls !== '' ? d.tolls : tolls, { num: 1 }))}</div>
-          <div class="fxt-profit"><div><span>Estimated profit</span><small>${e2 && price ? eur(profit / e2.km, 2) + ' per km' : 'Enter a price'}</small></div><b class="num" data-profit>${price ? eur(profit) : '—'}</b></div>`)
-        + field('notes', 'Internal notes', `<textarea id="fxt-notes" placeholder="Any additional info about this trip…">${esc(d.notes)}</textarea>`, { tall: 1 });
+    const L = i => String.fromCharCode(65 + i);
+    function render(focus) {
+      const n = d.stops.length, routeErr = tried && (!d.stops[0].city.trim() || !d.stops[n - 1].city.trim());
+      const w = win(); let help = 'No times: the trip sits in the “No time set” lane.';
+      if (d.time) { const e = d.endTime || hm(w.eH); help = d.endTime ? `Leaves ${d.time}, arrives ${d.endTime}.` : `Arrival not set: estimated around ${e} from the route.`; }
+      panel.innerHTML = `<header class="fxc-head"><div><div class="fxc-eyebrow">Create</div><h2 class="fxc-title">New trip${dirty ? '<span class="fxc-dirty">Unsaved changes</span>' : ''}</h2><div class="fxc-sub">${esc(longDate(d.date))}</div></div><button type="button" class="fxc-x" data-close data-tip="Close (Esc)" aria-label="Close panel">${ic('x', 16)}</button></header>
+      <div class="fxc-body">
+        <section class="fxc-sec"><h3>Crew &amp; vehicles</h3>${select('driver')}<div class="fxc-row">${select('tractor')}${select('trailer')}</div></section>
+        <section class="fxc-sec"><h3>When</h3>
+          <div class="fxc-row"><div class="fxc-f"><label for="fxc-date">Leaves on</label><label class="fxc-c">${ic('cal', 15)}<input id="fxc-date" type="date" data-k="date" value="${esc(d.date)}" required></label></div><div class="fxc-f"><label for="fxc-time">at <span>optional</span></label><label class="fxc-c"><input id="fxc-time" type="time" step="900" data-k="time" value="${esc(d.time)}"></label></div></div>
+          <div class="fxc-row"><div class="fxc-f"><label for="fxc-edate">Arrives on <span>same day if empty</span></label><label class="fxc-c">${ic('cal', 15)}<input id="fxc-edate" type="date" data-k="endDate" min="${esc(d.date)}" value="${esc(d.endDate)}"></label></div><div class="fxc-f"><label for="fxc-etime">at <span>optional</span></label><label class="fxc-c"><input id="fxc-etime" type="time" step="900" data-k="endTime" value="${esc(d.endTime)}"></label></div></div>
+          <p class="fxc-help" data-help>${esc(help)}</p></section>
+        <section class="fxc-sec"><h3>Route</h3><ol class="fxc-stops">${d.stops.map((s, i) => { const kind = i === 0 ? 'Origin' : i === n - 1 ? 'Destination' : 'Stop ' + L(i); const bad = tried && (i === 0 || i === n - 1) && !s.city.trim();
+          return `<li class="fxc-stop"><span class="fxc-grip" aria-hidden="true">${ic('grip', 14)}</span><span class="fxc-mk ${i === n - 1 ? 'dest' : ''}">${L(i)}</span><div class="fxc-sf"><label class="fxc-c ${bad ? 'err' : ''}"><input data-city="${i}" list="fxc-cities" placeholder="${i === 0 ? 'Origin city' : i === n - 1 ? 'Destination city' : 'Stop city'}" aria-label="${kind} city" value="${esc(s.city)}"></label><label class="fxc-c sub"><input data-addr="${i}" placeholder="Address (optional)" aria-label="${kind} address" value="${esc(s.addr)}"></label></div><div class="fxc-sa"><button type="button" class="fxc-ib" data-mv="${i},-1" ${i === 0 ? 'disabled' : ''} aria-label="Move ${kind} up">${ic('up', 14)}</button><button type="button" class="fxc-ib" data-mv="${i},1" ${i === n - 1 ? 'disabled' : ''} aria-label="Move ${kind} down">${ic('dn', 14)}</button><button type="button" class="fxc-ib" data-rm="${i}" ${n <= 2 ? 'disabled' : ''} aria-label="Remove ${kind}">${ic('x', 14)}</button></div></li>`; }).join('')}</ol>
+          ${routeErr ? '<p class="fxc-help err" role="alert">Add at least an origin and a destination</p>' : ''}
+          <button type="button" class="fxc-add" data-addstop>${ic('plus', 14)}Add stop</button>
+          <datalist id="fxc-cities">${CITIES.map(c => `<option value="${c}">`).join('')}</datalist></section>
+        <section class="fxc-sec"><h3>Details</h3>${select('client')}
+          <div class="fxc-f"><span class="lbl" id="fxc-stl">Status</span><div class="fxc-status" role="radiogroup" aria-labelledby="fxc-stl">${STATUSES.map(([k, l, c, i]) => `<button type="button" class="fxc-st" role="radio" data-st="${k}" aria-checked="${d.status === k}" style="--s:${c};--sb:${c}1F">${ic(i, 14)}${l}</button>`).join('')}</div></div>
+          <div class="fxc-f"><label for="fxc-notes">Notes</label><label class="fxc-c tall"><textarea id="fxc-notes" data-k="notes" rows="3" placeholder="Loading instructions, references, contacts…">${esc(d.notes)}</textarea></label></div></section>
+      </div>
+      <footer class="fxc-foot"><span class="sp"></span><button type="button" class="fxc-b" data-close>Cancel</button><button type="button" class="fxc-b sec" data-save="draft">Save as draft</button><button type="button" class="fxc-b pri" data-save="create">Create trip</button></footer>`;
+      wire();
+      const f = focus && panel.querySelector(focus);
+      if (f) { f.focus(); if (f.setSelectionRange && f.type === 'text') { const l = f.value.length; f.setSelectionRange(l, l); } }
     }
-    function render(focusId) {
-      const errCount = Object.keys(errors).length;
-      const stepper = `<div class="fxt-steps">${steps.map((s, i) => `<div class="${i < step ? 'done' : i === step ? 'cur' : ''}">${i < step ? '✓ ' : ''}${i + 1}. ${s}</div>`).join('')}</div>`;
-      const banner = errCount ? `<div class="fxt-banner" role="alert">${ic('alert', 16)}${errCount} field${errCount > 1 ? 's need' : ' needs'} attention before you continue.</div>` : '';
-      const next = step < 3 ? `<button class="fxd-primary" type="button" data-next>${ic('right', 16)}Next: ${steps[step + 1]}</button>` : `<button class="fxd-primary" type="button" data-create>${ic('check', 16)}Create trip</button>`;
-      const back = step === 0 ? `<button class="fxt-btn" type="button" data-close>Cancel</button>` : step === 3 ? `<button class="fxt-btn" type="button" data-draft>Save as draft</button>` : `<button class="fxt-btn" type="button" data-prev>${ic('left', 16)}Back</button>`;
-      panel.innerHTML = top('New trip', false) + head('Create trip', `Step ${step + 1} of 4 · ${subs[step]}`) + `<div class="fxt-body">${stepper}${banner}${body()}</div><div class="fxt-foot">${step === 3 ? back + '<span class="sp"></span>' : '<span class="sp"></span>' + back}${next}</div>`;
-      wire(() => {
-        const q = s => panel.querySelector(s);
-        panel.querySelectorAll('input,select,textarea').forEach(el => {
-          const key = el.id.replace('fxt-', '');
-          el.addEventListener('input', () => {
-            if (key in d) d[key] = el.value;
-            if (key === 'client' || key === 'pickup' || key === 'delivery') { const had = !!q('.fxt-sum'), now = !!est(); if (key === 'client' || had !== now || now) { if (errors[key]) delete errors[key]; render('#' + el.id); } }
-            else if (step === 3 && ['price', 'fuel', 'tolls'].includes(key)) { const e2 = est(), price = parseFloat(d.price) || 0, fuel = parseFloat(q('#fxt-fuel').value) || 0, tolls = parseFloat(q('#fxt-tolls').value) || 0; q('[data-profit]').textContent = price ? eur(price - fuel - tolls) : '—'; q('.fxt-profit small').textContent = e2 && price ? eur((price - fuel - tolls) / e2.km, 2) + ' per km' : 'Enter a price'; }
-            else if (key === 'vehicle' && step === 2) render('#fxt-vehicle');
-          });
-        });
-        panel.querySelectorAll('[data-opt]').forEach(b => b.onclick = () => { d.driver = b.dataset.opt; const o = (ctx.driverOptions ? ctx.driverOptions({ sH: window_()[0], eH: window_()[1] }) : []).find(x => x.id === d.driver); if (o && o.vehicle) d.vehicle = o.vehicle; delete errors.driver; delete errors.vehicle; render(); panel.querySelector(`[data-opt="${d.driver}"]`).focus(); });
-        if (q('[data-stop]')) q('[data-stop]').onclick = () => say('Extra stops are not in this prototype yet');
-        panel.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { step = +b.dataset.goto; errors = {}; render(); });
-        if (q('[data-prev]')) q('[data-prev]').onclick = () => { step--; errors = {}; render(); };
-        if (q('[data-next]')) q('[data-next]').onclick = () => { if (step === 1 && !d.arrTime) { const e = est(); if (e && d.time) d.arrTime = hm(toH(d.time) + e.hrs + 1 / 3); } if (!validate()) { render(); const f = panel.querySelector('.is-error input,.is-error select'); f && f.focus(); return; } step++; errors = {}; render(); };
-        if (q('[data-draft]')) q('[data-draft]').onclick = () => { say('Draft saved'); close(); };
-        if (q('[data-create]')) q('[data-create]').onclick = () => {
-          d.fuel = q('#fxt-fuel').value; d.tolls = q('#fxt-tolls').value;
-          if (!validate()) { render(); return; }
-          const e = est(), [dep, arr] = window_();
-          ctx.onCreate && ctx.onCreate({ ...d, sH: dep, eH: arr, km: e ? e.km : null, from: e ? e.from : d.pickup, to: e ? e.to : d.delivery, price: parseFloat(d.price) || 0, fuel: parseFloat(d.fuel) || 0, tolls: parseFloat(d.tolls) || 0 });
-          close();
-        };
-        const f = focusId ? q(focusId) : panel.querySelector('.fxt-body input,.fxt-body select');
-        if (f) { f.focus(); if (f.setSelectionRange && f.type === 'text') { const n = f.value.length; f.setSelectionRange(n, n); } }
+    const touch = () => { if (!dirty) { dirty = true; const t = panel.querySelector('.fxc-title'); if (t && !t.querySelector('.fxc-dirty')) t.insertAdjacentHTML('beforeend', '<span class="fxc-dirty">Unsaved changes</span>'); } };
+    function wire() {
+      const body = panel.querySelector('.fxc-body'), top0 = body.scrollTop;
+      panel.querySelectorAll('[data-close]').forEach(b => b.onclick = close);
+      panel.querySelectorAll('[data-sel]').forEach(b => b.onclick = e => { e.stopPropagation(); const k = b.dataset.sel; open = open === k ? null : k; q = ''; render(open ? '[data-q]' : '#fxc-' + k); panel.querySelector('.fxc-body').scrollTop = top0; });
+      const qi = panel.querySelector('[data-q]');
+      if (qi) {
+        qi.oninput = () => { q = qi.value; const k = open; render('[data-q]'); panel.querySelector('.fxc-body').scrollTop = top0; };
+        qi.onkeydown = e => { if (e.key === 'Escape') { e.stopPropagation(); const k = open; open = null; render('#fxc-' + k); } if (e.key === 'Enter') { const first = panel.querySelector('.fxc-opt[data-pick]:not([data-pick=""])'); if (first) first.click(); } };
+      }
+      panel.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => {
+        const k = open, v = b.dataset.pick; d[k] = v; touch();
+        if (k === 'driver') { if (v && ctx.tractorOf && !d.tractor) d.tractor = ctx.tractorOf(v) || ''; if (v && d.status === 'draft') d.status = 'assigned'; if (!v && d.status === 'assigned') d.status = 'draft'; }
+        open = null; render('#fxc-' + k); panel.querySelector('.fxc-body').scrollTop = top0;
       });
+      panel.querySelectorAll('[data-k]').forEach(i => i.oninput = () => {
+        d[i.dataset.k] = i.value; touch();
+        if (i.dataset.k === 'date') { panel.querySelector('.fxc-sub').textContent = longDate(d.date); panel.querySelector('#fxc-edate').min = d.date; }
+        if (['time', 'endTime'].includes(i.dataset.k)) { const w = win(); panel.querySelector('[data-help]').textContent = !d.time ? 'No times: the trip sits in the “No time set” lane.' : d.endTime ? `Leaves ${d.time}, arrives ${d.endTime}.` : `Arrival not set: estimated around ${hm(w.eH)} from the route.`; }
+      });
+      panel.querySelectorAll('[data-city]').forEach(i => i.oninput = () => { d.stops[+i.dataset.city].city = i.value; touch(); if (tried && i.value.trim()) i.parentElement.classList.remove('err'); });
+      panel.querySelectorAll('[data-addr]').forEach(i => i.oninput = () => { d.stops[+i.dataset.addr].addr = i.value; touch(); });
+      panel.querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const [i, dir] = b.dataset.mv.split(',').map(Number); const s = d.stops; [s[i], s[i + dir]] = [s[i + dir], s[i]]; touch(); render(); panel.querySelector('.fxc-body').scrollTop = top0; });
+      panel.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { d.stops.splice(+b.dataset.rm, 1); touch(); render(); panel.querySelector('.fxc-body').scrollTop = top0; });
+      panel.querySelector('[data-addstop]').onclick = () => { d.stops.splice(d.stops.length - 1, 0, { city: '', addr: '' }); touch(); render(`[data-city="${d.stops.length - 2}"]`); panel.querySelector('.fxc-body').scrollTop = top0; };
+      panel.querySelectorAll('[data-st]').forEach(b => b.onclick = () => { d.status = b.dataset.st; touch(); panel.querySelectorAll('[data-st]').forEach(x => x.setAttribute('aria-checked', x === b)); });
+      panel.querySelectorAll('[data-save]').forEach(b => b.onclick = () => {
+        const n = d.stops.length;
+        if (!d.stops[0].city.trim() || !d.stops[n - 1].city.trim()) { tried = true; open = null; render('[data-city="' + (d.stops[0].city.trim() ? n - 1 : 0) + '"]'); const r = panel.querySelector('.fxc-stops'); if (r) r.scrollIntoView({ block: 'center' }); return; }
+        const w = win(), draft = b.dataset.save === 'draft';
+        const data = Object.assign({}, d, { status: draft ? 'draft' : d.status, draft, from: d.stops[0].city.trim(), to: d.stops[n - 1].city.trim(), sH: w.sH, eH: w.eH });
+        close(); if (ctx.onCreate) ctx.onCreate(data); else say(draft ? 'Draft saved' : 'Trip created');
+      });
+      panel.onclick = e => { if (open && !e.target.closest('.fxc-pop,[data-sel]')) { const k = open; open = null; render(); panel.querySelector('.fxc-body').scrollTop = top0; } };
     }
-    render(); show('Create trip');
+    onEsc = () => { if (open) { const k = open; open = null; render('#fxc-' + k); return true; } return false; };
+    render(); show('New trip');
+    setTimeout(() => { const f = panel.querySelector(d.stops[0].city ? '[data-city="1"]' : '#fxc-driver'); if (f && !d.stops[0].city && !d.driver) panel.querySelector('#fxc-driver').focus(); else if (f) f.focus(); }, 30);
   }
 
   window.FxTrip = { details, create, endTrip, close, estimate };

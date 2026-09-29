@@ -145,24 +145,22 @@ document.addEventListener('click',function(e){
       cancel:t=>toast2(`${t.id} cancelled (demo — the board is not changed)`),
       endTrip:(t,r)=>({...t,status:'completed',result:r,deliveredAt:'now',deliveredNote:r.file?'Signed note attached · '+r.file:'Closed from the planner'}),
       invoice:t=>toast2('Invoice draft created for '+t.client),
-      duplicate:t=>openCreate({client:t.client,pickup:t.from,delivery:t.to})
+      duplicate:t=>openCreate({client:t.client,from:t.from,to:t.to})
     }};
   function toast2(m){const t=document.createElement('div');t.className='fxd-toast';t.setAttribute('role','status');t.style.cssText='display:flex;align-items:center;gap:8px';t.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';t.append(m);document.body.appendChild(t);setTimeout(()=>t.remove(),2800)}
   window.toast=window.toast||toast2;
   function openCreate(preset){
     const clients=[...new Set([...document.querySelectorAll('.bcard__client')].map(n=>n.textContent.trim()).filter(Boolean))].sort();
-    FxTrip.create({today:new Date().toISOString().slice(0,10),preset,clients,vehicles:[...new Set(rows().map(r=>r.veh).filter(v=>/·/.test(v)))],
-      dateLabel:v=>{const d=new Date(v+'T12:00');return isNaN(d)?v:d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).replace(',','').replace('Sept','Sep')},
-      driverOptions:()=>options(),
-      onCreate:d=>toast2(`Trip ${d.from} → ${d.to} created (demo — add it to the board by dragging)`)});
+    const veh=[...new Set(rows().map(r=>r.veh).filter(v=>/·/.test(v)))];
+    FxTrip.create({today:new Date().toISOString().slice(0,10),preset,clients,
+      drivers:()=>options().map(o=>({id:o.name,name:o.name,meta:o.vehicle||'',sub:o.sub,ok:o.ok,bad:o.bad})),
+      tractors:veh.map(v=>{const p=v.split('·').pop().trim();return {id:p,name:p,meta:v.split('·')[0].trim()}}),
+      trailers:[],
+      onCreate:d=>toast2(`Trip ${d.from} → ${d.to} ${d.draft?'saved as draft':'created'} (demo — use “New trip” on the board to add it)`)});
   }
   document.addEventListener('click',e=>{
     const card=e.target.closest('.bcard');
     if(card){e.preventDefault();e.stopPropagation();FxTrip.details(tripFrom(card),ctx);return}
-    const b=e.target.closest('button');if(!b)return;
-    const label=b.textContent.trim();
-    if(b.classList.contains('badd')){e.preventDefault();e.stopPropagation();const row=rowOf(b);const name=row?txt(row,'.binfo__name'):'';openCreate({driver:name});return}
-    if(/^New trip( without driver)?$/.test(label)){e.preventDefault();e.stopPropagation();openCreate({});}
   },true);
 })();
 </script>
